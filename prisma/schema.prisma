@@ -1,0 +1,698 @@
+// Cơ sở dữ liệu CMS xưởng cơ khí Hiệp Dung (PostgreSQL)
+// Tiền lưu Decimal(15,0) – đơn vị đồng; số lượng Decimal(14,3) – cho phép số lẻ (2,5 kg).
+// Thành tiền / tổng tiền KHÔNG lưu mà tính lại khi cần, để không bao giờ lệch.
+
+// Prisma 7: chuỗi kết nối nằm ở prisma.config.ts (cho migrate) và server/prisma.ts (adapter pg)
+generator client {
+  provider = "prisma-client"
+  output   = "../server/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TrangThaiBaoGia {
+  nhap
+  daGui
+  daChot
+  huy
+}
+
+enum TrangThaiNghiemThu {
+  nhap
+  daKy
+  huy
+}
+
+enum KieuChietKhau {
+  phanTram
+  soTien
+}
+
+enum DanhGia {
+  dat
+  khongDat
+}
+
+/// hang = hạng mục bình thường; phan = dòng tiêu đề phần (I, II…), các hạng mục bên dưới thuộc phần này
+enum LoaiDong {
+  hang
+  phan
+}
+
+model KhachHang {
+  id          String   @id @default(uuid())
+  tenCongTy   String   @map("ten_cong_ty")
+  diaChi      String   @default("") @map("dia_chi")
+  maSoThue    String   @default("") @map("ma_so_thue")
+  nguoiLienHe String   @default("") @map("nguoi_lien_he")
+  chucVu      String   @default("") @map("chuc_vu")
+  soDienThoai String   @default("") @map("so_dien_thoai")
+  email       String   @default("")
+  ghiChu      String   @default("") @map("ghi_chu")
+  ngayTao     DateTime @default(now()) @map("ngay_tao")
+
+  baoGia      BaoGia[]
+  nghiemThu   NghiemThu[]
+  hoaDon      HoaDon[]
+  phieuThuChi PhieuThuChi[]
+
+  @@index([tenCongTy])
+  @@map("khach_hang")
+}
+
+model HangMuc {
+  id            String  @id @default(uuid())
+  ten           String
+  donViTinh     String  @default("cái") @map("don_vi_tinh")
+  donGiaMacDinh Decimal @default(0) @map("don_gia_mac_dinh") @db.Decimal(15, 0)
+  nhom          String  @default("Khác")
+  moTa          String  @default("") @map("mo_ta")
+
+  @@index([ten])
+  @@map("hang_muc")
+}
+
+model BaoGia {
+  id                 String          @id @default(uuid())
+  soBaoGia           String          @unique @map("so_bao_gia")
+  ngayLap            DateTime        @map("ngay_lap") @db.Date
+  khachHangId        String?         @map("khach_hang_id")
+  tieuDe             String          @default("") @map("tieu_de")
+  /// 0 = không tính VAT
+  tyLeVAT            Decimal         @default(0) @map("ty_le_vat") @db.Decimal(5, 2)
+  kieuChietKhau      KieuChietKhau   @default(phanTram) @map("kieu_chiet_khau")
+  giaTriChietKhau    Decimal         @default(0) @map("gia_tri_chiet_khau") @db.Decimal(15, 2)
+  thoiGianGiaoHang   String          @default("") @map("thoi_gian_giao_hang")
+  /// Số ngày hiệu lực
+  hieuLucBaoGia      Int             @default(15) @map("hieu_luc_bao_gia")
+  dieuKhoanThanhToan String          @default("") @map("dieu_khoan_thanh_toan")
+  ghiChu             String          @default("") @map("ghi_chu")
+  trangThai          TrangThaiBaoGia @default(nhap) @map("trang_thai")
+  ngayTao            DateTime        @default(now()) @map("ngay_tao")
+  ngaySua            DateTime        @updatedAt @map("ngay_sua")
+
+  khachHang    KhachHang?   @relation(fields: [khachHangId], references: [id], onDelete: SetNull)
+  danhSachDong DongBaoGia[]
+  nghiemThu    NghiemThu[]
+  hoaDon       HoaDon[]
+  phieuKho     PhieuKho[]
+
+  @@index([ngaySua])
+  @@index([trangThai])
+  @@map("bao_gia")
+}
+
+model DongBaoGia {
+  id         String   @id @default(uuid())
+  baoGiaId   String   @map("bao_gia_id")
+  stt        Int
+  loai       LoaiDong @default(hang)
+  tenHangMuc String   @default("") @map("ten_hang_muc")
+  /// Các dòng chi tiết in dạng gạch đầu dòng dưới tên hạng mục (số lượng, tiền vẫn một dòng)
+  chiTiet    String[] @default([]) @map("chi_tiet")
+  quyCach    String   @default("") @map("quy_cach")
+  donViTinh  String   @default("") @map("don_vi_tinh")
+  soLuong    Decimal  @default(0) @map("so_luong") @db.Decimal(14, 3)
+  donGia     Decimal  @default(0) @map("don_gia") @db.Decimal(15, 0)
+  ghiChu     String   @default("") @map("ghi_chu")
+  /// Giá trị các cột tự thêm (cot_hang_muc không gắn trường): { <id cột>: "giá trị" }
+  cotThem    Json     @default("{}") @map("cot_them")
+
+  baoGia BaoGia @relation(fields: [baoGiaId], references: [id], onDelete: Cascade)
+
+  @@index([baoGiaId, stt])
+  @@map("dong_bao_gia")
+}
+
+model NghiemThu {
+  id              String             @id @default(uuid())
+  soBienBan       String             @unique @map("so_bien_ban")
+  baoGiaId        String?            @map("bao_gia_id")
+  khachHangId     String?            @map("khach_hang_id")
+  ngayNghiemThu   DateTime           @map("ngay_nghiem_thu") @db.Date
+  diaDiem         String             @default("") @map("dia_diem")
+  /// Số hợp đồng / đơn đặt hàng làm căn cứ
+  canCuHopDong    String             @default("") @map("can_cu_hop_dong")
+  ngayCanCu       DateTime?          @map("ngay_can_cu") @db.Date
+  tieuDe          String             @default("") @map("tieu_de")
+  /// [{ hoTen, chucVu }]
+  thanhPhanBenA   Json               @default("[]") @map("thanh_phan_ben_a")
+  /// [{ hoTen, chucVu }]
+  thanhPhanBenB   Json               @default("[]") @map("thanh_phan_ben_b")
+  tyLeVAT         Decimal            @default(0) @map("ty_le_vat") @db.Decimal(5, 2)
+  kieuChietKhau   KieuChietKhau      @default(phanTram) @map("kieu_chiet_khau")
+  giaTriChietKhau Decimal            @default(0) @map("gia_tri_chiet_khau") @db.Decimal(15, 2)
+  ketLuan         String             @default("") @map("ket_luan")
+  trangThai       TrangThaiNghiemThu @default(nhap) @map("trang_thai")
+  ngayTao         DateTime           @default(now()) @map("ngay_tao")
+  ngaySua         DateTime           @updatedAt @map("ngay_sua")
+
+  baoGia       BaoGia?         @relation(fields: [baoGiaId], references: [id], onDelete: SetNull)
+  khachHang    KhachHang?      @relation(fields: [khachHangId], references: [id], onDelete: SetNull)
+  danhSachDong DongNghiemThu[]
+  anhDinhKem   AnhNghiemThu[]
+
+  @@index([baoGiaId])
+  @@index([ngaySua])
+  @@map("nghiem_thu")
+}
+
+model DongNghiemThu {
+  id            String   @id @default(uuid())
+  nghiemThuId   String   @map("nghiem_thu_id")
+  stt           Int
+  loai          LoaiDong @default(hang)
+  tenHangMuc    String   @default("") @map("ten_hang_muc")
+  /// Các dòng chi tiết in dạng gạch đầu dòng dưới tên hạng mục
+  chiTiet       String[] @default([]) @map("chi_tiet")
+  quyCach       String   @default("") @map("quy_cach")
+  donViTinh     String   @default("") @map("don_vi_tinh")
+  /// Số lượng theo báo giá
+  soLuong       Decimal  @default(0) @map("so_luong") @db.Decimal(14, 3)
+  soLuongThucTe Decimal  @default(0) @map("so_luong_thuc_te") @db.Decimal(14, 3)
+  donGia        Decimal  @default(0) @map("don_gia") @db.Decimal(15, 0)
+  datKhongDat   DanhGia  @default(dat) @map("dat_khong_dat")
+  ghiChu        String   @default("") @map("ghi_chu")
+  /// Giá trị các cột tự thêm (cot_hang_muc không gắn trường): { <id cột>: "giá trị" }
+  cotThem       Json     @default("{}") @map("cot_them")
+
+  nghiemThu NghiemThu @relation(fields: [nghiemThuId], references: [id], onDelete: Cascade)
+
+  @@index([nghiemThuId, stt])
+  @@map("dong_nghiem_thu")
+}
+
+model AnhNghiemThu {
+  id          String @id @default(uuid())
+  nghiemThuId String @map("nghiem_thu_id")
+  /// Ảnh JPEG đã nén ở trình duyệt, dạng data URL (~100–300 KB)
+  duLieu      String @map("du_lieu") @db.Text
+  ghiChu      String @default("") @map("ghi_chu")
+  thuTu       Int    @default(0) @map("thu_tu")
+
+  nghiemThu NghiemThu @relation(fields: [nghiemThuId], references: [id], onDelete: Cascade)
+
+  @@index([nghiemThuId, thuTu])
+  @@map("anh_nghiem_thu")
+}
+
+/// Chỉ có một dòng, id = "caiDat"
+model CaiDat {
+  id                        String    @id @default("caiDat")
+  tenDonVi                  String    @map("ten_don_vi")
+  diaChi                    String    @default("") @map("dia_chi")
+  maSoThue                  String    @default("") @map("ma_so_thue")
+  dienThoai                 String    @default("") @map("dien_thoai")
+  email                     String    @default("")
+  soTaiKhoan                String    @default("") @map("so_tai_khoan")
+  nganHang                  String    @default("") @map("ngan_hang")
+  chiNhanh                  String    @default("") @map("chi_nhanh")
+  chuTaiKhoan               String    @default("") @map("chu_tai_khoan")
+  nguoiDaiDien              String    @default("") @map("nguoi_dai_dien")
+  chucVu                    String    @default("") @map("chuc_vu")
+  /// Logo dạng data URL
+  logo                      String    @default("") @db.Text
+  vatMacDinh                Decimal   @default(8) @map("vat_mac_dinh") @db.Decimal(5, 2)
+  hieuLucMacDinh            Int       @default(15) @map("hieu_luc_mac_dinh")
+  thoiGianGiaoHangMacDinh   String    @default("") @map("thoi_gian_giao_hang_mac_dinh")
+  dieuKhoanThanhToanMacDinh String    @default("") @map("dieu_khoan_thanh_toan_mac_dinh")
+  ketLuanMacDinh            String    @default("") @map("ket_luan_mac_dinh")
+  diaDiemNghiemThuMacDinh   String    @default("") @map("dia_diem_nghiem_thu_mac_dinh")
+  tienToBaoGia              String    @default("BG") @map("tien_to_bao_gia")
+  tienToNghiemThu           String    @default("NT") @map("tien_to_nghiem_thu")
+  soChuSo                   Int       @default(3) @map("so_chu_so")
+  /// Đọc 24 là "hai mươi tư" thay vì "hai mươi bốn"
+  docSoTu                   Boolean   @default(false) @map("doc_so_tu")
+  /// Thông tin xưởng đang ẩn (không hiện, không in): logo, diaChi, maSoThue, dienThoai, email, nguoiDaiDien, chucVu, taiKhoan
+  truongAn                  String[]  @default([]) @map("truong_an")
+  /// Gợi ý ô "Đơn vị"; đơn vị đầu tiên điền sẵn cho dòng mới. Ban đầu: prisma/duLieuBanDau.ts
+  danhSachDonViTinh         String[]  @default([]) @map("danh_sach_don_vi_tinh")
+  /// Các nhóm của danh mục hạng mục
+  nhomHangMuc               String[]  @default([]) @map("nhom_hang_muc")
+  /// Các mức VAT (%) để chọn nhanh; 0 = không tính VAT
+  luaChonVAT                Decimal[] @default([]) @map("lua_chon_vat") @db.Decimal(5, 2)
+  lanSaoLuuCuoi             DateTime? @map("lan_sao_luu_cuoi")
+  /// Ký hiệu phiếu thu / chi / nhập kho / xuất kho (PT-2026-001…)
+  tienToPhieuThu            String    @default("PT") @map("tien_to_phieu_thu")
+  tienToPhieuChi            String    @default("PC") @map("tien_to_phieu_chi")
+  tienToPhieuNhap           String    @default("PN") @map("tien_to_phieu_nhap")
+  tienToPhieuXuat           String    @default("PX") @map("tien_to_phieu_xuat")
+  /// Danh mục phiếu thu / phiếu chi. Ban đầu: prisma/duLieuBanDau.ts
+  danhMucThu                String[]  @default([]) @map("danh_muc_thu")
+  danhMucChi                String[]  @default([]) @map("danh_muc_chi")
+  /// Nhóm vật tư trong kho
+  nhomVatTu                 String[]  @default([]) @map("nhom_vat_tu")
+  /// Ngày nghỉ hằng tuần trên bảng chấm công (0 = Chủ nhật … 6 = Thứ bảy) — chỉ để tô màu
+  ngayNghiTuan              Int[]     @default([]) @map("ngay_nghi_tuan")
+
+  @@map("cai_dat")
+}
+
+/**
+ * ================= Tài khoản & phân quyền =================
+ */
+
+/// Vai trò = tập quyền (mã module, xem src/db/quyen.ts). Sửa ở màn Tài khoản; ban đầu: npm run db:seed
+model VaiTro {
+  id      String   @id @default(uuid())
+  ten     String   @unique
+  moTa    String   @default("") @map("mo_ta")
+  quyen   String[] @default([])
+  /// Vai trò hệ thống (Quản trị): luôn đủ mọi quyền, không xoá / sửa quyền được
+  heThong Boolean  @default(false) @map("he_thong")
+  thuTu   Int      @default(0) @map("thu_tu")
+
+  nguoiDung NguoiDung[]
+
+  @@map("vai_tro")
+}
+
+model NguoiDung {
+  id              String    @id @default(uuid())
+  tenDangNhap     String    @unique @map("ten_dang_nhap")
+  hoTen           String    @map("ho_ten")
+  /// scrypt "muối:băm" (hex)
+  matKhauBam      String    @map("mat_khau_bam")
+  vaiTroId        String    @map("vai_tro_id")
+  /// Gắn với hồ sơ nhân viên → xem được công, lương của mình
+  nhanVienId      String?   @unique @map("nhan_vien_id")
+  khoa            Boolean   @default(false)
+  /// Tăng lên khi đổi mật khẩu / khoá tài khoản → mọi phiên đăng nhập cũ hết hiệu lực
+  phienBan        Int       @default(0) @map("phien_ban")
+  lanDangNhapCuoi DateTime? @map("lan_dang_nhap_cuoi")
+  ngayTao         DateTime  @default(now()) @map("ngay_tao")
+
+  vaiTro   VaiTro    @relation(fields: [vaiTroId], references: [id])
+  nhanVien NhanVien? @relation(fields: [nhanVienId], references: [id], onDelete: SetNull)
+
+  @@map("nguoi_dung")
+}
+
+/**
+ * ================= Chấm công =================
+ */
+
+model NhanVien {
+  id             String    @id @default(uuid())
+  maNhanVien     String    @default("") @map("ma_nhan_vien")
+  hoTen          String    @map("ho_ten")
+  chucVu         String    @default("") @map("chuc_vu")
+  soDienThoai    String    @default("") @map("so_dien_thoai")
+  cccd           String    @default("")
+  diaChi         String    @default("") @map("dia_chi")
+  ngayVaoLam     DateTime? @map("ngay_vao_lam") @db.Date
+  /// Lương một công (đồng)
+  luongNgay      Decimal   @default(0) @map("luong_ngay") @db.Decimal(15, 0)
+  /// Tiền một giờ tăng ca
+  luongGioTangCa Decimal   @default(0) @map("luong_gio_tang_ca") @db.Decimal(15, 0)
+  /// Phụ cấp cố định mỗi tháng
+  phuCapThang    Decimal   @default(0) @map("phu_cap_thang") @db.Decimal(15, 0)
+  soTaiKhoan     String    @default("") @map("so_tai_khoan")
+  nganHang       String    @default("") @map("ngan_hang")
+  /// false = đã nghỉ việc: không hiện trên bảng công tháng mới, dữ liệu cũ vẫn giữ
+  dangLam        Boolean   @default(true) @map("dang_lam")
+  ghiChu         String    @default("") @map("ghi_chu")
+  thuTu          Int       @default(0) @map("thu_tu")
+  ngayTao        DateTime  @default(now()) @map("ngay_tao")
+
+  chamCong    ChamCong[]
+  nguoiDung   NguoiDung?
+  phieuThuChi PhieuThuChi[]
+
+  @@index([dangLam, thuTu])
+  @@map("nhan_vien")
+}
+
+/// Ký hiệu công trên bảng chấm công (X, N/2, P…). Sửa trong màn Chấm công; ban đầu: npm run db:seed
+model LoaiCong {
+  id     String  @id @default(uuid())
+  kyHieu String  @unique @map("ky_hieu")
+  ten    String
+  /// Số công tính lương: 1 = đủ công, 0,5 = nửa công, 0 = nghỉ không lương
+  heSo   Decimal @default(1) @map("he_so") @db.Decimal(4, 2)
+  /// Màu ô (#rrggbb), trống = màu mặc định
+  mau    String  @default("")
+  thuTu  Int     @default(0) @map("thu_tu")
+
+  chamCong ChamCong[]
+
+  @@map("loai_cong")
+}
+
+/// Một ô trên bảng chấm công: một nhân viên, một ngày
+model ChamCong {
+  id         String   @id @default(uuid())
+  nhanVienId String   @map("nhan_vien_id")
+  ngay       DateTime @db.Date
+  /// null = không có công ngày đó (chỉ ghi tăng ca / ghi chú)
+  loaiCongId String?  @map("loai_cong_id")
+  gioTangCa  Decimal  @default(0) @map("gio_tang_ca") @db.Decimal(5, 2)
+  ghiChu     String   @default("") @map("ghi_chu")
+  ngaySua    DateTime @updatedAt @map("ngay_sua")
+
+  nhanVien NhanVien  @relation(fields: [nhanVienId], references: [id], onDelete: Cascade)
+  loaiCong LoaiCong? @relation(fields: [loaiCongId], references: [id], onDelete: Restrict)
+
+  @@unique([nhanVienId, ngay])
+  @@index([ngay])
+  @@map("cham_cong")
+}
+
+/**
+ * ================= Hoá đơn =================
+ */
+
+enum LoaiHoaDon {
+  muaVao
+  banRa
+}
+
+enum TrangThaiHoaDon {
+  hieuLuc
+  huy
+}
+
+model NhaCungCap {
+  id          String   @id @default(uuid())
+  tenCongTy   String   @map("ten_cong_ty")
+  diaChi      String   @default("") @map("dia_chi")
+  maSoThue    String   @default("") @map("ma_so_thue")
+  nguoiLienHe String   @default("") @map("nguoi_lien_he")
+  soDienThoai String   @default("") @map("so_dien_thoai")
+  email       String   @default("")
+  soTaiKhoan  String   @default("") @map("so_tai_khoan")
+  nganHang    String   @default("") @map("ngan_hang")
+  ghiChu      String   @default("") @map("ghi_chu")
+  ngayTao     DateTime @default(now()) @map("ngay_tao")
+
+  hoaDon      HoaDon[]
+  phieuThuChi PhieuThuChi[]
+  phieuKho    PhieuKho[]
+
+  @@index([tenCongTy])
+  @@map("nha_cung_cap")
+}
+
+/// Sổ theo dõi hoá đơn (không phát hành hoá đơn điện tử). Tổng tiền không lưu mà tính từ các dòng như báo giá.
+model HoaDon {
+  id              String          @id @default(uuid())
+  loai            LoaiHoaDon
+  /// Ký hiệu hoá đơn, vd 1C26TAA
+  kyHieu          String          @default("") @map("ky_hieu")
+  soHoaDon        String          @default("") @map("so_hoa_don")
+  ngayHoaDon      DateTime        @map("ngay_hoa_don") @db.Date
+  /// Bán ra: khách hàng; mua vào: nhà cung cấp
+  khachHangId     String?         @map("khach_hang_id")
+  nhaCungCapId    String?         @map("nha_cung_cap_id")
+  /// Tên / MST / địa chỉ in trên hoá đơn — giữ nguyên dù danh bạ sửa sau
+  tenDoiTac       String          @default("") @map("ten_doi_tac")
+  maSoThueDoiTac  String          @default("") @map("ma_so_thue_doi_tac")
+  diaChiDoiTac    String          @default("") @map("dia_chi_doi_tac")
+  /// Hoá đơn bán ra lập từ báo giá
+  baoGiaId        String?         @map("bao_gia_id")
+  tyLeVAT         Decimal         @default(0) @map("ty_le_vat") @db.Decimal(5, 2)
+  kieuChietKhau   KieuChietKhau   @default(soTien) @map("kieu_chiet_khau")
+  giaTriChietKhau Decimal         @default(0) @map("gia_tri_chiet_khau") @db.Decimal(15, 2)
+  hanThanhToan    DateTime?       @map("han_thanh_toan") @db.Date
+  trangThai       TrangThaiHoaDon @default(hieuLuc) @map("trang_thai")
+  ghiChu          String          @default("") @map("ghi_chu")
+  ngayTao         DateTime        @default(now()) @map("ngay_tao")
+  ngaySua         DateTime        @updatedAt @map("ngay_sua")
+
+  khachHang    KhachHang?    @relation(fields: [khachHangId], references: [id], onDelete: SetNull)
+  nhaCungCap   NhaCungCap?   @relation(fields: [nhaCungCapId], references: [id], onDelete: SetNull)
+  baoGia       BaoGia?       @relation(fields: [baoGiaId], references: [id], onDelete: SetNull)
+  danhSachDong DongHoaDon[]
+  tepDinhKem   TepHoaDon[]
+  phieuThuChi  PhieuThuChi[]
+  phieuKho     PhieuKho[]
+
+  @@index([loai, ngayHoaDon])
+  @@index([khachHangId])
+  @@index([nhaCungCapId])
+  @@map("hoa_don")
+}
+
+model DongHoaDon {
+  id        String  @id @default(uuid())
+  hoaDonId  String  @map("hoa_don_id")
+  stt       Int
+  tenHang   String  @default("") @map("ten_hang")
+  donViTinh String  @default("") @map("don_vi_tinh")
+  soLuong   Decimal @default(0) @map("so_luong") @db.Decimal(14, 3)
+  donGia    Decimal @default(0) @map("don_gia") @db.Decimal(15, 0)
+
+  hoaDon HoaDon @relation(fields: [hoaDonId], references: [id], onDelete: Cascade)
+
+  @@index([hoaDonId, stt])
+  @@map("dong_hoa_don")
+}
+
+/// File hoá đơn đính kèm (PDF, XML, ảnh chụp)
+model TepHoaDon {
+  id        String   @id @default(uuid())
+  hoaDonId  String   @map("hoa_don_id")
+  tenFile   String   @map("ten_file")
+  kieuFile  String   @map("kieu_file")
+  kichThuoc Int      @map("kich_thuoc")
+  duLieu    Bytes    @map("du_lieu")
+  ngayTao   DateTime @default(now()) @map("ngay_tao")
+
+  hoaDon HoaDon @relation(fields: [hoaDonId], references: [id], onDelete: Cascade)
+
+  @@index([hoaDonId])
+  @@map("tep_hoa_don")
+}
+
+/**
+ * ================= Thu chi =================
+ */
+
+enum LoaiPhieuThuChi {
+  thu
+  chi
+}
+
+enum HinhThucTien {
+  tienMat
+  chuyenKhoan
+}
+
+model PhieuThuChi {
+  id           String          @id @default(uuid())
+  loai         LoaiPhieuThuChi
+  soPhieu      String          @unique @map("so_phieu")
+  ngay         DateTime        @db.Date
+  soTien       Decimal         @map("so_tien") @db.Decimal(15, 0)
+  hinhThuc     HinhThucTien    @default(tienMat) @map("hinh_thuc")
+  /// Danh mục (từ Cài đặt: danhMucThu / danhMucChi)
+  danhMuc      String          @default("") @map("danh_muc")
+  /// Đối tượng: một trong khách hàng / nhà cung cấp / nhân viên (hoặc không)
+  khachHangId  String?         @map("khach_hang_id")
+  nhaCungCapId String?         @map("nha_cung_cap_id")
+  nhanVienId   String?         @map("nhan_vien_id")
+  /// Thanh toán cho hoá đơn — tính vào "đã thu / đã trả" của hoá đơn đó
+  hoaDonId     String?         @map("hoa_don_id")
+  /// Phiếu chi tạm ứng: trừ vào lương tháng của nhân viên
+  truVaoLuong  Boolean         @default(false) @map("tru_vao_luong")
+  /// Tên người nộp / người nhận tiền
+  nguoiNopNhan String          @default("") @map("nguoi_nop_nhan")
+  noiDung      String          @default("") @map("noi_dung")
+  nguoiLap     String          @default("") @map("nguoi_lap")
+  ngayTao      DateTime        @default(now()) @map("ngay_tao")
+
+  khachHang  KhachHang?  @relation(fields: [khachHangId], references: [id], onDelete: SetNull)
+  nhaCungCap NhaCungCap? @relation(fields: [nhaCungCapId], references: [id], onDelete: SetNull)
+  nhanVien   NhanVien?   @relation(fields: [nhanVienId], references: [id], onDelete: SetNull)
+  hoaDon     HoaDon?     @relation(fields: [hoaDonId], references: [id], onDelete: SetNull)
+
+  @@index([ngay])
+  @@index([hoaDonId])
+  @@index([nhanVienId, ngay])
+  @@map("phieu_thu_chi")
+}
+
+/**
+ * ================= Kho vật tư =================
+ */
+
+enum LoaiPhieuKho {
+  nhap
+  xuat
+}
+
+model VatTu {
+  id          String   @id @default(uuid())
+  maVatTu     String   @default("") @map("ma_vat_tu")
+  ten         String
+  donViTinh   String   @default("") @map("don_vi_tinh")
+  nhom        String   @default("")
+  quyCach     String   @default("") @map("quy_cach")
+  /// Tồn dưới mức này thì cảnh báo (0 = không cảnh báo)
+  tonToiThieu Decimal  @default(0) @map("ton_toi_thieu") @db.Decimal(14, 3)
+  ghiChu      String   @default("") @map("ghi_chu")
+  ngungDung   Boolean  @default(false) @map("ngung_dung")
+  ngayTao     DateTime @default(now()) @map("ngay_tao")
+
+  dongPhieuKho DongPhieuKho[]
+
+  @@index([ten])
+  @@map("vat_tu")
+}
+
+model PhieuKho {
+  id            String       @id @default(uuid())
+  loai          LoaiPhieuKho
+  soPhieu       String       @unique @map("so_phieu")
+  ngay          DateTime     @db.Date
+  /// Nhập: mua của nhà cung cấp / theo hoá đơn mua vào
+  nhaCungCapId  String?      @map("nha_cung_cap_id")
+  hoaDonId      String?      @map("hoa_don_id")
+  /// Xuất: dùng cho đơn hàng (báo giá) nào
+  baoGiaId      String?      @map("bao_gia_id")
+  nguoiGiaoNhan String       @default("") @map("nguoi_giao_nhan")
+  ghiChu        String       @default("") @map("ghi_chu")
+  nguoiLap      String       @default("") @map("nguoi_lap")
+  ngayTao       DateTime     @default(now()) @map("ngay_tao")
+  ngaySua       DateTime     @updatedAt @map("ngay_sua")
+
+  nhaCungCap   NhaCungCap?    @relation(fields: [nhaCungCapId], references: [id], onDelete: SetNull)
+  hoaDon       HoaDon?        @relation(fields: [hoaDonId], references: [id], onDelete: SetNull)
+  baoGia       BaoGia?        @relation(fields: [baoGiaId], references: [id], onDelete: SetNull)
+  danhSachDong DongPhieuKho[]
+
+  @@index([ngay])
+  @@map("phieu_kho")
+}
+
+model DongPhieuKho {
+  id         String  @id @default(uuid())
+  phieuKhoId String  @map("phieu_kho_id")
+  stt        Int
+  vatTuId    String  @map("vat_tu_id")
+  soLuong    Decimal @default(0) @map("so_luong") @db.Decimal(14, 3)
+  donGia     Decimal @default(0) @map("don_gia") @db.Decimal(15, 0)
+  ghiChu     String  @default("") @map("ghi_chu")
+
+  phieuKho PhieuKho @relation(fields: [phieuKhoId], references: [id], onDelete: Cascade)
+  /// Vật tư đã có phiếu thì không xoá được (chỉ ngừng dùng)
+  vatTu    VatTu    @relation(fields: [vatTuId], references: [id], onDelete: Restrict)
+
+  @@index([phieuKhoId, stt])
+  @@index([vatTuId])
+  @@map("dong_phieu_kho")
+}
+
+/**
+ * ================= Landing page =================
+ */
+
+/// Khối nội dung của landing page (hero, giới thiệu, dịch vụ, dự án…). Trang landing đọc qua GET /api/cong-khai/trang
+model KhoiLanding {
+  id          String   @id @default(uuid())
+  /// Loại khối — trang landing dựa vào đây để chọn cách hiển thị (xem src/modules/landing/kieu.ts)
+  loai        String
+  tieuDe      String   @default("") @map("tieu_de")
+  phuDe       String   @default("") @map("phu_de")
+  noiDung     String   @default("") @map("noi_dung")
+  anhId       String?  @map("anh_id")
+  nutChu      String   @default("") @map("nut_chu")
+  nutLienKet  String   @default("") @map("nut_lien_ket")
+  /// Các mục con: [{ tieuDe, moTa, anhId, lienKet }]
+  danhSachMuc Json     @default("[]") @map("danh_sach_muc")
+  hien        Boolean  @default(true)
+  thuTu       Int      @default(0) @map("thu_tu")
+  ngaySua     DateTime @updatedAt @map("ngay_sua")
+
+  @@index([thuTu])
+  @@map("khoi_landing")
+}
+
+/// Ảnh dùng cho landing page — phục vụ công khai tại /api/cong-khai/anh/:id
+model AnhLanding {
+  id        String   @id @default(uuid())
+  tenFile   String   @map("ten_file")
+  kieuFile  String   @map("kieu_file")
+  kichThuoc Int      @map("kich_thuoc")
+  /// Chữ thay thế (alt)
+  moTa      String   @default("") @map("mo_ta")
+  duLieu    Bytes    @map("du_lieu")
+  ngayTao   DateTime @default(now()) @map("ngay_tao")
+
+  @@map("anh_landing")
+}
+
+/// Khách để lại thông tin ở form liên hệ trên landing page
+model LienHeLanding {
+  id          String   @id @default(uuid())
+  hoTen       String   @map("ho_ten")
+  soDienThoai String   @default("") @map("so_dien_thoai")
+  email       String   @default("")
+  noiDung     String   @default("") @map("noi_dung")
+  daXuLy      Boolean  @default(false) @map("da_xu_ly")
+  ghiChu      String   @default("") @map("ghi_chu")
+  ip          String   @default("")
+  ngayTao     DateTime @default(now()) @map("ngay_tao")
+
+  @@index([daXuLy, ngayTao])
+  @@map("lien_he_landing")
+}
+
+/// SEO và thông tin chung của landing page — một dòng, id = "landing"
+model CaiDatLanding {
+  id              String  @id @default("landing")
+  /// false = trang landing chưa mở (API công khai trả 503)
+  xuatBan         Boolean @default(false) @map("xuat_ban")
+  tieuDeTrang     String  @default("") @map("tieu_de_trang")
+  moTa            String  @default("") @map("mo_ta")
+  tuKhoa          String  @default("") @map("tu_khoa")
+  anhChiaSeId     String? @map("anh_chia_se_id")
+  lienKetZalo     String  @default("") @map("lien_ket_zalo")
+  lienKetFacebook String  @default("") @map("lien_ket_facebook")
+  /// Đường dẫn nhúng Google Maps
+  banDo           String  @default("") @map("ban_do")
+  /// Mã đo lường (Google Analytics / Facebook Pixel…)
+  maTheoDoi       String  @default("") @map("ma_theo_doi")
+
+  @@map("cai_dat_landing")
+}
+
+/// Trường có sẵn của dòng hạng mục mà một cột có thể gắn vào
+enum TruongDong {
+  tenHangMuc
+  quyCach
+  donViTinh
+  soLuong
+  donGia
+  thanhTien
+}
+
+enum KieuCot {
+  chu
+  so
+}
+
+/// Cột của bảng nhập hạng mục — chỉnh trong Cài đặt. Dữ liệu ban đầu: "npm run db:seed" (prisma/seed.ts)
+model CotHangMuc {
+  id       String      @id @default(uuid())
+  /// Trường có sẵn của dòng mà cột này nhập / hiện; null = cột tự thêm (giá trị lưu ở cot_them của dòng)
+  truong   TruongDong? @unique
+  tieuDe   String      @map("tieu_de")
+  /// Chữ mờ hiện trong ô khi chưa nhập
+  goiY     String      @default("") @map("goi_y")
+  /// Số: căn phải, bàn phím số
+  kieu     KieuCot     @default(chu)
+  an       Boolean     @default(false)
+  /// Cột cần để tính tiền: không ẩn được
+  batBuoc  Boolean     @default(false) @map("bat_buoc")
+  /// Bề rộng tối thiểu (px) khi bảng xếp một dòng
+  doRong   Int         @default(110) @map("do_rong")
+  /// Phần chia thêm khi bảng còn chỗ (0 = giữ đúng bề rộng tối thiểu)
+  heSoGian Float       @default(0) @map("he_so_gian")
+  thuTu    Int         @default(0) @map("thu_tu")
+
+  @@index([thuTu])
+  @@map("cot_hang_muc")
+}

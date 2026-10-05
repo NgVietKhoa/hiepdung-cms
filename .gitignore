@@ -1,0 +1,11 @@
+*.local
+*.tsbuildinfo
+.env
+dist
+node_modules
+server/generated
+file
+
+# Liên kết công cụ AI trỏ sang thư mục khác trên máy này
+.claude/skills/
+.windsurf/
