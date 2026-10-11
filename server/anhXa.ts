@@ -254,7 +254,6 @@ export function nghiemThuRaApp(n: NghiemThuDB): BienBanNghiemThu {
     danhSachDong: n.danhSachDong.map<DongNghiemThu>((d) => ({
       ...dongRaApp(d),
       soLuongThucTe: so(d.soLuongThucTe),
-      datKhongDat: d.datKhongDat,
     })),
     tyLeVAT: so(n.tyLeVAT),
     chietKhau: chietKhauRaApp(n.kieuChietKhau, n.giaTriChietKhau),
@@ -285,7 +284,6 @@ export const dongNghiemThuVaoDB = (ds: unknown) =>
   (Array.isArray(ds) ? ds : []).map((d: Partial<DongNghiemThu>, i) => ({
     ...dongVaoDB(d, i + 1),
     soLuongThucTe: d.loai === 'phan' ? 0 : soLuong(d.soLuongThucTe),
-    datKhongDat: trongDanhSach(d.datKhongDat, ['dat', 'khongDat'] as const, 'dat'),
   }));
 
 /** Các cột cần cho danh sách biên bản */

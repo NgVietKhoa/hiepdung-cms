@@ -1127,7 +1127,7 @@ body.dang-keo-tha .tay-nam { cursor: grabbing; }
 }
 .dang-bang .the-phan > .tong-phan { padding: 0 4px 0 16px; }
 .dang-bang .the-phan > .tong-phan strong { font-size: var(--co-md); }
-.dang-bang .cot-them .phan-nghiem-thu { grid-template-columns: 220px auto; justify-content: start; margin-bottom: 0; }
+.dang-bang .cot-them .phan-nghiem-thu { grid-template-columns: 220px; justify-content: start; margin-bottom: 0; }
 
 .dang-bang .bo-ghi-chu { margin-bottom: 0; width: 38px; height: 38px; }
 .dang-bang .the-dong > .luu-danh-muc { margin-top: 8px; }
@@ -1138,7 +1138,6 @@ body.dang-keo-tha .tay-nam { cursor: grabbing; }
 .dang-bang .nut-them-phan { border-left: 1px solid var(--vien-nhat); border-radius: 0 0 var(--bo-goc) 0; }
 
 .phan-nghiem-thu { display: grid; grid-template-columns: 1fr; gap: 0 12px; padding: 10px 12px 0; margin-bottom: 12px; border-radius: var(--bo-goc-nho); background: var(--nen-phu); border: 1px solid var(--vien-nhat); }
-@media (min-width: 560px) { .phan-nghiem-thu { grid-template-columns: 1fr 1fr; } }
 .chenh-lech .o-nhap { border-color: var(--mau-chinh); background: var(--mau-chinh-nhat); font-weight: var(--dam-ro); }
 
 /* ================= Tổng tiền ================= */

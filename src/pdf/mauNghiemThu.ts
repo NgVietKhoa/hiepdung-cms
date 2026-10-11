@@ -87,12 +87,12 @@ export function mauNghiemThu(
   const tong = tongNghiemThu(nt);
 
   const dauBang: TableCell[] = [
-    'STT', 'Hạng mục', 'Quy cách', 'ĐVT', 'SL theo báo giá', 'SL thực tế', 'Đơn giá (đ)', 'Thành tiền (đ)', 'Đánh giá',
+    'STT', 'Hạng mục', 'Quy cách', 'ĐVT', 'SL theo báo giá', 'SL thực tế', 'Đơn giá (đ)', 'Thành tiền (đ)',
   ].map((t) => ({ text: t, style: 'dauBang', fontSize: 9 }));
 
   const cacDong: TableCell[][] = danhSo(dong, tien).map(({ dong: d, laPhan, stt, tien: t }) =>
     laPhan
-      ? dongPhanPdf(stt, d.tenHangMuc, 9)
+      ? dongPhanPdf(stt, d.tenHangMuc, 8)
       : [
           { text: stt, alignment: 'center' },
           tenKemGhiChu(d),
@@ -102,7 +102,6 @@ export function mauNghiemThu(
           { text: dinhDangSoLuong(d.soLuongThucTe), alignment: 'right', bold: d.soLuongThucTe !== d.soLuong },
           { text: tienO(d.donGia), alignment: 'right' },
           { text: tienO(t), alignment: 'right' },
-          { text: d.datKhongDat === 'dat' ? 'Đạt' : 'Không đạt', alignment: 'center' },
         ],
   );
 
@@ -110,7 +109,6 @@ export function mauNghiemThu(
     { text: nhan, colSpan: 7, alignment: 'right', bold: dam },
     {}, {}, {}, {}, {}, {},
     { text: tienO(giaTri), alignment: 'right', bold: dam },
-    '',
   ]);
   const canCu = canCuNghiemThu(nt, bg);
 
@@ -140,7 +138,7 @@ export function mauNghiemThu(
       table: {
         headerRows: 1,
         dontBreakRows: true,
-        widths: [18, '*', 84, 26, 32, 32, 50, 58, 40],
+        widths: [18, '*', 84, 26, 32, 32, 50, 58],
         body: [dauBang, ...cacDong, ...cacDongTong],
       },
       layout: KIEU_BANG,

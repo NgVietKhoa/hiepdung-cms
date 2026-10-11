@@ -14,7 +14,6 @@ import {
   NHAN_TRANG_THAI_NGHIEM_THU,
   type AnhDinhKem,
   type BienBanNghiemThu,
-  type DanhGia,
   type DongNghiemThu,
   type NguoiDaiDien,
   type TrangThaiNghiemThu,
@@ -90,7 +89,6 @@ export function NghiemThuSua() {
   const tong = tongNghiemThu(nt);
   const tenKhach = dsKhach?.find((k) => k.id === nt.khachHangId)?.tenCongTy;
   const soChenhLech = nt.danhSachDong.filter((d) => !laDongPhan(d) && d.soLuongThucTe !== d.soLuong).length;
-  const soKhongDat = nt.danhSachDong.filter((d) => !laDongPhan(d) && d.datKhongDat === 'khongDat').length;
 
   const xoa = async () => {
     if (!(await xacNhan(`Xoá biên bản ${nt.soBienBan} và toàn bộ ảnh đính kèm? Không thể khôi phục.`, { nutDongY: 'Xoá biên bản' })))
@@ -186,7 +184,6 @@ export function NghiemThuSua() {
           tomTat={[
             `${demHangMuc(nt.danhSachDong)} hạng mục`,
             soChenhLech > 0 && `${soChenhLech} dòng chênh lệch`,
-            soKhongDat > 0 && `${soKhongDat} dòng không đạt`,
           ]
             .filter(Boolean)
             .join(' · ')}
@@ -210,15 +207,6 @@ export function NghiemThuSua() {
                     </div>
                   )}
                 </div>
-                <ChonMot<DanhGia>
-                  nhan="Đánh giá"
-                  value={d.datKhongDat}
-                  onChange={(datKhongDat) => sua({ datKhongDat })}
-                  luaChon={[
-                    { giaTri: 'dat', nhan: 'Đạt' },
-                    { giaTri: 'khongDat', nhan: 'Không đạt' },
-                  ]}
-                />
               </div>
             )}
           />

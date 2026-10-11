@@ -41,11 +41,8 @@ export interface DongHangMuc {
   cotThem?: Record<string, string>;
 }
 
-export type DanhGia = 'dat' | 'khongDat';
-
 export interface DongNghiemThu extends DongHangMuc {
   soLuongThucTe: number;
-  datKhongDat: DanhGia;
 }
 
 export interface ChietKhau {

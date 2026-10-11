@@ -25,7 +25,7 @@ const locHangMuc = (h: HangMuc, cauTim: string) => khop(`${h.ten} ${h.nhom} ${h.
  * Chỉ xếp thành bảng khi đủ chỗ cho mọi cột đang hiện, không thì giữ dạng thẻ.
  * Bảng chia được thành các phần I, II…: dòng phần chỉ có tên và cộng tiền phần, các hạng mục bên dưới thuộc phần đó
  * và được đánh số lại từ 1. Mỗi hạng mục có thể thêm các dòng chi tiết (in thành gạch đầu dòng dưới tên).
- * `phanThem` cho phép màn hình nghiệm thu chèn thêm ô "SL thực tế", "Đạt/Không đạt".
+ * `phanThem` cho phép màn hình nghiệm thu chèn thêm ô "SL thực tế".
  */
 export function DanhSachDong<D extends DongHangMuc>({
   dong,

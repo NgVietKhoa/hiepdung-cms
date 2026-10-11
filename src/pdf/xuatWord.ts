@@ -400,9 +400,9 @@ export async function wordNghiemThu(
 
     doan('Hai bên cùng tiến hành nghiệm thu khối lượng công việc như sau:', { truoc: 160, sau: 120 }),
     bangHangMuc(
-      chiaCot([18, null, 84, 26, 32, 32, 50, 58, 40]),
-      ['STT', 'Hạng mục', 'Quy cách', 'ĐVT', 'SL theo báo giá', 'SL thực tế', 'Đơn giá (đ)', 'Thành tiền (đ)', 'Đánh giá'],
-      dongBangWord(dong, tien, 9, (x, stt, t) => [
+      chiaCot([18, null, 84, 26, 32, 32, 50, 58]),
+      ['STT', 'Hạng mục', 'Quy cách', 'ĐVT', 'SL theo báo giá', 'SL thực tế', 'Đơn giá (đ)', 'Thành tiền (đ)'],
+      dongBangWord(dong, tien, 8, (x, stt, t) => [
         { chu: stt, canh: 'giua' },
         { chu: tenKemGhiChu(x) },
         { chu: x.quyCach },
@@ -411,7 +411,6 @@ export async function wordNghiemThu(
         { chu: dinhDangSoLuong(x.soLuongThucTe), canh: 'phai', dam: x.soLuongThucTe !== x.soLuong },
         { chu: tienO(x.donGia), canh: 'phai' },
         { chu: tienO(t), canh: 'phai' },
-        { chu: x.datKhongDat === 'dat' ? 'Đạt' : 'Không đạt', canh: 'giua' },
       ]),
       cacDongTongNghiemThu(nt, tong),
       7,

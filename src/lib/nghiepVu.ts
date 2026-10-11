@@ -23,7 +23,7 @@ export function taoDongTrong(donViTinh = ''): DongHangMuc {
 }
 
 export function dongNghiemThuTrong(donViTinh = ''): DongNghiemThu {
-  return { ...taoDongTrong(donViTinh), soLuongThucTe: 1, datKhongDat: 'dat' };
+  return { ...taoDongTrong(donViTinh), soLuongThucTe: 1 };
 }
 
 export function dongTuHangMuc(hm: HangMuc): Partial<DongHangMuc> {
@@ -113,7 +113,6 @@ export function chuyenBaoGiaThanhNghiemThu(
         ...d,
         id: taoId(),
         soLuongThucTe: d.soLuong,
-        datKhongDat: 'dat',
       })),
     tyLeVAT: bg.tyLeVAT,
     chietKhau: { ...bg.chietKhau },

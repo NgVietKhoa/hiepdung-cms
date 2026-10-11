@@ -30,11 +30,6 @@ enum KieuChietKhau {
   soTien
 }
 
-enum DanhGia {
-  dat
-  khongDat
-}
-
 /// hang = hạng mục bình thường; phan = dòng tiêu đề phần (I, II…), các hạng mục bên dưới thuộc phần này
 enum LoaiDong {
   hang
@@ -173,7 +168,6 @@ model DongNghiemThu {
   soLuong       Decimal  @default(0) @map("so_luong") @db.Decimal(14, 3)
   soLuongThucTe Decimal  @default(0) @map("so_luong_thuc_te") @db.Decimal(14, 3)
   donGia        Decimal  @default(0) @map("don_gia") @db.Decimal(15, 0)
-  datKhongDat   DanhGia  @default(dat) @map("dat_khong_dat")
   ghiChu        String   @default("") @map("ghi_chu")
   /// Giá trị các cột tự thêm (cot_hang_muc không gắn trường): { <id cột>: "giá trị" }
   cotThem       Json     @default("{}") @map("cot_them")
