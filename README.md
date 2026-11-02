@@ -17,12 +17,13 @@ Hệ thống quản lý cho xưởng cơ khí (phát triển từ ứng dụng *
 
 ## 1. Cài và dùng
 
-Tạo bộ cài trên máy dev (mục 3) rồi chạy `release/Hiep Dung CMS Setup <phiên bản>.exe` trên máy của xưởng. Bộ cài chưa ký số nên Windows SmartScreen cảnh báo lần đầu: bấm **More info → Run anyway**.
+Tạo bộ cài trên máy dev (mục 3) rồi chạy `release/HiepDungCMS-Setup-<phiên bản>.exe` trên máy của xưởng. Bộ cài chưa ký số nên Windows SmartScreen cảnh báo lần đầu: bấm **More info → Run anyway**.
 
 - **Lần mở đầu:** tự tạo CSDL, không nạp dữ liệu mẫu. Vào **Cài đặt**: nhập thông tin xưởng, tài khoản ngân hàng, tải logo.
 - **Dữ liệu:** `%APPDATA%\hiep-dung-cms\` — `pgdata\` (CSDL), `cauHinh.json` (mật khẩu CSDL), `nhatKy.log` (nhật ký khi có lỗi).
 - **File PDF / Word / Excel** khi bấm "Lưu": thư mục `Hiep Dung CMS` trong Documents (menu **Dữ liệu → Mở thư mục file đã lưu**).
-- **Cập nhật phiên bản:** chạy bộ cài mới đè lên; dữ liệu trong AppData giữ nguyên, lần mở đầu tự áp migration mới.
+- **Cập nhật phiên bản:** mỗi lần mở, ứng dụng tự kiểm tra [GitHub Releases](https://github.com/NgVietKhoa/hiepdung-cms/releases), tải ngầm bản mới rồi hỏi khởi động lại để cài (chọn "Để sau" thì cài khi tắt ứng dụng); kiểm tra tay: **Trợ giúp → Kiểm tra cập nhật…**. Bản 1.2.0 trở về trước chưa có tính năng này: chạy bộ cài mới đè lên. Dữ liệu trong AppData giữ nguyên, lần mở đầu tự áp migration mới.
+- **Phát hành bản mới:** tăng `version` trong `package.json` → `npm run desktop:build` → tạo GitHub Release tag `v<phiên bản>` kèm đủ 3 file `release/latest.yml`, `release/HiepDungCMS-Setup-<phiên bản>.exe`, `.exe.blockmap` (thiếu `latest.yml` thì ứng dụng không thấy bản mới).
 - Máy chủ chạy ở cổng `41730` và chỉ nhận kết nối từ chính máy đó (`127.0.0.1`): vì không có đăng nhập nên máy khác / điện thoại cùng mạng không vào được.
 - Chỉ mở được một cửa sổ ứng dụng mỗi lúc. Gửi khách qua Zalo: lưu PDF rồi kéo file vào Zalo.
 
@@ -69,7 +70,7 @@ Vite tự chuyển tiếp mọi yêu cầu `/api` sang `127.0.0.1:API_PORT`.
 | `npm test` | Unit test: đọc số thành chữ, tính tiền, đánh số, mẫu PDF |
 | `npm run build` | Kiểm tra kiểu (giao diện + máy chủ) và đóng gói giao diện vào `dist/` |
 | `npm run desktop:dev` | Build rồi mở ứng dụng desktop trên máy dev (dữ liệu ở `%APPDATA%\hiep-dung-cms\`, như bản cài) |
-| `npm run desktop:build` | Tạo bộ cài `release/Hiep Dung CMS Setup <phiên bản>.exe` |
+| `npm run desktop:build` | Tạo bộ cài `release/HiepDungCMS-Setup-<phiên bản>.exe` (+ `latest.yml`, `.blockmap` để tự cập nhật) |
 | `npm run db:migrate` | Sau khi sửa `prisma/schema.prisma`: tạo migration mới |
 | `npm run db:seed` | Nạp dữ liệu ban đầu từ `prisma/seed.ts` (chỉ thêm phần còn thiếu, không ghi đè). Bản desktop tự chạy khi mở |
 | `npm run db:studio` | Mở Prisma Studio để xem/sửa dữ liệu trực tiếp |

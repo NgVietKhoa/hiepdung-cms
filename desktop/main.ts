@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import { app, BrowserWindow, dialog, Menu, shell } from 'electron';
 import { pg_ctl } from '@embedded-postgres/windows-x64';
 import EmbeddedPostgres from 'embedded-postgres';
+import electronUpdater from 'electron-updater';
 
 /** Cổng API cố định: localStorage (bản nháp tạm) gắn theo địa chỉ, đổi cổng là mất */
 const CONG_API = 41730;
@@ -264,6 +265,57 @@ const batLoi = (viec: () => Promise<unknown>) => () =>
     if (!mayChu) app.quit();
   });
 
+/*
+ * Tự cập nhật từ GitHub Releases (package.json → build.publish; mỗi release cần latest.yml + .exe + .blockmap).
+ * Tải ngầm, xong thì hỏi khởi động lại; chọn "Để sau" thì bản mới tự cài khi thoát (sau khi will-quit tắt Postgres).
+ */
+const { autoUpdater } = electronUpdater;
+const ghiCapNhat = (m: unknown) => ghiNhatKy(`Cập nhật: ${m}`);
+autoUpdater.logger = { info: ghiCapNhat, warn: ghiCapNhat, error: ghiCapNhat };
+let kiemTraTay = false;
+
+autoUpdater.on('update-available', (info) => {
+  if (kiemTraTay && cuaSo) {
+    void dialog.showMessageBox(cuaSo, { type: 'info', title: 'Cập nhật', message: `Có bản ${info.version}, đang tải về…`, detail: 'Tải xong sẽ hỏi khởi động lại để cài.' });
+  }
+});
+autoUpdater.on('update-not-available', () => {
+  if (kiemTraTay && cuaSo) {
+    void dialog.showMessageBox(cuaSo, { type: 'info', title: 'Cập nhật', message: `Đang dùng bản mới nhất (${app.getVersion()}).` });
+  }
+});
+autoUpdater.on('error', (e) => {
+  if (kiemTraTay) dialog.showErrorBox('Không kiểm tra được cập nhật', `${e.message}\n\nNhật ký: ${duongDanNhatKy}`);
+});
+autoUpdater.on('update-downloaded', async (info) => {
+  if (!cuaSo) return;
+  const { response } = await dialog.showMessageBox(cuaSo, {
+    type: 'info',
+    title: 'Cập nhật',
+    buttons: ['Khởi động lại và cập nhật', 'Để sau'],
+    defaultId: 0,
+    cancelId: 1,
+    message: `Đã tải xong bản ${info.version}`,
+    detail: 'Dữ liệu giữ nguyên. Chọn "Để sau" thì bản mới tự cài khi tắt ứng dụng.',
+  });
+  // Đang sao lưu / khôi phục thì để cài khi thoát
+  if (response !== 0 || dangBan) return;
+  // quitAndInstall chạy bộ cài trước khi thoát: tắt Postgres trước, kẻo bộ cài ghi đè file Postgres đang mở
+  dangBan = true;
+  void hienDangCho('Đang chuẩn bị cập nhật…');
+  await tatDichVu();
+  dangBan = false;
+  dangThoat = true;
+  autoUpdater.quitAndInstall(true, true);
+});
+
+function kiemTraCapNhat(tay: boolean) {
+  kiemTraTay = tay;
+  if (!app.isPackaged) return;
+  // Lỗi (mất mạng…) đã ghi nhật ký qua sự kiện 'error'
+  autoUpdater.checkForUpdates().catch(() => undefined);
+}
+
 function taoMenu() {
   Menu.setApplicationMenu(
     Menu.buildFromTemplate([
@@ -293,6 +345,13 @@ function taoMenu() {
           { label: 'Cỡ mặc định', role: 'resetZoom' },
         ],
       },
+      {
+        label: 'Trợ giúp',
+        submenu: [
+          { label: 'Kiểm tra cập nhật…', click: () => kiemTraCapNhat(true) },
+          { label: `Phiên bản ${app.getVersion()}`, enabled: false },
+        ],
+      },
     ]),
   );
 }
@@ -314,6 +373,7 @@ async function khoiDong() {
   await batDichVu();
   await cuaSo.loadURL(DIA_CHI);
   dangBan = false;
+  kiemTraCapNhat(false);
 }
 
 let dangThoat = false;
