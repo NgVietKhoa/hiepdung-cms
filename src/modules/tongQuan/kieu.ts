@@ -24,7 +24,6 @@ export interface TongQuan {
   chamCongHomNay: { daCham: number; tongNhanVien: number };
   /** Vật tư (đang dùng, có mức tồn tối thiểu) đã xuống dưới mức */
   vatTuSapHet: { id: string; ten: string; tonKho: number; tonToiThieu: number; donViTinh: string }[];
-  lienHeMoi: number;
   /** 6 tháng gần nhất, cũ → mới */
   bieuDo: CotThang[];
 }

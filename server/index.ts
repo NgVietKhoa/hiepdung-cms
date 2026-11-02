@@ -13,15 +13,12 @@ import { boc, thamSo } from './tienIch';
 import { tuyenChamCong } from './modules/chamCong';
 import { tuyenHoaDon } from './modules/hoaDon';
 import { tuyenKho } from './modules/kho';
-import { tuyenCongKhai, tuyenLanding } from './modules/landing';
 import { tuyenTaiKhoan } from './modules/taiKhoan';
 import { tuyenThuChi } from './modules/thuChi';
 import { tuyenTongQuan } from './modules/tongQuan';
 
 const app = express();
 app.disable('x-powered-by');
-// Sau nginx / Caddy: lấy đúng IP khách (giới hạn gửi form liên hệ)
-app.set('trust proxy', 'loopback, linklocal, uniquelocal');
 
 /* ---------- Không cần đăng nhập ---------- */
 
@@ -29,9 +26,6 @@ app.get('/api/suc-khoe', boc(async (_req, res) => {
   await prisma.$queryRaw`SELECT 1`;
   res.json({ ok: true });
 }));
-
-// API công khai cho landing page (trang giới thiệu làm riêng)
-app.use('/api/cong-khai', tuyenCongKhai);
 
 app.use('/api', napPhien);
 
@@ -186,7 +180,6 @@ app.use('/api', tuyenChamCong);
 app.use('/api', tuyenHoaDon);
 app.use('/api', tuyenThuChi);
 app.use('/api', tuyenKho);
-app.use('/api', tuyenLanding);
 
 app.use('/api', (_req, res) => res.status(404).json({ loi: 'Không có đường dẫn này' }));
 

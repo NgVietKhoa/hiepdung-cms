@@ -73,30 +73,3 @@ export const LOAI_CONG_BAN_DAU: { kyHieu: string; ten: string; heSo: number; mau
   { kyHieu: 'L', ten: 'Nghỉ lễ (có lương)', heSo: 1, mau: '#e8defa' },
   { kyHieu: 'K', ten: 'Nghỉ không lương', heSo: 0, mau: '#fbdcd8' },
 ];
-
-/** Khối nội dung landing page dựng sẵn để có khung sửa (nội dung mẫu, sửa ở màn Landing page) */
-export const KHOI_LANDING_BAN_DAU: { loai: string; tieuDe: string; phuDe?: string; noiDung?: string; nutChu?: string; nutLienKet?: string; danhSachMuc?: { tieuDe: string; moTa: string }[] }[] = [
-  {
-    loai: 'hero',
-    tieuDe: 'Xưởng cơ khí Hiệp Dung',
-    phuDe: 'Gia công cơ khí chính xác — tiện, phay, hàn, cắt CNC theo bản vẽ',
-    nutChu: 'Nhận báo giá',
-    nutLienKet: '#lien-he',
-  },
-  {
-    loai: 'gioiThieu',
-    tieuDe: 'Về chúng tôi',
-    noiDung: '[Giới thiệu ngắn về xưởng: năm thành lập, máy móc, đội ngũ, cam kết chất lượng]',
-  },
-  {
-    loai: 'dichVu',
-    tieuDe: 'Dịch vụ',
-    danhSachMuc: [
-      { tieuDe: 'Tiện – phay', moTa: 'Gia công chi tiết trục, bạc, bích theo bản vẽ' },
-      { tieuDe: 'Hàn – kết cấu', moTa: 'Khung kèo, lan can, kết cấu thép' },
-      { tieuDe: 'Cắt CNC', moTa: 'Cắt laser, plasma tấm thép, inox' },
-    ],
-  },
-  { loai: 'duAn', tieuDe: 'Công trình tiêu biểu', danhSachMuc: [] },
-  { loai: 'lienHe', tieuDe: 'Liên hệ', phuDe: 'Gửi yêu cầu, chúng tôi gọi lại trong 30 phút' },
-];

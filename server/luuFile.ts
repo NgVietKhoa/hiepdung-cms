@@ -32,5 +32,5 @@ export async function luuFile(ten: unknown, duLieu: Buffer): Promise<{ tenFile: 
   if (!duLieu?.length) throw new LoiLuuFile('File rỗng');
   await mkdir(MOI_TRUONG.thuMucLuuFile, { recursive: true });
   await writeFile(join(MOI_TRUONG.thuMucLuuFile, tenFile), duLieu);
-  return { tenFile, thuMuc: MOI_TRUONG.thuMucHienThi };
+  return { tenFile, thuMuc: MOI_TRUONG.thuMucLuuFile };
 }

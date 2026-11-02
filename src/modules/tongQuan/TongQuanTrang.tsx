@@ -236,30 +236,6 @@ export function TongQuanTrang() {
                 </ul>
               )}
             </section>
-            <section className="the">
-              <div className="the-dau">
-                <span className="the-bieu-tuong">
-                  <BieuTuong ten="web" co={20} />
-                </span>
-                <div className="the-ten">
-                  <h2>Khách liên hệ từ website</h2>
-                </div>
-                {coQuyen('landing') && (
-                  <Link to="/landing#lien-he" className="nut-nho">
-                    Xem
-                  </Link>
-                )}
-              </div>
-              <p className="goi-y-nho">
-                {tq.lienHeMoi ? (
-                  <>
-                    Có <strong>{tq.lienHeMoi}</strong> yêu cầu liên hệ chưa xử lý.
-                  </>
-                ) : (
-                  'Không có yêu cầu liên hệ mới.'
-                )}
-              </p>
-            </section>
           </div>
         </>
       )}

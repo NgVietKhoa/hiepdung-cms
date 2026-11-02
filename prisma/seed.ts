@@ -1,5 +1,5 @@
 /**
- * Dữ liệu ban đầu cho cơ sở dữ liệu — chạy: npm run db:seed (Docker tự chạy sau migration).
+ * Dữ liệu ban đầu cho cơ sở dữ liệu — chạy: npm run db:seed (bản desktop tự chạy sau migration).
  * Chạy lại nhiều lần vẫn an toàn: chỉ thêm phần còn thiếu, không ghi đè những gì người dùng đã sửa trong Cài đặt.
  */
 import { randomBytes } from 'node:crypto';
@@ -9,7 +9,7 @@ import { napDuLieuMau } from '../server/dichVu';
 import { caiDatVaoDB } from '../server/anhXa';
 import { bamMatKhau } from '../server/xacThuc';
 import type { Prisma } from '../server/generated/prisma/client';
-import { CAI_DAT_BAN_DAU, KHOI_LANDING_BAN_DAU, LOAI_CONG_BAN_DAU, VAI_TRO_BAN_DAU } from './duLieuBanDau';
+import { CAI_DAT_BAN_DAU, LOAI_CONG_BAN_DAU, VAI_TRO_BAN_DAU } from './duLieuBanDau';
 
 /** Các cột của bảng nhập hạng mục, theo thứ tự hiện */
 const COT_HANG_MUC: Omit<Prisma.CotHangMucCreateInput, 'thuTu'>[] = [
@@ -118,25 +118,12 @@ async function seedLoaiCong() {
   console.log(`Đã thêm ${LOAI_CONG_BAN_DAU.length} ký hiệu công.`);
 }
 
-/** Landing page: khung nội dung mẫu lần đầu (chưa xuất bản) */
-async function seedLanding() {
-  if (!(await prisma.caiDatLanding.findUnique({ where: { id: 'landing' } }))) {
-    await prisma.caiDatLanding.create({ data: { id: 'landing' } });
-  }
-  if (await prisma.khoiLanding.count()) return console.log('Landing page: đã có nội dung, không thêm gì.');
-  await prisma.khoiLanding.createMany({
-    data: KHOI_LANDING_BAN_DAU.map((k, thuTu) => ({ ...k, danhSachMuc: (k.danhSachMuc ?? []).map((m) => ({ ...m, anhId: null, lienKet: '' })), thuTu })),
-  });
-  console.log('Đã tạo khung nội dung landing page.');
-}
-
 async function main() {
   await seedCotHangMuc();
   await seedDuLieuMau(await seedCaiDat());
   await seedVaiTro();
   await seedQuanTri();
   await seedLoaiCong();
-  await seedLanding();
 }
 
 main()

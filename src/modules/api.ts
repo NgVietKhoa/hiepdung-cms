@@ -3,7 +3,6 @@ import { goi, layHoacNull, ma, type TuyChonGoi } from '../db/api';
 import type { BangCong, CongCuaToi, DongLuong, LoaiCong, NhanVien, OCong } from './chamCong/kieu';
 import type { HoaDon, LoaiHoaDon, NhaCungCap, TepHoaDon, TomTatHoaDon } from './hoaDon/kieu';
 import type { DongTheKho, PhieuKho, TomTatPhieuKho, VatTu, VatTuTon } from './kho/kieu';
-import type { AnhLanding, CaiDatLanding, KhoiLanding, LienHeLanding } from './landing/kieu';
 import type { LuuTaiKhoan, TaiKhoan, VaiTro } from './taiKhoan/kieu';
 import type { CongNo, LoaiCongNo, PhieuThuChi, SoQuy } from './thuChi/kieu';
 import type { TongQuan } from './tongQuan/kieu';
@@ -86,21 +85,5 @@ export const apiCms = {
     layPhieu: (id: string) => layHoacNull<PhieuKho>(`/phieu-kho/${ma(id)}`),
     luuPhieu: (p: PhieuKho) => goi<PhieuKho>('PUT', `/phieu-kho/${ma(p.id)}`, p),
     xoaPhieu: (id: string) => goi<void>('DELETE', `/phieu-kho/${ma(id)}`),
-  },
-
-  landing: {
-    dsKhoi: () => goi<KhoiLanding[]>('GET', '/landing/khoi'),
-    luuKhoi: (k: KhoiLanding) => goi<KhoiLanding>('PUT', `/landing/khoi/${ma(k.id)}`, k),
-    xoaKhoi: (id: string) => goi<void>('DELETE', `/landing/khoi/${ma(id)}`),
-    thuTuKhoi: (ids: string[]) => goi<void>('POST', '/landing/thu-tu', ids),
-    dsAnh: () => goi<AnhLanding[]>('GET', '/landing/anh'),
-    themAnh: (file: File, moTa = '') => taiLen<AnhLanding>('/landing/anh', file, file.name, { moTa }),
-    suaAnh: (id: string, moTa: string) => goi<void>('PATCH', `/landing/anh/${ma(id)}`, { moTa }),
-    xoaAnh: (id: string) => goi<void>('DELETE', `/landing/anh/${ma(id)}`),
-    dsLienHe: () => goi<LienHeLanding[]>('GET', '/landing/lien-he'),
-    suaLienHe: (id: string, thayDoi: { daXuLy?: boolean; ghiChu?: string }) => goi<void>('PATCH', `/landing/lien-he/${ma(id)}`, thayDoi),
-    xoaLienHe: (id: string) => goi<void>('DELETE', `/landing/lien-he/${ma(id)}`),
-    caiDat: () => goi<CaiDatLanding>('GET', '/landing/cai-dat'),
-    luuCaiDat: (c: CaiDatLanding, tuyChon?: TuyChonGoi) => goi<CaiDatLanding>('PUT', '/landing/cai-dat', c, tuyChon),
   },
 };

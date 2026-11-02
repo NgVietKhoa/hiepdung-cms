@@ -1,7 +1,6 @@
 /**
  * Đặt lại mật khẩu khi quên (chạy trên máy chủ, không qua giao diện):
  *   npm run dat-lai-mat-khau -- <tên đăng nhập> <mật khẩu mới>
- *   docker compose exec api npx tsx server/datLaiMatKhau.ts <tên đăng nhập> <mật khẩu mới>
  * Đồng thời mở khoá tài khoản và đăng xuất người đó khỏi mọi máy.
  */
 import { prisma } from './prisma';

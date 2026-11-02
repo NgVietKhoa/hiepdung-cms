@@ -1,87 +1,69 @@
 # CMS xưởng cơ khí Hiệp Dung
 
-Hệ thống quản lý cho xưởng cơ khí (phát triển từ ứng dụng **Báo giá nhanh**). Dùng tốt trên điện thoại lẫn máy tính, **dùng chung một cơ sở dữ liệu**. Các module:
+Hệ thống quản lý cho xưởng cơ khí (phát triển từ ứng dụng **Báo giá nhanh**), chạy dạng **ứng dụng desktop Windows** trên máy của xưởng, dữ liệu nằm trên ổ cứng máy đó. Các module:
 
 | Module | Chức năng |
 |---|---|
 | **Tổng quan** | Doanh thu, thu – chi, tồn quỹ, công nợ, báo giá chờ chốt, chấm công hôm nay, vật tư sắp hết, biểu đồ thu – chi 6 tháng |
-| **Báo giá & nghiệm thu** | Như bản cũ: báo giá, biên bản nghiệm thu, khách hàng, danh mục hạng mục; xuất PDF / Word / Excel, gửi Zalo |
+| **Báo giá & nghiệm thu** | Như bản cũ: báo giá, biên bản nghiệm thu, khách hàng, danh mục hạng mục; xuất PDF / Word / Excel, in |
 | **Chấm công & lương** | Nhân viên; bảng chấm công tháng (chọn ký hiệu rồi bấm ô, tăng ca, ghi chú); bảng lương công nhật (công × lương/công + tăng ca + phụ cấp − tạm ứng); xuất Excel; nhân viên tự xem **Công của tôi** |
 | **Hoá đơn** | Sổ theo dõi hoá đơn **mua vào / bán ra** (không phát hành HĐĐT): dòng hàng, chiết khấu, VAT, hạn thanh toán, file PDF/XML đính kèm, lập từ báo giá, ghi tiền thu / trả; thuế GTGT phải nộp tạm tính; nhà cung cấp |
 | **Thu chi & công nợ** | Phiếu thu / chi (tự đánh số PT-, PC-), tiền mặt / chuyển khoản, sổ quỹ theo tháng; công nợ phải thu / phải trả theo đối tác, quá hạn |
 | **Kho vật tư** | Vật tư, phiếu nhập / xuất (PN-, PX-), tồn kho tính từ phiếu, chặn xuất quá tồn, thẻ kho, cảnh báo dưới mức tồn tối thiểu |
-| **Landing page** (khung tạm) | Nội dung theo khối, thư viện ảnh, SEO, khách để lại liên hệ; **API công khai** cho trang landing làm riêng |
 | **Tài khoản & quyền** | Mỗi người một tài khoản; vai trò (Quản trị / Kế toán / Nhân viên… sửa được) quyết định dùng module nào |
 
-- Chạy bằng **Docker** gồm 3 phần: **db** (PostgreSQL), **api** (Node.js + Express + Prisma), **web** (giao diện React, phục vụ bằng nginx).
-- Tự lưu liên tục ở báo giá, nghiệm thu, hoá đơn; mất mạng hay lỡ đóng trang vẫn không mất phần đang nhập.
-- Danh mục, ký hiệu, vai trò… đều là dữ liệu trong DB (sửa trong ứng dụng); giá trị ban đầu ở `prisma/duLieuBanDau.ts`, nạp bằng `npm run db:seed`.
+- Ứng dụng Electron tự chạy **PostgreSQL nhúng** và **máy chủ API** (Node.js + Express + Prisma) ngay trên máy, rồi mở giao diện React trong cửa sổ. Máy dùng không cần cài Node, Docker hay PostgreSQL.
+- Tự lưu liên tục ở báo giá, nghiệm thu, hoá đơn; lỡ đóng cửa sổ vẫn không mất phần đang nhập.
+- Danh mục, ký hiệu, vai trò… đều là dữ liệu trong DB (sửa trong ứng dụng); giá trị ban đầu ở `prisma/duLieuBanDau.ts`.
 
-## 1. Cấu hình (.env)
+## 1. Cài và dùng
 
-```bash
-cp .env.example .env      # Windows: copy .env.example .env
-```
+Tạo bộ cài trên máy dev (mục 3) rồi chạy `release/Hiep Dung CMS Setup <phiên bản>.exe` trên máy của xưởng. Bộ cài chưa ký số nên Windows SmartScreen cảnh báo lần đầu: bấm **More info → Run anyway**.
 
-Mở `.env` và sửa theo máy của bạn:
+- **Lần mở đầu:** tự tạo CSDL, hiện mật khẩu tạm của `admin` (đã chép sẵn để dán). Không nạp dữ liệu mẫu. Đăng nhập → đổi mật khẩu → **Cài đặt**: nhập thông tin xưởng, tài khoản ngân hàng, tải logo.
+- **Dữ liệu:** `%APPDATA%\hiep-dung-cms\` — `pgdata\` (CSDL), `cauHinh.json` (mật khẩu CSDL, `APP_SECRET`), `nhatKy.log` (nhật ký khi có lỗi).
+- **File PDF / Word / Excel** khi bấm "Lưu": thư mục `Hiep Dung CMS` trong Documents (menu **Dữ liệu → Mở thư mục file đã lưu**).
+- **Cập nhật phiên bản:** chạy bộ cài mới đè lên; dữ liệu trong AppData giữ nguyên, lần mở đầu tự áp migration mới.
+- Máy chủ chạy ở cổng `41730`. Windows Firewall hỏi lần đầu: **Cancel** = chỉ máy này dùng; **Allow** = điện thoại cùng Wi-Fi vào được qua `http://<IP máy>:41730` khi ứng dụng đang mở.
+- Chỉ mở được một cửa sổ ứng dụng mỗi lúc. Nút "Gửi Zalo" không có trên máy tính (trình duyệt máy tính không có bảng chia sẻ); lưu PDF rồi kéo file vào Zalo.
 
-| Biến | Ý nghĩa | Mặc định |
-|---|---|---|
-| `POSTGRES_PORT` | Cổng PostgreSQL mở ra máy thật (Prisma, DBeaver, pgAdmin kết nối vào) | `5432` |
-| `API_PORT` | Cổng máy chủ API (container `api`; cũng là cổng của `npm run dev:api`) | `3000` |
-| `WEB_PORT` | Cổng giao diện khi chạy Docker (container `web`) — **mở cổng này để dùng**. Chỉ đổi ở đây, không sửa vế `:80` trong `docker-compose.yml` | `5175` |
-| `DEV_PORT` | Cổng giao diện khi phát triển bằng `npm run dev` | `5173` |
-| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | Tài khoản và tên CSDL | `hiepdung` / — / `hiep_dung_cms` |
-| `POSTGRES_HOST` | Máy chứa DB khi chạy API trực tiếp trên máy (Docker tự đổi thành `db`) | `localhost` |
-| `DATABASE_URL` | Chuỗi kết nối cho Prisma (đọc trong `prisma.config.ts` và `server/prisma.ts`); **tự ghép** từ các biến trên, thường không cần sửa | |
-| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | Tài khoản **Quản trị đầu tiên** do seed tạo khi DB chưa có tài khoản nào. Mật khẩu để trống → seed tạo mật khẩu ngẫu nhiên và in ra log (`docker compose logs api`). Sau đó đổi mật khẩu trong ứng dụng; sửa biến này không còn tác dụng. (`APP_PASSWORD` của bản cũ vẫn được nhận làm `ADMIN_PASSWORD`) | `admin` / trống |
-| `APP_SECRET` | Chuỗi bí mật ký phiên đăng nhập — **bắt buộc** đặt chuỗi ngẫu nhiên dài (không đặt thì mỗi lần khởi động lại máy chủ mọi người phải đăng nhập lại) | |
-| `LANDING_ORIGIN` | Tên miền trang landing được gọi API công khai (CORS), cách nhau dấu phẩy. Trống = cho phép mọi nơi | trống |
-| `SEED_DU_LIEU_MAU` | Lần chạy đầu (DB trống) tự nạp dữ liệu mẫu | `true` |
-| `TZ` | Múi giờ máy chủ | `Asia/Ho_Chi_Minh` |
+## 2. Sao lưu
 
-Tạo chuỗi ngẫu nhiên cho `APP_SECRET`: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
-
-> `.env` trên máy dựng dự án đặt `POSTGRES_PORT=5433`, `DEV_PORT=5174` vì cổng 5432 và 5173 đang bị chương trình khác dùng. Đổi lại tuỳ ý. **Nếu đổi `POSTGRES_PASSWORD` sau khi DB đã được tạo**, Postgres vẫn giữ mật khẩu cũ trong volume — xem mục Câu hỏi thường gặp.
-
-## 2. Chạy bằng Docker (dùng thật)
-
-Cần Docker Desktop (Windows/Mac) hoặc Docker Engine (Linux).
-
-```bash
-docker compose up -d --build
-```
-
-Lệnh này build image `api` và `web`, tải image `db` (PostgreSQL chính thức, không cần build) rồi chạy cả ba theo thứ tự **db → api → web** (mỗi phần đợi phần trước sẵn sàng). Container `api` tự áp dụng migration và chạy seed (cài đặt ban đầu, cột bảng hạng mục, đơn vị tính, nhóm, mức VAT); lần đầu tự nạp **dữ liệu mẫu** (3 khách hàng, 15 hạng mục, 2 báo giá, 1 biên bản).
-
-Mở `http://127.0.0.1:<WEB_PORT>` (mặc định http://127.0.0.1:5175).
-
-Trên điện thoại cùng mạng Wi-Fi: mở `http://<IP máy chạy Docker>:<WEB_PORT>`, ví dụ `http://192.168.1.10:5175`, rồi chọn **“Thêm vào màn hình chính”**.
-
-Khi bắt đầu dùng thật: **Cài đặt** → nhập thông tin xưởng, tài khoản ngân hàng, tải logo → **Xoá toàn bộ dữ liệu** để bỏ dữ liệu mẫu (cài đặt xưởng được giữ).
-
-Lệnh hay dùng:
-
-```bash
-docker compose ps                   # xem trạng thái db / api / web
-docker compose logs -f api          # xem nhật ký máy chủ API
-docker compose down                 # tắt (dữ liệu vẫn giữ trong volume du_lieu_postgres)
-docker compose up -d --build        # cập nhật sau khi sửa mã (build lại api + web)
-```
+- **Toàn bộ dữ liệu:** menu **Dữ liệu → Sao lưu toàn bộ…** → chọn thư mục (nên là USB / ổ khác) → tạo `SaoLuu_<ngày>_<giờ>\` gồm `pgdata\` + `cauHinh.json`. Ứng dụng tạm dừng vài giây trong lúc chép (bản chép thư mục khi Postgres đang chạy không dùng được; bản Postgres nhúng không có `pg_dump`).
+- **Khôi phục:** **Dữ liệu → Khôi phục từ bản sao lưu…** → chọn thư mục `SaoLuu_…`. Dữ liệu đang có được giữ lại ở `%APPDATA%\hiep-dung-cms\TruocKhoiPhuc_<ngày>_<giờ>\` (cùng dạng bản sao lưu, chọn nhầm thì khôi phục lại từ đó).
+- **Cài đặt → Tải file sao lưu** (JSON) chỉ gồm phần **báo giá** (cài đặt, khách hàng, hạng mục, báo giá, biên bản, ảnh). File sao lưu từ **bản cũ chạy trên trình duyệt (IndexedDB)** cũng khôi phục được — dùng để chuyển dữ liệu cũ sang.
 
 ## 3. Phát triển trên máy
 
+Cần Node.js 20+ và Docker Desktop (chỉ để chạy PostgreSQL khi dev).
+
 ```bash
+cp .env.example .env      # Windows: copy .env.example .env
 npm install
-npm run db:up        # chỉ chạy PostgreSQL trong Docker
+npm run db:up        # PostgreSQL trong Docker (docker-compose.yml chỉ có service db)
 npm run db:deploy    # áp dụng migration (lần đầu)
 npm run db:seed      # nạp dữ liệu ban đầu còn thiếu (cài đặt, cột bảng hạng mục, dữ liệu mẫu lần đầu…) — chạy lại không sao
-npm run db:generate  # sinh Prisma Client vào server/generated (dev:api và build cũng tự chạy)
 npm run dev:api      # máy chủ API, cổng API_PORT, tự khởi động lại khi sửa mã
 npm run dev          # giao diện, cổng DEV_PORT — mở http://127.0.0.1:<DEV_PORT>
 ```
 
-Vite tự chuyển tiếp mọi yêu cầu `/api` sang `127.0.0.1:API_PORT` (đang chạy `docker compose up -d` thì dùng luôn container `api`, khỏi `dev:api`).
+Vite tự chuyển tiếp mọi yêu cầu `/api` sang `127.0.0.1:API_PORT`.
+
+| Biến (`.env`) | Ý nghĩa | Mặc định |
+|---|---|---|
+| `POSTGRES_PORT` | Cổng PostgreSQL mở ra máy thật (Prisma, DBeaver, pgAdmin kết nối vào) | `5432` |
+| `API_PORT` | Cổng của `npm run dev:api` | `3000` |
+| `DEV_PORT` | Cổng giao diện khi phát triển bằng `npm run dev` | `5173` |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | Tài khoản và tên CSDL | `hiepdung` / — / `hiep_dung_cms` |
+| `POSTGRES_HOST` | Máy chứa DB | `localhost` |
+| `DATABASE_URL` | Chuỗi kết nối cho Prisma (đọc trong `prisma.config.ts` và `server/prisma.ts`); **tự ghép** từ các biến trên, thường không cần sửa | |
+| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | Tài khoản **Quản trị đầu tiên** do seed tạo khi DB chưa có tài khoản nào. Mật khẩu để trống → seed tạo mật khẩu ngẫu nhiên và in ra màn hình. (`APP_PASSWORD` của bản cũ vẫn được nhận làm `ADMIN_PASSWORD`) | `admin` / trống |
+| `APP_SECRET` | Chuỗi bí mật ký phiên đăng nhập (không đặt thì mỗi lần khởi động lại máy chủ phải đăng nhập lại) | |
+| `SEED_DU_LIEU_MAU` | Lần chạy đầu (DB trống) tự nạp dữ liệu mẫu | `true` |
+| `TZ` | Múi giờ máy chủ | `Asia/Ho_Chi_Minh` |
+| `THU_MUC_LUU_FILE` | Thư mục lưu file PDF / Word / Excel khi bấm "Lưu" | `./file` |
+
+> `.env` trên máy dựng dự án đặt `POSTGRES_PORT=5433`, `DEV_PORT=5174` vì cổng 5432 và 5173 đang bị chương trình khác dùng. Đổi lại tuỳ ý.
 
 **Prisma 7:** chuỗi kết nối không còn nằm trong `schema.prisma`. Prisma CLI (migrate, studio…) đọc từ `prisma.config.ts`; máy chủ kết nối qua driver adapter `@prisma/adapter-pg` trong `server/prisma.ts`. Prisma Client được sinh vào `server/generated/` (không đưa vào kho mã).
 
@@ -89,42 +71,19 @@ Vite tự chuyển tiếp mọi yêu cầu `/api` sang `127.0.0.1:API_PORT` (đa
 |---|---|
 | `npm test` | Unit test: đọc số thành chữ, tính tiền, đánh số, mẫu PDF |
 | `npm run build` | Kiểm tra kiểu (giao diện + máy chủ) và đóng gói giao diện vào `dist/` |
-| `npm start` | Chạy máy chủ không cần Docker (phục vụ luôn `dist/` nếu đã `npm run build`) |
+| `npm run desktop:dev` | Build rồi mở ứng dụng desktop trên máy dev (dữ liệu ở `%APPDATA%\hiep-dung-cms\`, như bản cài) |
+| `npm run desktop:build` | Tạo bộ cài `release/Hiep Dung CMS Setup <phiên bản>.exe` |
 | `npm run db:migrate` | Sau khi sửa `prisma/schema.prisma`: tạo migration mới |
-| `npm run db:seed` | Nạp dữ liệu ban đầu từ `prisma/seed.ts` (chỉ thêm phần còn thiếu, không ghi đè). Docker tự chạy khi khởi động |
+| `npm run db:seed` | Nạp dữ liệu ban đầu từ `prisma/seed.ts` (chỉ thêm phần còn thiếu, không ghi đè). Bản desktop tự chạy khi mở |
 | `npm run db:studio` | Mở Prisma Studio để xem/sửa dữ liệu trực tiếp |
-
-## 4. Đưa ra Internet (HTTPS)
-
-Nút **Gửi Zalo** cần **HTTPS** (yêu cầu của trình duyệt). Trên `http://192.168...` vẫn dùng được Tải PDF / In.
-
-Cách đơn giản: đặt máy chủ (VPS hoặc máy trong xưởng) sau **Caddy** / **Nginx** / **Cloudflare Tunnel** trỏ về cổng `WEB_PORT`. Ví dụ Caddy (tự lấy chứng chỉ HTTPS):
-
-```
-cms.ten-mien-cua-ban.vn {
-    reverse_proxy 127.0.0.1:5175
-}
-```
-
-Khi đưa ra Internet: dùng mật khẩu mạnh cho các tài khoản, đặt `APP_SECRET` ngẫu nhiên, và **không mở cổng `POSTGRES_PORT`, `API_PORT`** ra ngoài: chỉ cần `WEB_PORT` (web tự chuyển `/api` sang api qua mạng nội bộ Docker). Có thể xoá dòng `ports` của `db` và `api` trong `docker-compose.yml` nếu không cần kết nối trực tiếp.
-
-## 5. Sao lưu
-
-- **Cài đặt → Tải file sao lưu**: tải toàn bộ dữ liệu (kèm ảnh) thành một file JSON. **Khôi phục từ file sao lưu** thay toàn bộ dữ liệu trên máy chủ bằng nội dung file. File sao lưu từ **bản cũ chạy trên trình duyệt (IndexedDB)** cũng khôi phục được — dùng để chuyển dữ liệu cũ sang.
-- File sao lưu JSON chỉ gồm phần **báo giá** (cài đặt, khách hàng, hạng mục, báo giá, biên bản, ảnh). **Toàn bộ hệ thống** (tài khoản, chấm công, hoá đơn kèm file, thu chi, kho, landing) sao lưu ở mức CSDL:
-  `docker compose exec db pg_dump -U hiepdung -Fc hiep_dung_cms > saoluu.dump` — khôi phục: `docker compose exec -T db pg_restore -U hiepdung -d hiep_dung_cms --clean < saoluu.dump`
-- Nên đặt lịch chạy `pg_dump` hằng ngày (Task Scheduler / cron) và cất file ra nơi khác.
 
 ## Kiến trúc & cấu trúc thư mục
 
 ```
-docker-compose.yml       db (postgres:16) → api → web
-docker/
-├── api.Dockerfile       Image máy chủ API (prisma migrate deploy → tsx server)
-├── web.Dockerfile       Build giao diện bằng Vite, phục vụ bằng nginx
-└── nginx.conf           File tĩnh + chuyển /api sang container api
+desktop/main.ts          Bản desktop (Electron): PostgreSQL nhúng → migrate → seed → máy chủ, mở cửa sổ; menu sao lưu / khôi phục
+docker-compose.yml       Chỉ PostgreSQL cho lúc phát triển
 prisma.config.ts         Cấu hình Prisma CLI (đường dẫn schema, migration, DATABASE_URL)
-.env.example             Mẫu cấu hình cổng, mật khẩu
+.env.example             Mẫu cấu hình khi phát triển
 prisma/
 ├── schema.prisma        Mô hình dữ liệu
 ├── seed.ts              Dữ liệu ban đầu (npm run db:seed): chỉ thêm phần còn thiếu
@@ -136,8 +95,8 @@ server/                  Máy chủ API
 ├── anhXa.ts             Chuyển đổi bản ghi Prisma ⇄ kiểu dữ liệu ứng dụng, làm sạch dữ liệu vào (dùng chung)
 ├── xacThuc.ts           Tài khoản: mật khẩu scrypt, phiên ký HMAC 30 ngày, canQuyen(...) theo module
 ├── tienIch.ts           boc(), khoảng ngày theo tháng, cấp số phiếu có khoá
-├── datLaiMatKhau.ts     npm run dat-lai-mat-khau -- <tên> <mật khẩu> (khi quên mật khẩu)
-├── modules/             Mỗi module một Router: taiKhoan, chamCong, hoaDon, thuChi, kho, landing (+ API công khai), tongQuan
+├── datLaiMatKhau.ts     npm run dat-lai-mat-khau -- <tên> <mật khẩu> (khi quên mật khẩu, lúc dev)
+├── modules/             Mỗi module một Router: taiKhoan, chamCong, hoaDon, thuChi, kho, tongQuan
 ├── prisma.ts            PrismaClient + adapter PostgreSQL
 ├── moiTruong.ts         Đọc .env
 └── generated/           Prisma Client (tự sinh)
@@ -161,7 +120,7 @@ src/                     Giao diện (React + Vite)
 └── modules/             Các module CMS — mỗi thư mục: kieu.ts (kiểu dùng chung với máy chủ) + các trang
     ├── api.ts           Gọi API của các module
     ├── tongQuan/  taiKhoan/  chamCong/ (tinhLuong.ts +test, xuatExcel.ts)
-    └── hoaDon/  thuChi/  kho/  landing/
+    └── hoaDon/  thuChi/  kho/
 ```
 
 **Thêm module mới:** model trong `schema.prisma` → `npm run db:migrate`; kiểu ở `src/modules/<tên>/kieu.ts`; Router ở `server/modules/<tên>.ts` (gắn trong `server/index.ts`, kiểm tra quyền bằng `canQuyen`); quyền mới thêm vào `src/db/quyen.ts`; trang + mục menu (`src/components/menu.ts`) + route (`src/App.tsx`).
@@ -174,7 +133,6 @@ src/                     Giao diện (React + Vite)
 - Hoá đơn: `nha_cung_cap`, `hoa_don` → `dong_hoa_don` + `tep_hoa_don` (file lưu trong DB, tối đa 15 MB).
 - Thu chi: `phieu_thu_chi` (gắn khách / NCC / nhân viên / hoá đơn; `tru_vao_luong` = tạm ứng).
 - Kho: `vat_tu`, `phieu_kho` → `dong_phieu_kho`. **Tồn kho không lưu** mà tính từ phiếu.
-- Landing: `khoi_landing`, `anh_landing`, `lien_he_landing`, `cai_dat_landing` (1 dòng).
 Tiền: `Decimal(15,0)` (đồng); số lượng: `Decimal(14,3)`. **Thành tiền và tổng không lưu** mà luôn tính lại từ số lượng × đơn giá nên không bao giờ lệch. Xoá báo giá → biên bản đã lập vẫn giữ (khoá ngoại `SET NULL`); xoá biên bản → dòng và ảnh xoá theo (`CASCADE`).
 
 ### API chính
@@ -194,8 +152,6 @@ Tiền: `Decimal(15,0)` (đồng); số lượng: `Decimal(14,3)`. **Thành ti�
 | `/api/nha-cung-cap`, `/api/hoa-don[/:id]`, `/api/hoa-don/:id/tep`, `/api/tep-hoa-don/:id`, `GET /api/hoa-don-tu-bao-gia/:id`, `GET /api/thue-gtgt` | Hoá đơn |
 | `/api/phieu-thu-chi[/:id]`, `GET /api/so-quy`, `GET /api/cong-no?loai=phaiThu\|phaiTra`, `GET /api/tam-ung` | Thu chi |
 | `/api/vat-tu[/:id]`, `GET /api/vat-tu/:id/the-kho`, `/api/phieu-kho[/:id]` | Kho |
-| `/api/landing/khoi`, `/anh`, `/lien-he`, `/cai-dat` | Quản lý landing |
-| `GET /api/cong-khai/trang`, `GET /api/cong-khai/anh/:id`, `GET /api/cong-khai/logo`, `POST /api/cong-khai/lien-he` | **Công khai cho trang landing** (không cần đăng nhập, có CORS). Dữ liệu trả về: kiểu `TrangCongKhai` trong `src/modules/landing/kieu.ts` |
 | `GET /api/tong-quan?thang=` | Tổng quan |
 
 Lọc theo tháng: `?thang=YYYY-MM` (hoặc `?tu=YYYY-MM-DD&den=YYYY-MM-DD`).
@@ -205,7 +161,7 @@ Lọc theo tháng: `?thang=YYYY-MM` (hoặc `?tu=YYYY-MM-DD&den=YYYY-MM-DD`).
 | Vấn đề | Cách xử lý |
 |---|---|
 | Đánh số chứng từ khi nhiều máy dùng chung | **Máy chủ cấp số** trong giao dịch có khoá `pg_advisory_xact_lock`, cột số có ràng buộc `UNIQUE`. Đã thử 20 yêu cầu tạo đồng thời → 20 số liên tiếp, không trùng. Số tự về 001 khi sang năm; sửa tay được, trùng thì báo lỗi rõ ràng. |
-| Không mất dữ liệu khi mất mạng / đóng trang | Mỗi lần sửa: ghi ngay bản nháp tạm vào localStorage (đồng bộ), gửi máy chủ sau 0,4 giây. Mất mạng → hiện thanh báo, tự thử lại mỗi 5 giây. Lần mở sau gửi lại bản nháp tạm còn sót. |
+| Không mất dữ liệu khi mất kết nối / đóng cửa sổ | Mỗi lần sửa: ghi ngay bản nháp tạm vào localStorage (đồng bộ), gửi máy chủ sau 0,4 giây. Mất kết nối → hiện thanh báo, tự thử lại mỗi 5 giây. Lần mở sau gửi lại bản nháp tạm còn sót. |
 | Hai máy cùng sửa một chứng từ | Bản lưu sau cùng thắng (đơn giản, phù hợp xưởng nhỏ). Các lần ghi cùng một chứng từ xếp hàng bằng khoá `pg_advisory_xact_lock` theo id; trên trình duyệt, lần lưu tự động sau chỉ gửi khi lần trước xong. Danh sách tự làm mới khi quay lại tab. |
 | Làm tròn thành tiền | Số lượng quy ra phần nghìn (đúng 3 chữ số thập phân như DB lưu) rồi nhân trên số nguyên, nên 0,145 × 100 = 15 — khớp công thức `ROUND()` trong file Excel xuất ra. |
 | Chứng từ tạo ra rồi bỏ trống | Rời màn hình → xoá ngay. Đóng tab đột ngột → lần mở sau trên **chính máy đó** xoá ngay; máy chủ dọn nháp trống của mọi máy sau 10 phút (không xoá sớm hơn để khỏi xoá nhầm nháp máy khác vừa tạo). |
@@ -224,11 +180,11 @@ Lọc theo tháng: `?thang=YYYY-MM` (hoặc `?tu=YYYY-MM-DD&den=YYYY-MM-DD`).
 
 ## Câu hỏi thường gặp
 
-- **Báo lỗi cổng đã được dùng (port is already allocated)** → đổi `POSTGRES_PORT` / `API_PORT` / `WEB_PORT` / `DEV_PORT` trong `.env`.
-- **Mở `localhost:...` bị treo, `127.0.0.1:...` thì được** → trên Windows, `localhost` có thể trỏ vào IPv6 `::1` đang bị chương trình khác (vd. WSL) giữ cùng cổng. Dùng `127.0.0.1` hoặc đổi sang cổng khác.
-- **Đổi `POSTGRES_PASSWORD` rồi app không kết nối được DB** → Postgres chỉ đọc mật khẩu lúc tạo volume lần đầu. Hoặc đổi lại mật khẩu cũ, hoặc đổi trong DB: `docker compose exec db psql -U hiepdung -d hiep_dung_cms -c "ALTER USER hiepdung PASSWORD 'mat_khau_moi';"`. (Xoá volume `docker compose down -v` cũng được nhưng **mất toàn bộ dữ liệu**.)
-- **Quên mật khẩu** → người có quyền Tài khoản đặt lại trong màn **Tài khoản & quyền**. Quên cả mật khẩu Quản trị: `docker compose exec api npx tsx server/datLaiMatKhau.ts admin <mật khẩu mới>` (khi dev: `npm run dat-lai-mat-khau -- admin <mật khẩu mới>`).
-- **Lần chạy đầu** → `docker compose up -d --build` tự chạy migration và seed (cài đặt, vai trò, tài khoản `admin`, ký hiệu công, danh mục thu chi / vật tư, khung landing, dữ liệu mẫu báo giá). Chưa đặt `ADMIN_PASSWORD` thì xem mật khẩu tạm của `admin` trong `docker compose logs api`.
+- **Ứng dụng báo "Không khởi động được"** → xem `%APPDATA%\hiep-dung-cms\nhatKy.log`. Hay gặp: cổng `41730` đang bị chương trình khác dùng.
+- **Quên mật khẩu** → người có quyền Tài khoản đặt lại trong màn **Tài khoản & quyền**. Quên cả mật khẩu Quản trị: khi dev chạy `npm run dat-lai-mat-khau -- admin <mật khẩu mới>`; bản desktop hiện chưa có cách đặt lại.
+- **(Dev) Báo lỗi cổng đã được dùng (port is already allocated)** → đổi `POSTGRES_PORT` / `API_PORT` / `DEV_PORT` trong `.env`.
+- **(Dev) Mở `localhost:...` bị treo, `127.0.0.1:...` thì được** → trên Windows, `localhost` có thể trỏ vào IPv6 `::1` đang bị chương trình khác (vd. WSL) giữ cùng cổng. Dùng `127.0.0.1` hoặc đổi sang cổng khác.
+- **(Dev) Đổi `POSTGRES_PASSWORD` rồi không kết nối được DB** → Postgres chỉ đọc mật khẩu lúc tạo volume lần đầu. Hoặc đổi lại mật khẩu cũ, hoặc đổi trong DB: `docker compose exec db psql -U hiepdung -d hiep_dung_cms -c "ALTER USER hiepdung PASSWORD 'mat_khau_moi';"`. (Xoá volume `docker compose down -v` cũng được nhưng **mất toàn bộ dữ liệu dev**.)
 
 ## Thiết kế sẵn cho Giai đoạn 2
 
@@ -239,4 +195,4 @@ Lọc theo tháng: `?thang=YYYY-MM` (hoặc `?tu=YYYY-MM-DD&den=YYYY-MM-DD`).
 
 ## Công nghệ
 
-React 18, TypeScript, Vite, React Router · Express 4, Prisma 7 (driver adapter pg), PostgreSQL 16 · pdfmake (tạo PDF), pdf.js (xem trước) · Vitest · Docker Compose.
+React 18, TypeScript, Vite, React Router · Express 4, Prisma 7 (driver adapter pg), PostgreSQL (nhúng qua `embedded-postgres`) · Electron, electron-builder · pdfmake (tạo PDF), pdf.js (xem trước) · Vitest.

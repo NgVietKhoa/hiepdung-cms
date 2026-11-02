@@ -26,7 +26,7 @@ tuyenTongQuan.get(
     const denThang = chuoiRaNgay(khoangThang(thang).den)!;
     const homNay = chuoiRaNgay(homNayISO())!;
 
-    const [hoaDon, phieu, quy, phaiThu, phaiTra, baoGia, soNhanVien, daCham, vatTu, lienHeMoi] = await Promise.all([
+    const [hoaDon, phieu, quy, phaiThu, phaiTra, baoGia, soNhanVien, daCham, vatTu] = await Promise.all([
       dsTomTatHoaDon({ ngayHoaDon: { gte: tuBieuDo, lt: denThang }, trangThai: 'hieuLuc' }),
       prisma.phieuThuChi.findMany({ where: { ngay: { gte: tuBieuDo, lt: denThang } }, select: { loai: true, ngay: true, soTien: true } }),
       soQuy(homNay, new Date(homNay.getTime() + 24 * 3600 * 1000)),
@@ -36,7 +36,6 @@ tuyenTongQuan.get(
       prisma.nhanVien.count({ where: { dangLam: true } }),
       prisma.chamCong.count({ where: { ngay: homNay, loaiCongId: { not: null }, nhanVien: { dangLam: true } } }),
       dsVatTuTon(),
-      prisma.lienHeLanding.count({ where: { daXuLy: false } }),
     ]);
 
     const bieuDo = Array.from({ length: SO_THANG_BIEU_DO }, (_, i) => ({ thang: congThang(dau, i), doanhThu: 0, thu: 0, chi: 0 }));
@@ -71,7 +70,6 @@ tuyenTongQuan.get(
       vatTuSapHet: vatTu
         .filter((v) => !v.ngungDung && v.tonToiThieu > 0 && v.tonKho < v.tonToiThieu)
         .map((v) => ({ id: v.id, ten: v.ten, tonKho: v.tonKho, tonToiThieu: v.tonToiThieu, donViTinh: v.donViTinh })),
-      lienHeMoi,
       bieuDo,
     };
     res.json(kq);

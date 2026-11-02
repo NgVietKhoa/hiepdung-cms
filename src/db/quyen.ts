@@ -10,7 +10,6 @@ export const DS_QUYEN = [
   { ma: 'hoaDon', ten: 'Hoá đơn', moTa: 'Hoá đơn mua vào / bán ra, nhà cung cấp' },
   { ma: 'thuChi', ten: 'Thu chi & công nợ', moTa: 'Phiếu thu, phiếu chi, sổ quỹ, công nợ' },
   { ma: 'kho', ten: 'Kho vật tư', moTa: 'Vật tư, phiếu nhập / xuất kho, tồn kho' },
-  { ma: 'landing', ten: 'Landing page', moTa: 'Nội dung, ảnh, SEO của trang giới thiệu; khách liên hệ' },
   { ma: 'caiDat', ten: 'Cài đặt', moTa: 'Thông tin xưởng, mặc định, danh mục, sao lưu dữ liệu' },
   { ma: 'taiKhoan', ten: 'Tài khoản & phân quyền', moTa: 'Tạo tài khoản, đặt lại mật khẩu, sửa vai trò' },
 ] as const;

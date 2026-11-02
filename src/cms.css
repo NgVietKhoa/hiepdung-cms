@@ -1,5 +1,5 @@
 /* =====================================================================
-   CMS xưởng: menu nhóm, số liệu, bảng dữ liệu, chấm công, hoá đơn, kho, landing.
+   CMS xưởng: menu nhóm, số liệu, bảng dữ liệu, chấm công, hoá đơn, kho.
    Dùng chung biến màu / cỡ chữ / bo góc của styles.css (nạp sau styles.css).
    ===================================================================== */
 
@@ -301,27 +301,6 @@ code { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-siz
 .lich-so small { font-size: 0.68rem; }
 .lich-ngay strong { font-size: var(--co-lg); }
 .lich-ngay > small { font-size: 0.72rem; font-weight: var(--dam-vua); color: var(--mau-chinh-dam); }
-
-/* ---------- Landing page ---------- */
-.anh-nho { width: 52px; height: 40px; flex-shrink: 0; object-fit: cover; border-radius: var(--bo-goc-xs); background: var(--nen-xam); }
-.anh-nho.trong { display: block; }
-.luoi-chon-anh { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 6px; max-height: 220px; overflow-y: auto; padding: 2px; }
-.o-chon-anh { aspect-ratio: 4 / 3; padding: 0; border: 2px solid var(--vien-nhat); border-radius: var(--bo-goc-nho); background: var(--nen-xam); overflow: hidden; font-weight: var(--dam-vua); color: var(--chu-phu); }
-.o-chon-anh img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.o-chon-anh.dang-chon { border-color: var(--mau-chinh); box-shadow: 0 0 0 2px var(--mau-chinh-vien); }
-.the-muc-con { padding: 12px; margin-bottom: 10px; border: 1px dashed var(--mau-chinh-vien); border-radius: var(--bo-goc); background: #f8fbff; }
-.the-muc-con-dau { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.luoi-anh-landing { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-.luoi-anh-landing li { display: flex; flex-direction: column; background: var(--the); border: 1px solid var(--vien-nhat); border-radius: var(--bo-goc); overflow: hidden; box-shadow: var(--bong); }
-.luoi-anh-landing img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--nen-xam); }
-.anh-landing-than { display: flex; flex-direction: column; gap: 6px; padding: 10px; }
-.anh-landing-than small { color: var(--chu-phu); overflow-wrap: anywhere; }
-.anh-landing-than .o-nhap { min-height: 36px; padding: 6px 10px; font-size: var(--co-md); }
-.ds-the-lien-he { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-.ds-the-lien-he .the { margin: 0; }
-.ds-the-lien-he .da-xu-ly { opacity: 0.75; }
-.hang-lien-he { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-.noi-dung-lien-he { white-space: pre-line; margin-bottom: 10px; padding: 10px 12px; background: var(--nen-phu); border-radius: var(--bo-goc-nho); }
 
 /* Nút trên thanh công cụ không xuống dòng chữ */
 .thanh-cong-cu .hang-nut .nut { white-space: nowrap; }

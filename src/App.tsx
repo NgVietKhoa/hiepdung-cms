@@ -33,7 +33,6 @@ const NhaCungCapTrang = trangLuoi(() => import('./modules/hoaDon/NhaCungCapTrang
 const KhoTrang = trangLuoi(() => import('./modules/kho/KhoTrang'), 'KhoTrang');
 const PhieuKhoSua = trangLuoi(() => import('./modules/kho/PhieuKhoSua'), 'PhieuKhoSua');
 const PhieuKhoTrang = trangLuoi(() => import('./modules/kho/PhieuKhoTrang'), 'PhieuKhoTrang');
-const LandingTrang = trangLuoi(() => import('./modules/landing/LandingTrang'), 'LandingTrang');
 const TaiKhoanTrang = trangLuoi(() => import('./modules/taiKhoan/TaiKhoanTrang'), 'TaiKhoanTrang');
 const ToiTrang = trangLuoi(() => import('./modules/taiKhoan/ToiTrang'), 'ToiTrang');
 const CongNoTrang = trangLuoi(() => import('./modules/thuChi/CongNoTrang'), 'CongNoTrang');
@@ -178,7 +177,6 @@ export function App() {
                 <Route path="/phieu-kho" element={<Can quyen={['kho']}><PhieuKhoTrang /></Can>} />
   
                 {/* Website & hệ thống */}
-                <Route path="/landing" element={<Can quyen={['landing']}><LandingTrang /></Can>} />
                 <Route path="/tai-khoan" element={<Can quyen={['taiKhoan']}><TaiKhoanTrang /></Can>} />
                 <Route path="/cai-dat" element={<Can quyen={['caiDat']}><CaiDatTrang /></Can>} />
               </Route>

@@ -33,7 +33,6 @@ const DUONG_VE: Record<string, string> = {
   tien: 'M21 12V7H5a2 2 0 010-4h14v4M3 5v14a2 2 0 002 2h16v-5M18 12a2 2 0 000 4h4v-4z',
   hoaDon: 'M4 2v20l3-2 3 2 3-2 3 2 3-2 1 1V2l-1 1-3-2-3 2-3-2-3 2-3-2zM8 8h8M8 12h8M8 16h5',
   kho: 'M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v8',
-  web: 'M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20',
   bieuDo: 'M3 3v18h18M8 17v-5M13 17V8M18 17V5',
   khoa: 'M5 11h14v10H5zM8 11V7a4 4 0 018 0v4',
   lich: 'M3 5h18v16H3zM16 3v4M8 3v4M3 10h18',
