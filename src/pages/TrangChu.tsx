@@ -4,7 +4,6 @@ import { BieuTuong } from '../components/BieuTuong';
 import { NhanTrangThai, OTim, TrangChinh, Trong, useTaoMoi } from '../components/KhungTrang';
 import { api } from '../db/api';
 import { useCaiDat, useTruyVan } from '../db/hooks';
-import { usePhien } from '../db/phien';
 import { NHAN_TRANG_THAI_BAO_GIA, NHAN_TRANG_THAI_NGHIEM_THU } from '../db/kieu';
 import { dinhDangNgay, dinhDangTien } from '../lib/dinhDang';
 import { khop } from '../lib/timKiem';
@@ -29,7 +28,6 @@ interface MucDanhSach {
 export function TrangChu() {
   const tao = useTaoMoi();
   const cd = useCaiDat();
-  const { coQuyen } = usePhien();
   const [loai, setLoai] = useState<Loai>('baoGia');
   const [cauTim, setCauTim] = useState('');
   const [locTrangThai, setLocTrangThai] = useState('tatCa');
@@ -85,9 +83,7 @@ export function TrangChu() {
 
   const coDuLieu = !!(duLieu?.bg.length || duLieu?.nt.length);
   const canNhacSaoLuu =
-    coQuyen('caiDat') &&
-    coDuLieu &&
-    (!cd.lanSaoLuuCuoi || Date.now() - cd.lanSaoLuuCuoi > 30 * 24 * 3600 * 1000);
+    coDuLieu && (!cd.lanSaoLuuCuoi || Date.now() - cd.lanSaoLuuCuoi > 30 * 24 * 3600 * 1000);
 
   const doiLoai = (v: Loai) => {
     setLoai(v);

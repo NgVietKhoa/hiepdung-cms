@@ -3,7 +3,6 @@
  * người dùng sửa trong màn Cài đặt; sửa file này không ảnh hưởng tới DB đã có cài đặt.
  */
 import type { CaiDat } from '../src/db/kieu';
-import { TAT_CA_QUYEN, type MaQuyen } from '../src/db/quyen';
 
 export const CAI_DAT_BAN_DAU: Omit<CaiDat, 'id' | 'lanSaoLuuCuoi'> = {
   tenDonVi: 'XƯỞNG CƠ KHÍ HIỆP DUNG',
@@ -53,17 +52,6 @@ export const CAI_DAT_BAN_DAU: Omit<CaiDat, 'id' | 'lanSaoLuuCuoi'> = {
   nhomVatTu: ['Thép tấm', 'Thép hình', 'Thép ống', 'Inox', 'Nhôm', 'Bu lông, ốc vít', 'Que hàn, khí', 'Dao cụ', 'Sơn', 'Khác'],
   ngayNghiTuan: [0],
 };
-
-/** Vai trò ban đầu. "Quản trị" là vai trò hệ thống: luôn đủ quyền. Sau đó sửa ở màn Tài khoản. */
-export const VAI_TRO_BAN_DAU: { ten: string; moTa: string; quyen: MaQuyen[]; heThong?: boolean }[] = [
-  { ten: 'Quản trị', moTa: 'Toàn quyền, quản lý tài khoản', quyen: [...TAT_CA_QUYEN], heThong: true },
-  {
-    ten: 'Kế toán',
-    moTa: 'Báo giá, hoá đơn, thu chi, kho, chấm công',
-    quyen: ['tongQuan', 'baoGia', 'chamCong', 'hoaDon', 'thuChi', 'kho'],
-  },
-  { ten: 'Nhân viên', moTa: 'Chỉ xem công, lương của mình', quyen: [] },
-];
 
 /** Ký hiệu công ban đầu trên bảng chấm công. Sau đó sửa ở màn Chấm công → Ký hiệu công. */
 export const LOAI_CONG_BAN_DAU: { kyHieu: string; ten: string; heSo: number; mau: string }[] = [

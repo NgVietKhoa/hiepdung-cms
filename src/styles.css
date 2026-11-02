@@ -885,8 +885,6 @@ select.o-nhap { cursor: pointer; }
 .dong-don-so { display: flex; align-items: center; gap: 8px; font-weight: var(--dam-ro); color: var(--mau-chinh); }
 .dong-don-gia { font-weight: var(--dam-ro); color: var(--chu); white-space: nowrap; }
 .dong-don-gia small { color: var(--chu-phu); font-weight: var(--dam-thuong); }
-.khung-hep { max-width: 760px; margin: 0; }
-.khung-hep.giua { margin: 0 auto; } /* trang chỉ có một cột thẻ (vd. Tài khoản của tôi): đặt giữa vùng nội dung */
 
 /* ================= Soạn báo giá / nghiệm thu ================= */
 /* Một cột từ trên xuống; mỗi phần thu gọn / mở ra được */
@@ -1264,7 +1262,6 @@ body.dang-keo-tha .tay-nam { cursor: grabbing; }
 .the-man-don h1 { font-size: var(--co-2xl); font-weight: var(--dam-dam); margin-bottom: 6px; }
 .the-man-don p { color: var(--chu-phu); margin-bottom: 16px; }
 .the-man-don .nut { margin-top: 6px; min-height: 44px; }
-.logo-man-don { display: block; margin: 0 auto 20px; width: 150px; height: auto; }
 
 /* ================= Cài đặt ================= */
 .chon-thong-tin { border: 0; margin: 0 0 16px; padding: 0 0 14px; border-bottom: 1px solid var(--vien-nhat); }

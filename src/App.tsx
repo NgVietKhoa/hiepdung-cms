@@ -1,15 +1,11 @@
-import { lazy, Suspense, useEffect, useLayoutEffect, useState, type ComponentType, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useState, type ComponentType } from 'react';
 import { HashRouter, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
-import { KhongCoQuyen } from './components/ChungCms';
 import { NhaCungCapGiaoTiep } from './components/HopThoai';
 import { BoKhungMenu, DangTaiTrang } from './components/KhungTrang';
-import { trangDau } from './components/menu';
-import { api, kenhCanDangNhap, kenhMatKetNoi } from './db/api';
+import { api, kenhMatKetNoi } from './db/api';
+import { napCaiDatCache } from './db/hooks';
 import { khoiPhucNhapTam } from './db/nhapTam';
-import { NhaCungCapPhien, usePhien } from './db/phien';
-import type { MaQuyen, NguoiDungPhien } from './db/quyen';
 import { donNhapCuaMayNay } from './db/thaoTac';
-import { DangNhap } from './pages/DangNhap';
 
 /*
  * Mỗi trang tách thành một file JS riêng: lần đầu vào ứng dụng chỉ tải phần cần để hiện trang đang mở.
@@ -25,7 +21,6 @@ function napTruocCacTrang() {
 }
 const BangCongTrang = trangLuoi(() => import('./modules/chamCong/BangCongTrang'), 'BangCongTrang');
 const BangLuongTrang = trangLuoi(() => import('./modules/chamCong/BangLuongTrang'), 'BangLuongTrang');
-const CongCuaToiTrang = trangLuoi(() => import('./modules/chamCong/CongCuaToiTrang'), 'CongCuaToiTrang');
 const NhanVienTrang = trangLuoi(() => import('./modules/chamCong/NhanVienTrang'), 'NhanVienTrang');
 const HoaDonSua = trangLuoi(() => import('./modules/hoaDon/HoaDonSua'), 'HoaDonSua');
 const HoaDonTrang = trangLuoi(() => import('./modules/hoaDon/HoaDonTrang'), 'HoaDonTrang');
@@ -33,8 +28,6 @@ const NhaCungCapTrang = trangLuoi(() => import('./modules/hoaDon/NhaCungCapTrang
 const KhoTrang = trangLuoi(() => import('./modules/kho/KhoTrang'), 'KhoTrang');
 const PhieuKhoSua = trangLuoi(() => import('./modules/kho/PhieuKhoSua'), 'PhieuKhoSua');
 const PhieuKhoTrang = trangLuoi(() => import('./modules/kho/PhieuKhoTrang'), 'PhieuKhoTrang');
-const TaiKhoanTrang = trangLuoi(() => import('./modules/taiKhoan/TaiKhoanTrang'), 'TaiKhoanTrang');
-const ToiTrang = trangLuoi(() => import('./modules/taiKhoan/ToiTrang'), 'ToiTrang');
 const CongNoTrang = trangLuoi(() => import('./modules/thuChi/CongNoTrang'), 'CongNoTrang');
 const ThuChiTrang = trangLuoi(() => import('./modules/thuChi/ThuChiTrang'), 'ThuChiTrang');
 const TongQuanTrang = trangLuoi(() => import('./modules/tongQuan/TongQuanTrang'), 'TongQuanTrang');
@@ -63,18 +56,6 @@ function TheoId({ children }: { children: (id: string) => JSX.Element }) {
   return children(id);
 }
 
-/** Chỉ hiện trang khi tài khoản có ít nhất một trong các quyền */
-function Can({ quyen, children }: { quyen: MaQuyen[]; children: ReactNode }) {
-  const { coQuyen } = usePhien();
-  return coQuyen(...quyen) ? <>{children}</> : <KhongCoQuyen />;
-}
-
-/** "/" — Tổng quan nếu có quyền, không thì trang đầu tiên được dùng */
-function TrangGoc() {
-  const { nguoiDung, coQuyen } = usePhien();
-  return coQuyen('tongQuan') ? <TongQuanTrang /> : <Navigate to={trangDau(nguoiDung)} replace />;
-}
-
 function ThanhMatKetNoi() {
   const [matKetNoi, setMatKetNoi] = useState(false);
   useEffect(() => kenhMatKetNoi.nghe(setMatKetNoi), []);
@@ -86,11 +67,10 @@ function ThanhMatKetNoi() {
   );
 }
 
-type TrangThaiPhien = 'dangKiemTra' | 'canDangNhap' | 'sanSang' | 'khongKetNoi';
+type TrangThaiPhien = 'dangKiemTra' | 'sanSang' | 'khongKetNoi';
 
-/** Việc làm một lần khi vào ứng dụng (người lập báo giá): gửi lại nháp tạm chưa lưu, dọn chứng từ trống bị bỏ dở. */
-async function chuanBi(nd: NguoiDungPhien) {
-  if (!nd.quyen.includes('baoGia')) return;
+/** Việc làm một lần khi vào ứng dụng: gửi lại nháp tạm chưa lưu, dọn chứng từ trống bị bỏ dở. */
+async function chuanBi() {
   // Thứ tự quan trọng: gửi lại phần đã gõ nhưng chưa kịp lưu, rồi mới dọn nháp trống
   await khoiPhucNhapTam();
   await donNhapCuaMayNay();
@@ -100,28 +80,20 @@ async function chuanBi(nd: NguoiDungPhien) {
 /** HashRouter (#/...) để chạy được trên mọi nơi lưu trữ tĩnh mà không cần cấu hình máy chủ. */
 export function App() {
   const [phien, setPhien] = useState<TrangThaiPhien>('dangKiemTra');
-  const [nguoiDung, setNguoiDung] = useState<NguoiDungPhien | null>(null);
 
   const kiemTra = () => {
     setPhien('dangKiemTra');
-    api.phien
-      .kiemTra()
-      .then(async ({ hopLe, nguoiDung: nd }) => {
-        if (!hopLe || !nd) return setPhien('canDangNhap');
-        setNguoiDung(nd);
-        await chuanBi(nd);
+    api.caiDat
+      .lay()
+      .then(async (cd) => {
+        napCaiDatCache(cd);
+        await chuanBi();
         setPhien('sanSang');
       })
       .catch(() => setPhien('khongKetNoi'));
   };
 
-  useEffect(() => {
-    kiemTra();
-    return kenhCanDangNhap.nghe(() => {
-      setNguoiDung(null);
-      setPhien('canDangNhap');
-    });
-  }, []);
+  useEffect(kiemTra, []);
 
   // Tải ngầm mã các trang khác khi máy rảnh, sau khi trang đầu tiên đã hiện
   useEffect(() => {
@@ -140,60 +112,52 @@ export function App() {
     );
   }
   if (phien === 'khongKetNoi') return <KhongKetNoi thuLai={kiemTra} />;
-  if (phien === 'canDangNhap' || !nguoiDung) return <DangNhap onXong={kiemTra} />;
-
-  const bg: MaQuyen[] = ['baoGia'];
   return (
     <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <NhaCungCapPhien nguoiDung={nguoiDung}>
         <NhaCungCapGiaoTiep>
           <CuonLenDau />
           <ThanhMatKetNoi />
           <Suspense fallback={<DangTaiTrang />}>
             <Routes>
               <Route element={<BoKhungMenu />}>
-                <Route path="/" element={<TrangGoc />} />
-                <Route path="/toi" element={<ToiTrang />} />
+                <Route path="/" element={<TongQuanTrang />} />
   
                 {/* Báo giá & nghiệm thu */}
-                <Route path="/bao-gia" element={<Can quyen={bg}><TrangChu /></Can>} />
-                <Route path="/khach-hang" element={<Can quyen={bg}><KhachHangTrang /></Can>} />
-                <Route path="/hang-muc" element={<Can quyen={bg}><HangMucTrang /></Can>} />
+                <Route path="/bao-gia" element={<TrangChu />} />
+                <Route path="/khach-hang" element={<KhachHangTrang />} />
+                <Route path="/hang-muc" element={<HangMucTrang />} />
   
                 {/* Nhân sự */}
-                <Route path="/cham-cong" element={<Can quyen={['chamCong']}><BangCongTrang /></Can>} />
-                <Route path="/bang-luong" element={<Can quyen={['chamCong']}><BangLuongTrang /></Can>} />
-                <Route path="/nhan-vien" element={<Can quyen={['chamCong']}><NhanVienTrang /></Can>} />
-                <Route path="/cong-cua-toi" element={<CongCuaToiTrang />} />
+                <Route path="/cham-cong" element={<BangCongTrang />} />
+                <Route path="/bang-luong" element={<BangLuongTrang />} />
+                <Route path="/nhan-vien" element={<NhanVienTrang />} />
   
                 {/* Tài chính */}
-                <Route path="/hoa-don" element={<Can quyen={['hoaDon']}><HoaDonTrang /></Can>} />
-                <Route path="/nha-cung-cap" element={<Can quyen={['hoaDon', 'thuChi', 'kho']}><NhaCungCapTrang /></Can>} />
-                <Route path="/thu-chi" element={<Can quyen={['thuChi']}><ThuChiTrang /></Can>} />
-                <Route path="/cong-no" element={<Can quyen={['thuChi']}><CongNoTrang /></Can>} />
+                <Route path="/hoa-don" element={<HoaDonTrang />} />
+                <Route path="/nha-cung-cap" element={<NhaCungCapTrang />} />
+                <Route path="/thu-chi" element={<ThuChiTrang />} />
+                <Route path="/cong-no" element={<CongNoTrang />} />
   
                 {/* Kho */}
-                <Route path="/kho" element={<Can quyen={['kho']}><KhoTrang /></Can>} />
-                <Route path="/phieu-kho" element={<Can quyen={['kho']}><PhieuKhoTrang /></Can>} />
+                <Route path="/kho" element={<KhoTrang />} />
+                <Route path="/phieu-kho" element={<PhieuKhoTrang />} />
   
-                {/* Website & hệ thống */}
-                <Route path="/tai-khoan" element={<Can quyen={['taiKhoan']}><TaiKhoanTrang /></Can>} />
-                <Route path="/cai-dat" element={<Can quyen={['caiDat']}><CaiDatTrang /></Can>} />
+                {/* Hệ thống */}
+                <Route path="/cai-dat" element={<CaiDatTrang />} />
               </Route>
   
               {/* Các màn soạn thảo & in toàn màn hình (không menu) */}
-              <Route path="/bao-gia/:id" element={<Can quyen={bg}><TheoId>{(id) => <BaoGiaSua key={id} />}</TheoId></Can>} />
-              <Route path="/nghiem-thu/moi" element={<Can quyen={bg}><ChonBaoGia /></Can>} />
-              <Route path="/nghiem-thu/:id" element={<Can quyen={bg}><TheoId>{(id) => <NghiemThuSua key={id} />}</TheoId></Can>} />
-              <Route path="/in/:loai/:id" element={<Can quyen={bg}><XemTruoc /></Can>} />
-              <Route path="/hoa-don/:id" element={<Can quyen={['hoaDon']}><TheoId>{(id) => <HoaDonSua key={id} />}</TheoId></Can>} />
-              <Route path="/phieu-kho/:id" element={<Can quyen={['kho']}><TheoId>{(id) => <PhieuKhoSua key={id} />}</TheoId></Can>} />
+              <Route path="/bao-gia/:id" element={<TheoId>{(id) => <BaoGiaSua key={id} />}</TheoId>} />
+              <Route path="/nghiem-thu/moi" element={<ChonBaoGia />} />
+              <Route path="/nghiem-thu/:id" element={<TheoId>{(id) => <NghiemThuSua key={id} />}</TheoId>} />
+              <Route path="/in/:loai/:id" element={<XemTruoc />} />
+              <Route path="/hoa-don/:id" element={<TheoId>{(id) => <HoaDonSua key={id} />}</TheoId>} />
+              <Route path="/phieu-kho/:id" element={<TheoId>{(id) => <PhieuKhoSua key={id} />}</TheoId>} />
   
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
         </NhaCungCapGiaoTiep>
-      </NhaCungCapPhien>
     </HashRouter>
   );
 }

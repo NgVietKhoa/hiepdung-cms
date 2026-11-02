@@ -9,7 +9,6 @@ import { chuoi, chuoiRaNgay, ngayRaChuoi, so, tien, trongDanhSach } from '../anh
 import { layCaiDat } from '../dichVu';
 import { prisma } from '../prisma';
 import { baoTrungSo, boc, capSoPhieu, KHOA_CAP_SO, khoangNgay, LoiApi, thamSo } from '../tienIch';
-import { canQuyen, coQuyen } from '../xacThuc';
 import { dsTomTatHoaDon } from './hoaDon';
 
 const phieuRaApp = (p: Prisma.PhieuThuChiGetPayload<object>): PhieuThuChi => ({
@@ -116,10 +115,8 @@ export const tuyenThuChi = express.Router();
 /** ?thang= hoặc ?tu=&den=, ?loai=thu|chi; ?hoaDonId= (bỏ lọc ngày) — thanh toán của một hoá đơn */
 tuyenThuChi.get(
   '/phieu-thu-chi',
-  canQuyen('thuChi', 'hoaDon'),
   boc(async (req, res) => {
     const hoaDonId = req.query.hoaDonId ? String(req.query.hoaDonId) : undefined;
-    if (!hoaDonId && !coQuyen(req, 'thuChi')) throw new LoiApi(403, 'Tài khoản của bạn không có quyền xem sổ thu chi');
     const { tu, den } = khoangNgay(req.query);
     const loai = req.query.loai === 'thu' || req.query.loai === 'chi' ? req.query.loai : undefined;
     const ds = await prisma.phieuThuChi.findMany({
@@ -132,20 +129,14 @@ tuyenThuChi.get(
 
 /**
  * Tạo / sửa phiếu. Số trống → máy chủ cấp. Gắn hoá đơn mà chưa chọn đối tác thì lấy đối tác của hoá đơn.
- * Người chỉ có quyền chấm công được lập phiếu chi tạm ứng lương (trừ vào lương).
  */
 tuyenThuChi.put(
   '/phieu-thu-chi/:id',
-  canQuyen('thuChi', 'chamCong', 'hoaDon'),
   boc(async (req, res) => {
     const id = thamSo(req);
     const p = req.body as Partial<PhieuThuChi>;
     const loai = trongDanhSach(p.loai, ['thu', 'chi'] as const, 'thu');
     const laTamUng = loai === 'chi' && Boolean(p.truVaoLuong) && Boolean(p.nhanVienId);
-    const laThanhToanHD = Boolean(p.hoaDonId);
-    if (!coQuyen(req, 'thuChi') && !(coQuyen(req, 'chamCong') && laTamUng) && !(coQuyen(req, 'hoaDon') && laThanhToanHD)) {
-      throw new LoiApi(403, 'Tài khoản của bạn không có quyền lập phiếu thu chi');
-    }
     const soTien = tien(p.soTien);
     if (!soTien) throw new LoiApi(400, 'Số tiền phải lớn hơn 0');
     const ngay = chuoiRaNgay(p.ngay) ?? chuoiRaNgay(homNayISO())!;
@@ -153,9 +144,6 @@ tuyenThuChi.put(
     const kq = await baoTrungSo(soGui, () =>
       prisma.$transaction(async (tx) => {
         const cu = await tx.phieuThuChi.findUnique({ where: { id } });
-        if (cu && !coQuyen(req, 'thuChi') && !(cu.truVaoLuong || cu.hoaDonId)) {
-          throw new LoiApi(403, 'Tài khoản của bạn không có quyền sửa phiếu này');
-        }
         let khachHangId = chuoi(p.khachHangId) || null;
         let nhaCungCapId = chuoi(p.nhaCungCapId) || null;
         const nhanVienId = chuoi(p.nhanVienId) || null;
@@ -200,7 +188,7 @@ tuyenThuChi.put(
         };
         return cu
           ? tx.phieuThuChi.update({ where: { id }, data: duLieu })
-          : tx.phieuThuChi.create({ data: { id, ...duLieu, nguoiLap: req.nguoiDung!.hoTen } });
+          : tx.phieuThuChi.create({ data: { id, ...duLieu } });
       }),
     ).catch((e) => {
       if (e?.code === 'P2003') throw new LoiApi(400, 'Đối tượng (khách / nhà cung cấp / nhân viên) không còn tồn tại');
@@ -212,13 +200,8 @@ tuyenThuChi.put(
 
 tuyenThuChi.delete(
   '/phieu-thu-chi/:id',
-  canQuyen('thuChi', 'chamCong', 'hoaDon'),
   boc(async (req, res) => {
     const id = thamSo(req);
-    const p = await prisma.phieuThuChi.findUnique({ where: { id } });
-    if (p && !coQuyen(req, 'thuChi') && !((p.truVaoLuong && coQuyen(req, 'chamCong')) || (p.hoaDonId && coQuyen(req, 'hoaDon')))) {
-      throw new LoiApi(403, 'Tài khoản của bạn không có quyền xoá phiếu này');
-    }
     await prisma.phieuThuChi.deleteMany({ where: { id } });
     res.status(204).end();
   }),
@@ -227,7 +210,6 @@ tuyenThuChi.delete(
 /** Tạm ứng của một nhân viên trong tháng (màn Bảng lương) */
 tuyenThuChi.get(
   '/tam-ung',
-  canQuyen('chamCong', 'thuChi'),
   boc(async (req, res) => {
     const { tu, den } = khoangNgay(req.query);
     const ds = await prisma.phieuThuChi.findMany({
@@ -240,7 +222,6 @@ tuyenThuChi.get(
 
 tuyenThuChi.get(
   '/so-quy',
-  canQuyen('thuChi'),
   boc(async (req, res) => {
     const { tu, den } = khoangNgay(req.query);
     res.json(await soQuy(tu, den));
@@ -249,6 +230,5 @@ tuyenThuChi.get(
 
 tuyenThuChi.get(
   '/cong-no',
-  canQuyen('thuChi'),
   boc(async (req, res) => res.json(await congNo(req.query.loai === 'phaiTra' ? 'phaiTra' : 'phaiThu'))),
 );

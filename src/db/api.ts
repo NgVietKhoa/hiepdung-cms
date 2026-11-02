@@ -3,7 +3,6 @@
  *  - khi phát triển, Vite chuyển tiếp /api sang máy chủ (xem vite.config.ts);
  *  - khi chạy thật, máy chủ phục vụ cả giao diện lẫn API trên cùng một cổng.
  */
-import type { NguoiDungPhien } from './quyen';
 import type {
   AnhDinhKem,
   BaoGia,
@@ -43,29 +42,8 @@ function taoKenh<T>() {
 }
 /** Dữ liệu vừa thay đổi → các danh sách đang hiển thị tải lại */
 export const kenhThayDoi = taoKenh<void>();
-/** Máy chủ yêu cầu đăng nhập */
-export const kenhCanDangNhap = taoKenh<void>();
 /** true = mất kết nối máy chủ, false = đã kết nối lại */
 export const kenhMatKetNoi = taoKenh<boolean>();
-
-/* ---------- Phiên đăng nhập ---------- */
-
-const KHOA_PHIEN = 'cmsXuong:phien';
-const docPhien = () => {
-  try {
-    return localStorage.getItem(KHOA_PHIEN) ?? '';
-  } catch {
-    return '';
-  }
-};
-const ghiPhien = (p: string) => {
-  try {
-    if (p) localStorage.setItem(KHOA_PHIEN, p);
-    else localStorage.removeItem(KHOA_PHIEN);
-  } catch {
-    /* bỏ qua */
-  }
-};
 
 /* ---------- Hàm gọi chung ---------- */
 
@@ -84,7 +62,6 @@ const CHO_MAC_DINH = 15_000;
 const CHO_LAU = 5 * 60_000;
 
 export async function goi<T>(phuongThuc: string, duongDan: string, than?: unknown, tuyChon: TuyChonGoi = {}): Promise<T> {
-  const phien = docPhien();
   const huy = new AbortController();
   const hen = window.setTimeout(() => huy.abort(), tuyChon.thoiGianCho ?? CHO_MAC_DINH);
   // File (PDF, Word, Excel) gửi nguyên dữ liệu nhị phân; còn lại gửi JSON
@@ -96,7 +73,6 @@ export async function goi<T>(phuongThuc: string, duongDan: string, than?: unknow
         method: phuongThuc,
         headers: {
           ...(than !== undefined ? { 'Content-Type': laFile ? 'application/octet-stream' : 'application/json' } : {}),
-          ...(phien ? { Authorization: `Bearer ${phien}` } : {}),
           ...tuyChon.header,
         },
         body: laFile ? than : than !== undefined ? JSON.stringify(than) : undefined,
@@ -107,11 +83,6 @@ export async function goi<T>(phuongThuc: string, duongDan: string, than?: unknow
       throw new LoiApi(0, 'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.');
     }
     kenhMatKetNoi.phat(phanHoi.status >= 502 && phanHoi.status <= 504);
-    if (phanHoi.status === 401) {
-      ghiPhien('');
-      kenhCanDangNhap.phat();
-      throw new LoiApi(401, 'Cần đăng nhập');
-    }
     if (!phanHoi.ok) {
       const noiDung = await phanHoi.json().catch(() => null);
       throw new LoiApi(phanHoi.status, noiDung?.loi ?? `Lỗi máy chủ (${phanHoi.status})`);
@@ -145,25 +116,6 @@ export const ma = encodeURIComponent;
 /* ---------- Các nhóm API ---------- */
 
 export const api = {
-  phien: {
-    async kiemTra(): Promise<{ hopLe: boolean; nguoiDung: NguoiDungPhien | null }> {
-      return goi('GET', '/phien');
-    },
-    async dangNhap(tenDangNhap: string, matKhau: string): Promise<void> {
-      const { phien } = await goi<{ phien: string }>('POST', '/dang-nhap', { tenDangNhap, matKhau }, { baoThayDoi: false });
-      ghiPhien(phien);
-    },
-    /** Đổi mật khẩu của mình: các máy khác bị đăng xuất, máy này nhận phiên mới */
-    async doiMatKhau(matKhauCu: string, matKhauMoi: string): Promise<void> {
-      const { phien } = await goi<{ phien: string }>('POST', '/toi/doi-mat-khau', { matKhauCu, matKhauMoi }, { baoThayDoi: false });
-      ghiPhien(phien);
-    },
-    dangXuat() {
-      ghiPhien('');
-      kenhCanDangNhap.phat();
-    },
-  },
-
   caiDat: {
     lay: () => goi<CaiDat>('GET', '/cai-dat'),
     luu: (cd: Partial<CaiDat>, tuyChon?: TuyChonGoi) => goi<CaiDat>('PUT', '/cai-dat', cd, tuyChon),

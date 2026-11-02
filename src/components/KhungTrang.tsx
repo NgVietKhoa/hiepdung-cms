@@ -1,12 +1,11 @@
 import { Suspense, useEffect, useState, type ReactNode } from 'react';
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useCaiDat } from '../db/hooks';
-import { usePhien } from '../db/phien';
 import { taoBaoGiaMoi } from '../db/thaoTac';
 import type { TrangThaiLuu } from '../lib/useTuLuu';
 import { BieuTuong, type TenBieuTuong } from './BieuTuong';
 import { HopThoai, useGiaoTiep } from './HopThoai';
-import { menuCua, menuDuoiCua, type MucMenu } from './menu';
+import { menuDuoiCua, NHOM_MENU, type MucMenu } from './menu';
 
 const KHOA_LUU_MENU_DONG = 'hiepDung:menuDong';
 const KHOA_LUU_THANH_BEN = 'hiepDung:thanhBenMo';
@@ -97,7 +96,6 @@ const LienKetMenu = ({ m, onChon, ngan }: { m: MucMenu; onChon?: () => void; nga
 
 /** Toàn bộ menu theo nhóm (thanh bên máy tính, hộp "Menu" trên điện thoại) */
 function DanhSachMenu({ onChon }: { onChon?: () => void }) {
-  const { nguoiDung } = usePhien();
   const viTri = useLocation();
   const [nhomDong, setNhomDong] = useState<Record<string, boolean>>(() => docNhomMenuDong());
 
@@ -111,7 +109,7 @@ function DanhSachMenu({ onChon }: { onChon?: () => void }) {
 
   return (
     <nav className="menu-ben" aria-label="Menu chính">
-      {menuCua(nguoiDung).map((n) => {
+      {NHOM_MENU.map((n) => {
         if (!n.ten) {
           return (
             <div key="dau" className="nhom-menu">
@@ -156,28 +154,10 @@ function DanhSachMenu({ onChon }: { onChon?: () => void }) {
   );
 }
 
-/** Ô người dùng: tên, vai trò — bấm vào để đổi mật khẩu / đăng xuất */
-function ONguoiDung({ onChon }: { onChon?: () => void }) {
-  const { nguoiDung } = usePhien();
-  return (
-    <Link to="/toi" className="o-nguoi-dung" onClick={onChon}>
-      <span className="chu-dai-dien nho" aria-hidden="true">
-        {nguoiDung.hoTen.trim().split(/\s+/).pop()?.[0]?.toUpperCase() ?? '?'}
-      </span>
-      <span className="o-nguoi-dung-ten">
-        <strong>{nguoiDung.hoTen}</strong>
-        <small>{nguoiDung.vaiTro}</small>
-      </span>
-      <BieuTuong ten="muiTenPhai" co={18} />
-    </Link>
-  );
-}
-
-/** Máy tính: thanh bên trái cố định — nút tạo nhanh ở trên, menu theo nhóm, người dùng ở dưới. */
+/** Máy tính: thanh bên trái cố định — nút tạo nhanh ở trên, menu theo nhóm. */
 function ThanhBen() {
   const tao = useTaoMoi();
   const cd = useCaiDat();
-  const { coQuyen } = usePhien();
   return (
     <aside className="thanh-ben">
       <div className="thuong-hieu">
@@ -187,29 +167,24 @@ function ThanhBen() {
           {cd.tenDonVi && <small>{cd.tenDonVi}</small>}
         </span>
       </div>
-      {coQuyen('baoGia') && (
-        <div className="thanh-ben-tao">
-          <button type="button" className="nut nut-chinh nut-rong" onClick={tao.baoGia}>
-            <BieuTuong ten="them" /> Báo giá mới
-          </button>
-          <button type="button" className="nut nut-vien nut-rong" onClick={tao.nghiemThu}>
-            <BieuTuong ten="them" /> Nghiệm thu mới
-          </button>
-        </div>
-      )}
+      <div className="thanh-ben-tao">
+        <button type="button" className="nut nut-chinh nut-rong" onClick={tao.baoGia}>
+          <BieuTuong ten="them" /> Báo giá mới
+        </button>
+        <button type="button" className="nut nut-vien nut-rong" onClick={tao.nghiemThu}>
+          <BieuTuong ten="them" /> Nghiệm thu mới
+        </button>
+      </div>
       <DanhSachMenu />
-      <ONguoiDung />
     </aside>
   );
 }
 
-/** Điện thoại: menu dưới đáy (dễ bấm một tay) — vài mục hay dùng, nút "Tạo mới" nếu lập được báo giá, nút "Menu" mở toàn bộ. */
+/** Điện thoại: menu dưới đáy (dễ bấm một tay) — vài mục hay dùng, nút "Tạo mới", nút "Menu" mở toàn bộ. */
 function MenuDuoi() {
   const [mo, setMo] = useState<'tao' | 'menu' | null>(null);
   const tao = useTaoMoi();
-  const { nguoiDung, coQuyen } = usePhien();
-  const coTao = coQuyen('baoGia');
-  const muc = menuDuoiCua(nguoiDung, coTao ? 3 : 4);
+  const muc = menuDuoiCua(3);
   const chon = (lam: () => void) => () => {
     setMo(null);
     lam();
@@ -224,11 +199,11 @@ function MenuDuoi() {
   );
   return (
     <>
-      <nav className="menu-duoi" aria-label="Menu nhanh" style={{ gridTemplateColumns: `repeat(${muc.length + (coTao ? 2 : 1)}, 1fr)` }}>
+      <nav className="menu-duoi" aria-label="Menu nhanh" style={{ gridTemplateColumns: `repeat(${muc.length + 2}, 1fr)` }}>
         {muc.slice(0, 2).map((m) => (
           <LienKetMenu key={m.den} m={m} ngan />
         ))}
-        {coTao && nutTao}
+        {nutTao}
         {muc.slice(2).map((m) => (
           <LienKetMenu key={m.den} m={m} ngan />
         ))}
@@ -264,7 +239,6 @@ function MenuDuoi() {
       {mo === 'menu' && (
         <HopThoai tieuDe="Menu" onDong={() => setMo(null)}>
           <div className="menu-hop-thoai">
-            <ONguoiDung onChon={() => setMo(null)} />
             <DanhSachMenu onChon={() => setMo(null)} />
           </div>
         </HopThoai>

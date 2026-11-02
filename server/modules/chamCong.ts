@@ -1,13 +1,12 @@
-/** Nhân viên, ký hiệu công, bảng chấm công tháng, bảng lương, công của tôi. */
+/** Nhân viên, ký hiệu công, bảng chấm công tháng, bảng lương. */
 import express from 'express';
 import type { Prisma } from '../generated/prisma/client';
-import type { BangCong, CongCuaToi, DongLuong, LoaiCong, NhanVien, OCong } from '../../src/modules/chamCong/kieu';
+import type { BangCong, DongLuong, LoaiCong, NhanVien, OCong } from '../../src/modules/chamCong/kieu';
 import { tinhLuong } from '../../src/modules/chamCong/tinhLuong';
 import { khoangThang } from '../../src/lib/thang';
 import { chuoi, chuoiRaNgay, ngayRaChuoi, so, soTrongKhoang, tien } from '../anhXa';
 import { prisma } from '../prisma';
 import { boc, lanLuot, LoiApi, thamSo, thangTuQuery, type Tx } from '../tienIch';
-import { canQuyen } from '../xacThuc';
 
 /* ---------- Chuyển đổi ---------- */
 
@@ -110,10 +109,9 @@ async function bangLuong(thang: string): Promise<DongLuong[]> {
 
 export const tuyenChamCong = express.Router();
 
-// Danh sách nhân viên: chấm công, thu chi (chọn người nhận tiền) và tài khoản (gắn nhân viên) đều cần
+// Danh sách nhân viên: chấm công và thu chi (chọn người nhận tiền) đều cần
 tuyenChamCong.get(
   '/nhan-vien',
-  canQuyen('chamCong', 'thuChi', 'taiKhoan'),
   boc(async (_req, res) => {
     res.json((await prisma.nhanVien.findMany({ orderBy: THU_TU_NV })).map(nhanVienRaApp));
   }),
@@ -121,7 +119,6 @@ tuyenChamCong.get(
 
 tuyenChamCong.put(
   '/nhan-vien/:id',
-  canQuyen('chamCong'),
   boc(async (req, res) => {
     const id = thamSo(req);
     const duLieu = nhanVienVaoDB(req.body ?? {});
@@ -138,7 +135,6 @@ tuyenChamCong.put(
 
 tuyenChamCong.delete(
   '/nhan-vien/:id',
-  canQuyen('chamCong'),
   boc(async (req, res) => {
     const id = thamSo(req);
     const [soCong, soPhieu] = await Promise.all([
@@ -156,7 +152,6 @@ tuyenChamCong.delete(
 /** Đổi thứ tự hiện trên bảng công: gửi danh sách id theo thứ tự mới */
 tuyenChamCong.post(
   '/nhan-vien/thu-tu',
-  canQuyen('chamCong'),
   boc(async (req, res) => {
     const ids = Array.isArray(req.body) ? req.body.map((x: unknown) => chuoi(x)) : [];
     await prisma.$transaction((tx) => lanLuot(ids, (id, i) => tx.nhanVien.updateMany({ where: { id }, data: { thuTu: i + 1 } })));
@@ -164,13 +159,12 @@ tuyenChamCong.post(
   }),
 );
 
-// Ký hiệu công — ai đăng nhập cũng đọc được (màn Công của tôi cần)
+// Ký hiệu công
 tuyenChamCong.get('/loai-cong', boc(async (_req, res) => res.json(await dsLoaiCong())));
 
 /** Ghi cả danh sách ký hiệu công theo thứ tự; ký hiệu bị bỏ mà đã dùng trên bảng công thì báo lỗi */
 tuyenChamCong.put(
   '/loai-cong',
-  canQuyen('chamCong'),
   boc(async (req, res) => {
     const ds = (Array.isArray(req.body) ? req.body : []).map((l: Partial<LoaiCong>, i: number) => ({
       id: chuoi(l.id),
@@ -201,14 +195,12 @@ tuyenChamCong.put(
 
 tuyenChamCong.get(
   '/cham-cong',
-  canQuyen('chamCong'),
   boc(async (req, res) => res.json(await bangCong(thangTuQuery(req.query)))),
 );
 
 /** Ghi nhiều ô một lúc. Ô gửi lên không có công, không tăng ca, không ghi chú = xoá ô đó */
 tuyenChamCong.put(
   '/cham-cong',
-  canQuyen('chamCong'),
   boc(async (req, res) => {
     const ds = (Array.isArray(req.body) ? req.body : []).slice(0, 2000).map((o: Partial<OCong>) => ({
       nhanVienId: chuoi(o.nhanVienId),
@@ -238,33 +230,5 @@ tuyenChamCong.put(
 
 tuyenChamCong.get(
   '/bang-luong',
-  canQuyen('chamCong'),
   boc(async (req, res) => res.json(await bangLuong(thangTuQuery(req.query)))),
-);
-
-/** Công / lương của chính người đang đăng nhập (tài khoản gắn với nhân viên) */
-tuyenChamCong.get(
-  '/cong-cua-toi',
-  boc(async (req, res) => {
-    const nhanVienId = req.nguoiDung!.nhanVienId;
-    if (!nhanVienId) throw new LoiApi(404, 'Tài khoản chưa gắn với nhân viên nào — nhờ quản lý gắn giúp');
-    const thang = thangTuQuery(req.query);
-    const [nv, o, loaiCong, tamUng] = await Promise.all([
-      prisma.nhanVien.findUnique({ where: { id: nhanVienId } }),
-      prisma.chamCong.findMany({ where: { nhanVienId, ngay: khoangDate(thang) } }),
-      dsLoaiCong(),
-      tamUngTheoNhanVien(thang, nhanVienId),
-    ]);
-    if (!nv) throw new LoiApi(404, 'Không tìm thấy hồ sơ nhân viên');
-    const nhanVien = nhanVienRaApp(nv);
-    const dsO = o.map(oRaApp);
-    const kq: CongCuaToi = {
-      thang,
-      nhanVien,
-      loaiCong,
-      o: dsO,
-      luong: tinhLuong(nhanVien, dsO, loaiCong, tamUng.get(nhanVienId) ?? 0),
-    };
-    res.json(kq);
-  }),
 );

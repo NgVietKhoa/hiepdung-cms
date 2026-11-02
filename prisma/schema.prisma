@@ -245,46 +245,6 @@ model CaiDat {
 }
 
 /**
- * ================= Tài khoản & phân quyền =================
- */
-
-/// Vai trò = tập quyền (mã module, xem src/db/quyen.ts). Sửa ở màn Tài khoản; ban đầu: npm run db:seed
-model VaiTro {
-  id      String   @id @default(uuid())
-  ten     String   @unique
-  moTa    String   @default("") @map("mo_ta")
-  quyen   String[] @default([])
-  /// Vai trò hệ thống (Quản trị): luôn đủ mọi quyền, không xoá / sửa quyền được
-  heThong Boolean  @default(false) @map("he_thong")
-  thuTu   Int      @default(0) @map("thu_tu")
-
-  nguoiDung NguoiDung[]
-
-  @@map("vai_tro")
-}
-
-model NguoiDung {
-  id              String    @id @default(uuid())
-  tenDangNhap     String    @unique @map("ten_dang_nhap")
-  hoTen           String    @map("ho_ten")
-  /// scrypt "muối:băm" (hex)
-  matKhauBam      String    @map("mat_khau_bam")
-  vaiTroId        String    @map("vai_tro_id")
-  /// Gắn với hồ sơ nhân viên → xem được công, lương của mình
-  nhanVienId      String?   @unique @map("nhan_vien_id")
-  khoa            Boolean   @default(false)
-  /// Tăng lên khi đổi mật khẩu / khoá tài khoản → mọi phiên đăng nhập cũ hết hiệu lực
-  phienBan        Int       @default(0) @map("phien_ban")
-  lanDangNhapCuoi DateTime? @map("lan_dang_nhap_cuoi")
-  ngayTao         DateTime  @default(now()) @map("ngay_tao")
-
-  vaiTro   VaiTro    @relation(fields: [vaiTroId], references: [id])
-  nhanVien NhanVien? @relation(fields: [nhanVienId], references: [id], onDelete: SetNull)
-
-  @@map("nguoi_dung")
-}
-
-/**
  * ================= Chấm công =================
  */
 
@@ -312,7 +272,6 @@ model NhanVien {
   ngayTao        DateTime  @default(now()) @map("ngay_tao")
 
   chamCong    ChamCong[]
-  nguoiDung   NguoiDung?
   phieuThuChi PhieuThuChi[]
 
   @@index([dangLam, thuTu])

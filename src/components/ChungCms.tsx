@@ -1,8 +1,7 @@
-/** Thành phần dùng chung cho các module CMS: chọn tháng, ô số liệu, ô chọn, thẻ trạng thái quyền. */
+/** Thành phần dùng chung cho các module CMS: chọn tháng, ô số liệu, ô chọn. */
 import { useId, type ReactNode } from 'react';
 import { congThang, laThang, tenThang } from '../lib/thang';
 import { BieuTuong, type TenBieuTuong } from './BieuTuong';
-import { TrangChinh } from './KhungTrang';
 import { TruongNhap } from './ONhap';
 
 /** Chọn tháng: ‹ Tháng 10/2026 › — bấm giữa để chọn tháng bất kỳ */
@@ -99,20 +98,6 @@ export function OChon<T extends string>({
         ))}
       </select>
     </TruongNhap>
-  );
-}
-
-/** Trang báo không có quyền (vào thẳng đường dẫn mà vai trò không được dùng) */
-export function KhongCoQuyen() {
-  return (
-    <TrangChinh tieuDe="Không có quyền">
-      <div className="trong">
-        <span className="trong-bieu-tuong">
-          <BieuTuong ten="khoa" co={32} />
-        </span>
-        <p>Tài khoản của bạn không được dùng chức năng này. Nhờ quản trị cấp thêm quyền nếu cần.</p>
-      </div>
-    </TrangChinh>
   );
 }
 

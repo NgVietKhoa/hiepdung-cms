@@ -16,7 +16,6 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
-    "dat-lai-mat-khau": "tsx server/datLaiMatKhau.ts",
     "desktop:dev": "npm run build && tsc -p desktop && electron .",
     "desktop:build": "npm run build && tsc -p desktop && electron-builder --win"
   },

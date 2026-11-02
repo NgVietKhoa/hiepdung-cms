@@ -5,7 +5,6 @@ import { BangCuon, OSoLieu } from '../../components/ChungCms';
 import { HopThoai } from '../../components/HopThoai';
 import { OTim, TrangChinh, Trong } from '../../components/KhungTrang';
 import { useTruyVan } from '../../db/hooks';
-import { usePhien } from '../../db/phien';
 import { dinhDangNgay, dinhDangTien } from '../../lib/dinhDang';
 import { khop } from '../../lib/timKiem';
 import { apiCms } from '../api';
@@ -85,7 +84,6 @@ export function CongNoTrang() {
 
 /** Các hoá đơn của một đối tác và tình trạng thanh toán */
 function HopThoaiChiTietNo({ cn, laThu, onDong }: { cn: CongNo; laThu: boolean; onDong: () => void }) {
-  const { coQuyen } = usePhien();
   const ds = useTruyVan(
     async () =>
       (await apiCms.hoaDon.ds({ loai: laThu ? 'banRa' : 'muaVao', tatCa: true })).filter(
@@ -98,9 +96,7 @@ function HopThoaiChiTietNo({ cn, laThu, onDong }: { cn: CongNo; laThu: boolean; 
       <p>
         Còn nợ: <strong>{dinhDangTien(cn.conNo)}</strong>
       </p>
-      {!coQuyen('hoaDon') ? (
-        <p className="goi-y-nho">Cần quyền Hoá đơn để xem chi tiết từng hoá đơn.</p>
-      ) : !ds ? (
+      {!ds ? (
         <p className="dang-tai">Đang tải…</p>
       ) : (
         <ul className="ds-don">

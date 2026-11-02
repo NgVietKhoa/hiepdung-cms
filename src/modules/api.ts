@@ -1,9 +1,8 @@
 /** Gọi API các module CMS (báo giá ở src/db/api.ts). */
 import { goi, layHoacNull, ma, type TuyChonGoi } from '../db/api';
-import type { BangCong, CongCuaToi, DongLuong, LoaiCong, NhanVien, OCong } from './chamCong/kieu';
+import type { BangCong, DongLuong, LoaiCong, NhanVien, OCong } from './chamCong/kieu';
 import type { HoaDon, LoaiHoaDon, NhaCungCap, TepHoaDon, TomTatHoaDon } from './hoaDon/kieu';
 import type { DongTheKho, PhieuKho, TomTatPhieuKho, VatTu, VatTuTon } from './kho/kieu';
-import type { LuuTaiKhoan, TaiKhoan, VaiTro } from './taiKhoan/kieu';
 import type { CongNo, LoaiCongNo, PhieuThuChi, SoQuy } from './thuChi/kieu';
 import type { TongQuan } from './tongQuan/kieu';
 
@@ -23,15 +22,6 @@ const taiLen = <T>(duongDan: string, file: File | Blob, ten: string, them: Recor
 export const apiCms = {
   tongQuan: (thang: string) => goi<TongQuan>('GET', `/tong-quan${truyVan({ thang })}`),
 
-  taiKhoan: {
-    ds: () => goi<TaiKhoan[]>('GET', '/tai-khoan'),
-    luu: (t: LuuTaiKhoan) => goi<TaiKhoan>('PUT', `/tai-khoan/${ma(t.id!)}`, t),
-    xoa: (id: string) => goi<void>('DELETE', `/tai-khoan/${ma(id)}`),
-    dsVaiTro: () => goi<VaiTro[]>('GET', '/vai-tro'),
-    luuVaiTro: (v: Partial<VaiTro> & { id: string }) => goi<VaiTro>('PUT', `/vai-tro/${ma(v.id)}`, v),
-    xoaVaiTro: (id: string) => goi<void>('DELETE', `/vai-tro/${ma(id)}`),
-  },
-
   chamCong: {
     dsNhanVien: () => goi<NhanVien[]>('GET', '/nhan-vien'),
     luuNhanVien: (n: NhanVien) => goi<NhanVien>('PUT', `/nhan-vien/${ma(n.id)}`, n),
@@ -43,7 +33,6 @@ export const apiCms = {
     /** Ghi nhiều ô; không báo các danh sách tải lại (bảng công tự cập nhật tại chỗ) */
     ghiO: (ds: OCong[]) => goi<void>('PUT', '/cham-cong', ds, { baoThayDoi: false }),
     bangLuong: (thang: string) => goi<DongLuong[]>('GET', `/bang-luong${truyVan({ thang })}`),
-    congCuaToi: (thang: string) => layHoacNull<CongCuaToi>(`/cong-cua-toi${truyVan({ thang })}`),
     tamUng: (thang: string, nhanVienId?: string) => goi<PhieuThuChi[]>('GET', `/tam-ung${truyVan({ thang, nhanVienId })}`),
   },
 

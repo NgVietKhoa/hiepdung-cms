@@ -9,7 +9,6 @@ import { chuoi, chuoiRaNgay, ngayRaChuoi, so, soLuong, tien, trongDanhSach } fro
 import { layCaiDat } from '../dichVu';
 import { prisma } from '../prisma';
 import { baoTrungSo, boc, capSoPhieu, KHOA_CAP_SO, khoangNgay, LoiApi, thamSo, traVe, type Tx } from '../tienIch';
-import { canQuyen } from '../xacThuc';
 
 const vatTuRaApp = (v: Prisma.VatTuGetPayload<object>): VatTu => ({
   id: v.id,
@@ -92,8 +91,6 @@ const phieuKhoRaApp = (p: Prisma.PhieuKhoGetPayload<{ include: typeof KEM_PHIEU 
 /* ---------- Tuyến ---------- */
 
 export const tuyenKho = express.Router();
-tuyenKho.use(['/vat-tu', '/phieu-kho'], canQuyen('kho'));
-
 tuyenKho.get('/vat-tu', boc(async (_req, res) => res.json(await dsVatTuTon())));
 
 tuyenKho.put(
@@ -245,7 +242,7 @@ tuyenKho.put(
         if (cu) await tx.dongPhieuKho.deleteMany({ where: { phieuKhoId: id } });
         const ghi = cu
           ? await tx.phieuKho.update({ where: { id }, data: { ...duLieu, danhSachDong: { create: dong } }, include: KEM_PHIEU })
-          : await tx.phieuKho.create({ data: { id, ...duLieu, nguoiLap: req.nguoiDung!.hoTen, danhSachDong: { create: dong } }, include: KEM_PHIEU });
+          : await tx.phieuKho.create({ data: { id, ...duLieu, danhSachDong: { create: dong } }, include: KEM_PHIEU });
         // Kiểm tra tồn sau khi ghi (gồm cả vật tư vừa bỏ khỏi phiếu nhập)
         const ids = [...new Set([...dong.map((d) => d.vatTuId), ...vatTuCu])];
         const ton = await tonTheoVatTu(tx, ids);

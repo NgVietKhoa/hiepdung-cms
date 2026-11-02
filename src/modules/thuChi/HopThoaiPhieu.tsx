@@ -6,13 +6,9 @@ import { HopThoai, useGiaoTiep } from '../../components/HopThoai';
 import { ChonMot, OChu, ONgay, OTien, TruongNhap } from '../../components/ONhap';
 import { api } from '../../db/api';
 import { useCaiDat, useTruyVan } from '../../db/hooks';
-import type { KhachHang } from '../../db/kieu';
-import { usePhien } from '../../db/phien';
 import { homNayISO } from '../../lib/dinhDang';
 import { taoId } from '../../lib/id';
 import { apiCms } from '../api';
-import type { NhanVien } from '../chamCong/kieu';
-import type { NhaCungCap } from '../hoaDon/kieu';
 import { NHAN_HINH_THUC, type HinhThucTien, type LoaiPhieuThuChi, type PhieuThuChi } from './kieu';
 
 export function phieuMoi(loai: LoaiPhieuThuChi, them: Partial<PhieuThuChi> = {}): PhieuThuChi {
@@ -56,7 +52,6 @@ export function HopThoaiPhieu({
   onDaLuu?: (p: PhieuThuChi) => void;
 }) {
   const { xacNhan, thongBao } = useGiaoTiep();
-  const { coQuyen } = usePhien();
   const cd = useCaiDat();
   const idDanhMuc = useId();
   const [p, setP] = useState(banDau);
@@ -65,9 +60,9 @@ export function HopThoaiPhieu({
 
   const ds = useTruyVan(async () => {
     const [khach, ncc, nhanVien] = await Promise.all([
-      coQuyen('baoGia', 'hoaDon', 'thuChi') ? api.khachHang.ds() : Promise.resolve([] as KhachHang[]),
-      coQuyen('hoaDon', 'thuChi', 'kho') ? apiCms.hoaDon.dsNhaCungCap() : Promise.resolve([] as NhaCungCap[]),
-      coQuyen('chamCong', 'thuChi') ? apiCms.chamCong.dsNhanVien() : Promise.resolve([] as NhanVien[]),
+      api.khachHang.ds(),
+      apiCms.hoaDon.dsNhaCungCap(),
+      apiCms.chamCong.dsNhanVien(),
     ]);
     return { khach, ncc, nhanVien };
   }, []);

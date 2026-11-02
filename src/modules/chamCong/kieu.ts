@@ -71,11 +71,3 @@ export interface DongLuong {
   soTaiKhoan: string;
   nganHang: string;
 }
-
-export interface CongCuaToi {
-  thang: string;
-  nhanVien: NhanVien;
-  loaiCong: LoaiCong[];
-  o: OCong[];
-  luong: DongLuong;
-}

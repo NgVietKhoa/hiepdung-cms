@@ -6,12 +6,12 @@ Hệ thống quản lý cho xưởng cơ khí (phát triển từ ứng dụng *
 |---|---|
 | **Tổng quan** | Doanh thu, thu – chi, tồn quỹ, công nợ, báo giá chờ chốt, chấm công hôm nay, vật tư sắp hết, biểu đồ thu – chi 6 tháng |
 | **Báo giá & nghiệm thu** | Như bản cũ: báo giá, biên bản nghiệm thu, khách hàng, danh mục hạng mục; xuất PDF / Word / Excel, in |
-| **Chấm công & lương** | Nhân viên; bảng chấm công tháng (chọn ký hiệu rồi bấm ô, tăng ca, ghi chú); bảng lương công nhật (công × lương/công + tăng ca + phụ cấp − tạm ứng); xuất Excel; nhân viên tự xem **Công của tôi** |
+| **Chấm công & lương** | Nhân viên; bảng chấm công tháng (chọn ký hiệu rồi bấm ô, tăng ca, ghi chú); bảng lương công nhật (công × lương/công + tăng ca + phụ cấp − tạm ứng); xuất Excel |
 | **Hoá đơn** | Sổ theo dõi hoá đơn **mua vào / bán ra** (không phát hành HĐĐT): dòng hàng, chiết khấu, VAT, hạn thanh toán, file PDF/XML đính kèm, lập từ báo giá, ghi tiền thu / trả; thuế GTGT phải nộp tạm tính; nhà cung cấp |
 | **Thu chi & công nợ** | Phiếu thu / chi (tự đánh số PT-, PC-), tiền mặt / chuyển khoản, sổ quỹ theo tháng; công nợ phải thu / phải trả theo đối tác, quá hạn |
 | **Kho vật tư** | Vật tư, phiếu nhập / xuất (PN-, PX-), tồn kho tính từ phiếu, chặn xuất quá tồn, thẻ kho, cảnh báo dưới mức tồn tối thiểu |
-| **Tài khoản & quyền** | Mỗi người một tài khoản; vai trò (Quản trị / Kế toán / Nhân viên… sửa được) quyết định dùng module nào |
 
+- Một người dùng, **không đăng nhập**: mở ứng dụng là vào thẳng, dùng được mọi chức năng.
 - Ứng dụng Electron tự chạy **PostgreSQL nhúng** và **máy chủ API** (Node.js + Express + Prisma) ngay trên máy, rồi mở giao diện React trong cửa sổ. Máy dùng không cần cài Node, Docker hay PostgreSQL.
 - Tự lưu liên tục ở báo giá, nghiệm thu, hoá đơn; lỡ đóng cửa sổ vẫn không mất phần đang nhập.
 - Danh mục, ký hiệu, vai trò… đều là dữ liệu trong DB (sửa trong ứng dụng); giá trị ban đầu ở `prisma/duLieuBanDau.ts`.
@@ -20,11 +20,11 @@ Hệ thống quản lý cho xưởng cơ khí (phát triển từ ứng dụng *
 
 Tạo bộ cài trên máy dev (mục 3) rồi chạy `release/Hiep Dung CMS Setup <phiên bản>.exe` trên máy của xưởng. Bộ cài chưa ký số nên Windows SmartScreen cảnh báo lần đầu: bấm **More info → Run anyway**.
 
-- **Lần mở đầu:** tự tạo CSDL, hiện mật khẩu tạm của `admin` (đã chép sẵn để dán). Không nạp dữ liệu mẫu. Đăng nhập → đổi mật khẩu → **Cài đặt**: nhập thông tin xưởng, tài khoản ngân hàng, tải logo.
-- **Dữ liệu:** `%APPDATA%\hiep-dung-cms\` — `pgdata\` (CSDL), `cauHinh.json` (mật khẩu CSDL, `APP_SECRET`), `nhatKy.log` (nhật ký khi có lỗi).
+- **Lần mở đầu:** tự tạo CSDL, không nạp dữ liệu mẫu. Vào **Cài đặt**: nhập thông tin xưởng, tài khoản ngân hàng, tải logo.
+- **Dữ liệu:** `%APPDATA%\hiep-dung-cms\` — `pgdata\` (CSDL), `cauHinh.json` (mật khẩu CSDL), `nhatKy.log` (nhật ký khi có lỗi).
 - **File PDF / Word / Excel** khi bấm "Lưu": thư mục `Hiep Dung CMS` trong Documents (menu **Dữ liệu → Mở thư mục file đã lưu**).
 - **Cập nhật phiên bản:** chạy bộ cài mới đè lên; dữ liệu trong AppData giữ nguyên, lần mở đầu tự áp migration mới.
-- Máy chủ chạy ở cổng `41730`. Windows Firewall hỏi lần đầu: **Cancel** = chỉ máy này dùng; **Allow** = điện thoại cùng Wi-Fi vào được qua `http://<IP máy>:41730` khi ứng dụng đang mở.
+- Máy chủ chạy ở cổng `41730` và chỉ nhận kết nối từ chính máy đó (`127.0.0.1`): vì không có đăng nhập nên máy khác / điện thoại cùng mạng không vào được.
 - Chỉ mở được một cửa sổ ứng dụng mỗi lúc. Nút "Gửi Zalo" không có trên máy tính (trình duyệt máy tính không có bảng chia sẻ); lưu PDF rồi kéo file vào Zalo.
 
 ## 2. Sao lưu
@@ -57,8 +57,6 @@ Vite tự chuyển tiếp mọi yêu cầu `/api` sang `127.0.0.1:API_PORT`.
 | `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | Tài khoản và tên CSDL | `hiepdung` / — / `hiep_dung_cms` |
 | `POSTGRES_HOST` | Máy chứa DB | `localhost` |
 | `DATABASE_URL` | Chuỗi kết nối cho Prisma (đọc trong `prisma.config.ts` và `server/prisma.ts`); **tự ghép** từ các biến trên, thường không cần sửa | |
-| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | Tài khoản **Quản trị đầu tiên** do seed tạo khi DB chưa có tài khoản nào. Mật khẩu để trống → seed tạo mật khẩu ngẫu nhiên và in ra màn hình. (`APP_PASSWORD` của bản cũ vẫn được nhận làm `ADMIN_PASSWORD`) | `admin` / trống |
-| `APP_SECRET` | Chuỗi bí mật ký phiên đăng nhập (không đặt thì mỗi lần khởi động lại máy chủ phải đăng nhập lại) | |
 | `SEED_DU_LIEU_MAU` | Lần chạy đầu (DB trống) tự nạp dữ liệu mẫu | `true` |
 | `TZ` | Múi giờ máy chủ | `Asia/Ho_Chi_Minh` |
 | `THU_MUC_LUU_FILE` | Thư mục lưu file PDF / Word / Excel khi bấm "Lưu" | `./file` |
@@ -90,20 +88,18 @@ prisma/
 ├── duLieuBanDau.ts      Giá trị ban đầu của cài đặt (tên xưởng mẫu, điều khoản, đơn vị tính, nhóm, mức VAT)
 └── migrations/          Migration SQL (đưa vào kho mã)
 server/                  Máy chủ API
-├── index.ts             Các tuyến /api/* (báo giá + gắn các module), phân quyền, phục vụ dist/, xử lý lỗi
+├── index.ts             Các tuyến /api/* (báo giá + gắn các module), phục vụ dist/, xử lý lỗi; chỉ nghe 127.0.0.1
 ├── dichVu.ts            Nghiệp vụ báo giá: lưu chứng từ, cấp số, ảnh, sao lưu, dữ liệu mẫu
 ├── anhXa.ts             Chuyển đổi bản ghi Prisma ⇄ kiểu dữ liệu ứng dụng, làm sạch dữ liệu vào (dùng chung)
-├── xacThuc.ts           Tài khoản: mật khẩu scrypt, phiên ký HMAC 30 ngày, canQuyen(...) theo module
 ├── tienIch.ts           boc(), khoảng ngày theo tháng, cấp số phiếu có khoá
-├── datLaiMatKhau.ts     npm run dat-lai-mat-khau -- <tên> <mật khẩu> (khi quên mật khẩu, lúc dev)
-├── modules/             Mỗi module một Router: taiKhoan, chamCong, hoaDon, thuChi, kho, tongQuan
+├── modules/             Mỗi module một Router: chamCong, hoaDon, thuChi, kho, tongQuan
 ├── prisma.ts            PrismaClient + adapter PostgreSQL
 ├── moiTruong.ts         Đọc .env
 └── generated/           Prisma Client (tự sinh)
 src/                     Giao diện (React + Vite)
 ├── db/
 │   ├── kieu.ts          Kiểu dữ liệu dùng chung giao diện ⇄ máy chủ
-│   ├── api.ts           Gọi API, báo mất kết nối / cần đăng nhập
+│   ├── api.ts           Gọi API, báo mất kết nối
 │   ├── hooks.ts         useTruyVan: tải và tự làm mới dữ liệu
 │   ├── thaoTac.ts       Tạo / nhân bản / chuyển báo giá → nghiệm thu / xoá
 │   ├── nhapTam.ts       Bản nháp tạm (localStorage) chống mất dữ liệu
@@ -115,20 +111,18 @@ src/                     Giao diện (React + Vite)
 │   ├── nghiepVu.ts           Dựng chứng từ mới, chuyển báo giá → nghiệm thu
 │   └── dinhDang.ts, timKiem.ts, anh.ts, useTuLuu.ts
 ├── pdf/                 Mẫu Báo giá, Biên bản nghiệm thu (+ phụ lục ảnh), xuất/in/chia sẻ
-├── components/, pages/  Giao diện báo giá + khung chung (menu theo quyền: components/menu.ts)
-├── db/quyen.ts          Danh sách quyền (module); db/phien.tsx: người đang đăng nhập
+├── components/, pages/  Giao diện báo giá + khung chung (menu: components/menu.ts)
 └── modules/             Các module CMS — mỗi thư mục: kieu.ts (kiểu dùng chung với máy chủ) + các trang
     ├── api.ts           Gọi API của các module
-    ├── tongQuan/  taiKhoan/  chamCong/ (tinhLuong.ts +test, xuatExcel.ts)
+    ├── tongQuan/  chamCong/ (tinhLuong.ts +test, xuatExcel.ts)
     └── hoaDon/  thuChi/  kho/
 ```
 
-**Thêm module mới:** model trong `schema.prisma` → `npm run db:migrate`; kiểu ở `src/modules/<tên>/kieu.ts`; Router ở `server/modules/<tên>.ts` (gắn trong `server/index.ts`, kiểm tra quyền bằng `canQuyen`); quyền mới thêm vào `src/db/quyen.ts`; trang + mục menu (`src/components/menu.ts`) + route (`src/App.tsx`).
+**Thêm module mới:** model trong `schema.prisma` → `npm run db:migrate`; kiểu ở `src/modules/<tên>/kieu.ts`; Router ở `server/modules/<tên>.ts` (gắn trong `server/index.ts`); trang + mục menu (`src/components/menu.ts`) + route (`src/App.tsx`).
 
 ### Mô hình dữ liệu (PostgreSQL)
 
 - Báo giá: `khach_hang`, `hang_muc`, `bao_gia` → `dong_bao_gia`, `nghiem_thu` → `dong_nghiem_thu` + `anh_nghiem_thu`, `cai_dat` (1 dòng), `cot_hang_muc`.
-- Tài khoản: `vai_tro` (quyền là mảng mã module), `nguoi_dung` (gắn `nhan_vien` để xem công của mình; `phien_ban` tăng khi đổi mật khẩu / khoá → các phiên cũ hết hiệu lực).
 - Chấm công: `nhan_vien`, `loai_cong` (ký hiệu X, N, P… + hệ số công), `cham_cong` (một ô = nhân viên × ngày, `UNIQUE`).
 - Hoá đơn: `nha_cung_cap`, `hoa_don` → `dong_hoa_don` + `tep_hoa_don` (file lưu trong DB, tối đa 15 MB).
 - Thu chi: `phieu_thu_chi` (gắn khách / NCC / nhân viên / hoá đơn; `tru_vao_luong` = tạm ứng).
@@ -139,7 +133,7 @@ Tiền: `Decimal(15,0)` (đồng); số lượng: `Decimal(14,3)`. **Thành ti�
 
 | | |
 |---|---|
-| `GET /api/suc-khoe`, `GET /api/phien`, `POST /api/dang-nhap` | Không cần đăng nhập |
+| `GET /api/suc-khoe` | Kiểm tra máy chủ |
 | `GET/PUT /api/cai-dat` | Cài đặt |
 | `GET /api/khach-hang`, `PUT/DELETE /api/khach-hang/:id` | Khách hàng (PUT = tạo hoặc sửa) |
 | `GET /api/hang-muc`, `PUT/DELETE /api/hang-muc/:id` | Danh mục |
@@ -147,8 +141,7 @@ Tiền: `Decimal(15,0)` (đồng); số lượng: `Decimal(14,3)`. **Thành ti�
 | `GET /api/nghiem-thu[?baoGiaId=]`, `GET/PUT/DELETE /api/nghiem-thu/:id` | Như trên |
 | `GET/POST /api/nghiem-thu/:id/anh`, `PATCH/DELETE /api/anh/:id` | Ảnh nghiệm thu |
 | `GET /api/sao-luu` (JSON ghi từng phần), `POST /api/sao-luu/da-tai`, `POST /api/khoi-phuc`, `POST /api/du-lieu-mau`, `DELETE /api/du-lieu`, `POST /api/don-nhap-rong` | Bảo trì |
-| `GET/PUT/DELETE /api/tai-khoan[/:id]`, `/api/vai-tro[/:id]`, `POST /api/toi/doi-mat-khau` | Tài khoản & quyền |
-| `/api/nhan-vien`, `/api/loai-cong`, `GET/PUT /api/cham-cong?thang=`, `GET /api/bang-luong?thang=`, `GET /api/cong-cua-toi?thang=` | Chấm công (PUT ghi nhiều ô; ô trống = xoá) |
+| `/api/nhan-vien`, `/api/loai-cong`, `GET/PUT /api/cham-cong?thang=`, `GET /api/bang-luong?thang=` | Chấm công (PUT ghi nhiều ô; ô trống = xoá) |
 | `/api/nha-cung-cap`, `/api/hoa-don[/:id]`, `/api/hoa-don/:id/tep`, `/api/tep-hoa-don/:id`, `GET /api/hoa-don-tu-bao-gia/:id`, `GET /api/thue-gtgt` | Hoá đơn |
 | `/api/phieu-thu-chi[/:id]`, `GET /api/so-quy`, `GET /api/cong-no?loai=phaiThu\|phaiTra`, `GET /api/tam-ung` | Thu chi |
 | `/api/vat-tu[/:id]`, `GET /api/vat-tu/:id/the-kho`, `/api/phieu-kho[/:id]` | Kho |
@@ -181,7 +174,6 @@ Lọc theo tháng: `?thang=YYYY-MM` (hoặc `?tu=YYYY-MM-DD&den=YYYY-MM-DD`).
 ## Câu hỏi thường gặp
 
 - **Ứng dụng báo "Không khởi động được"** → xem `%APPDATA%\hiep-dung-cms\nhatKy.log`. Hay gặp: cổng `41730` đang bị chương trình khác dùng.
-- **Quên mật khẩu** → người có quyền Tài khoản đặt lại trong màn **Tài khoản & quyền**. Quên cả mật khẩu Quản trị: khi dev chạy `npm run dat-lai-mat-khau -- admin <mật khẩu mới>`; bản desktop hiện chưa có cách đặt lại.
 - **(Dev) Báo lỗi cổng đã được dùng (port is already allocated)** → đổi `POSTGRES_PORT` / `API_PORT` / `DEV_PORT` trong `.env`.
 - **(Dev) Mở `localhost:...` bị treo, `127.0.0.1:...` thì được** → trên Windows, `localhost` có thể trỏ vào IPv6 `::1` đang bị chương trình khác (vd. WSL) giữ cùng cổng. Dùng `127.0.0.1` hoặc đổi sang cổng khác.
 - **(Dev) Đổi `POSTGRES_PASSWORD` rồi không kết nối được DB** → Postgres chỉ đọc mật khẩu lúc tạo volume lần đầu. Hoặc đổi lại mật khẩu cũ, hoặc đổi trong DB: `docker compose exec db psql -U hiepdung -d hiep_dung_cms -c "ALTER USER hiepdung PASSWORD 'mat_khau_moi';"`. (Xoá volume `docker compose down -v` cũng được nhưng **mất toàn bộ dữ liệu dev**.)

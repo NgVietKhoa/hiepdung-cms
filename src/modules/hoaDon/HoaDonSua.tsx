@@ -14,7 +14,6 @@ import { ChonMot, OChu, ONgay, OSo, OTien } from '../../components/ONhap';
 import { api } from '../../db/api';
 import { useCaiDat, useTruyVan } from '../../db/hooks';
 import type { CaiDat, KhachHang } from '../../db/kieu';
-import { usePhien } from '../../db/phien';
 import { taiFile } from '../../pdf/xuat';
 import { dinhDangNgay, dinhDangTien, homNayISO } from '../../lib/dinhDang';
 import { taoId } from '../../lib/id';
@@ -58,7 +57,6 @@ export function HoaDonSua() {
   const [thamSo] = useSearchParams();
   const dieuHuong = useNavigate();
   const { xacNhan, thongBao } = useGiaoTiep();
-  const { coQuyen } = usePhien();
   const cd = useCaiDat();
   const [hd, setHd] = useState<HoaDon>();
   const [daCo, setDaCo] = useState(false);
@@ -167,7 +165,7 @@ export function HoaDonSua() {
           <button type="button" className="nut nut-vien-do" onClick={xoa}>
             <BieuTuong ten="xoa" /> Xoá
           </button>
-          {daCo && hd.trangThai === 'hieuLuc' && (coQuyen('thuChi') || coQuyen('hoaDon')) && (
+          {daCo && hd.trangThai === 'hieuLuc' && (
             <button
               type="button"
               className="nut nut-chinh"

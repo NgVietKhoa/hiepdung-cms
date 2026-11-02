@@ -9,11 +9,11 @@ import { createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync }
 import { cp, rename, rm } from 'node:fs/promises';
 import { createServer } from 'node:net';
 import { join } from 'node:path';
-import { app, BrowserWindow, clipboard, dialog, Menu, shell } from 'electron';
+import { app, BrowserWindow, dialog, Menu, shell } from 'electron';
 import { pg_ctl } from '@embedded-postgres/windows-x64';
 import EmbeddedPostgres from 'embedded-postgres';
 
-/** Cổng API cố định: localStorage (phiên đăng nhập, bản nháp tạm) gắn theo địa chỉ, đổi cổng là mất */
+/** Cổng API cố định: localStorage (bản nháp tạm) gắn theo địa chỉ, đổi cổng là mất */
 const CONG_API = 41730;
 const TEN_DB = 'hiep_dung_cms';
 const DIA_CHI = `http://127.0.0.1:${CONG_API}`;
@@ -28,10 +28,10 @@ const thuMucDb = join(thuMucDuLieu, 'pgdata');
 const duongDanCauHinh = join(thuMucDuLieu, 'cauHinh.json');
 const thuMucFile = join(app.getPath('documents'), 'Hiep Dung CMS');
 
-/** Mật khẩu DB và APP_SECRET sinh ngẫu nhiên lần đầu, giữ nguyên các lần sau */
-function docCauHinh(): { matKhauDb: string; biMat: string } {
+/** Mật khẩu DB sinh ngẫu nhiên lần đầu, giữ nguyên các lần sau */
+function docCauHinh(): { matKhauDb: string } {
   if (existsSync(duongDanCauHinh)) return JSON.parse(readFileSync(duongDanCauHinh, 'utf8'));
-  const cauHinh = { matKhauDb: randomBytes(24).toString('hex'), biMat: randomBytes(32).toString('hex') };
+  const cauHinh = { matKhauDb: randomBytes(24).toString('hex') };
   writeFileSync(duongDanCauHinh, JSON.stringify(cauHinh, null, 2));
   return cauHinh;
 }
@@ -102,7 +102,7 @@ let dangBan = false;
 
 /** Bật Postgres → migrate → seed → máy chủ API, chờ máy chủ sẵn sàng */
 async function batDichVu() {
-  const { matKhauDb, biMat } = docCauHinh();
+  const { matKhauDb } = docCauHinh();
   const congDb = await layCongTrong();
   db = new EmbeddedPostgres({
     databaseDir: thuMucDb,
@@ -130,7 +130,6 @@ async function batDichVu() {
 
   const moiTruong: NodeJS.ProcessEnv = {
     DATABASE_URL: `postgresql://hiepdung:${matKhauDb}@127.0.0.1:${congDb}/${TEN_DB}?schema=public`,
-    APP_SECRET: biMat,
     PORT: String(CONG_API),
     THU_MUC_LUU_FILE: thuMucFile,
     SEED_DU_LIEU_MAU: 'false',
@@ -138,20 +137,7 @@ async function batDichVu() {
     CHECKPOINT_DISABLE: '1',
   };
   await chayDenXong([join(goc, 'node_modules', 'prisma', 'build', 'index.js'), 'migrate', 'deploy'], moiTruong);
-  const dauRaSeed = await chayDenXong(['--import', 'tsx', join(goc, 'prisma', 'seed.ts')], moiTruong);
-
-  // Seed tạo tài khoản quản trị lần đầu với mật khẩu ngẫu nhiên và in ra; bản desktop không có log để xem.
-  // Hiện ngay sau seed: các bước sau có lỗi thì người dùng vẫn đã có mật khẩu (lần sau seed không in lại)
-  const matKhauTam = /Mật khẩu tạm: (\S+)/.exec(dauRaSeed)?.[1];
-  if (matKhauTam && cuaSo) {
-    clipboard.writeText(matKhauTam);
-    await dialog.showMessageBox(cuaSo, {
-      type: 'info',
-      title: 'Tài khoản quản trị',
-      message: `Tên đăng nhập: admin\nMật khẩu tạm: ${matKhauTam}`,
-      detail: 'Mật khẩu đã được chép sẵn, dán vào ô đăng nhập. Đăng nhập xong hãy đổi mật khẩu ngay (bấm tên mình ở menu → Đổi mật khẩu).',
-    });
-  }
+  await chayDenXong(['--import', 'tsx', join(goc, 'prisma', 'seed.ts')], moiTruong);
 
   const tienTrinh = chayNode(['--import', 'tsx', join(goc, 'server', 'index.ts')], moiTruong);
   mayChu = tienTrinh;
@@ -264,7 +250,7 @@ async function khoiPhuc() {
     await rename(banMoi, thuMucDb);
     await cp(join(nguon, 'cauHinh.json'), duongDanCauHinh);
   });
-  await dialog.showMessageBox(cuaSo, { type: 'info', title: 'Khôi phục', message: 'Đã khôi phục. Hãy đăng nhập lại.' });
+  await dialog.showMessageBox(cuaSo, { type: 'info', title: 'Khôi phục', message: 'Đã khôi phục.' });
 }
 
 /** Lỗi khi sao lưu / khôi phục: báo lỗi; máy chủ không bật lại được thì thoát để người dùng mở lại */

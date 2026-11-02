@@ -446,15 +446,14 @@ export async function xoaToanBo(): Promise<void> {
   await prisma.$transaction(xoaHetTrong, GIAO_DICH_DAI);
 }
 
-/** Cài đặt, cột bảng hạng mục, tài khoản quản trị và dữ liệu mẫu lần đầu do seed tạo (prisma/seed.ts) — máy chủ chỉ nhắc nếu chưa chạy. */
+/** Cài đặt, cột bảng hạng mục và dữ liệu mẫu lần đầu do seed tạo (prisma/seed.ts) — máy chủ chỉ nhắc nếu chưa chạy. */
 export async function kiemTraDuLieuBanDau(): Promise<void> {
-  const [caiDat, soCot, soTaiKhoan] = await Promise.all([
+  const [caiDat, soCot] = await Promise.all([
     prisma.caiDat.findUnique({ where: { id: 'caiDat' }, select: { id: true } }),
     prisma.cotHangMuc.count(),
-    prisma.nguoiDung.count(),
   ]);
-  if (!caiDat || !soCot || !soTaiKhoan) {
-    console.warn('⚠ Chưa có dữ liệu ban đầu (cài đặt, cột bảng hạng mục, tài khoản quản trị) — hãy chạy: npm run db:seed');
+  if (!caiDat || !soCot) {
+    console.warn('⚠ Chưa có dữ liệu ban đầu (cài đặt, cột bảng hạng mục) — hãy chạy: npm run db:seed');
   }
 }
 

@@ -4,7 +4,6 @@ import { BieuTuong } from '../../components/BieuTuong';
 import { BangCuon, ChonThang, OSoLieu } from '../../components/ChungCms';
 import { TrangChinh } from '../../components/KhungTrang';
 import { useCaiDat, useTruyVan } from '../../db/hooks';
-import { usePhien } from '../../db/phien';
 import { dinhDangSoLuong, dinhDangTien } from '../../lib/dinhDang';
 import { tenThang, thangHienTai } from '../../lib/thang';
 import { apiCms } from '../api';
@@ -167,7 +166,6 @@ function BieuDoThuChi({ du }: { du: CotThang[] }) {
 
 export function TongQuanTrang() {
   const cd = useCaiDat();
-  const { coQuyen } = usePhien();
   const [thang, setThang] = useState(thangHienTai);
   const tq = useTruyVan(() => apiCms.tongQuan(thang), [thang]);
 
@@ -177,30 +175,30 @@ export function TongQuanTrang() {
       {tq && (
         <>
           <div className="luoi-so-lieu">
-            <OSoLieu nhan="Doanh thu (HĐ bán ra)" bieuTuong="hoaDon" giaTri={dinhDangTien(tq.doanhThu)} phu={`Mua vào: ${dinhDangTien(tq.muaVao)}`} den={coQuyen('hoaDon') ? '/hoa-don' : undefined} />
+            <OSoLieu nhan="Doanh thu (HĐ bán ra)" bieuTuong="hoaDon" giaTri={dinhDangTien(tq.doanhThu)} phu={`Mua vào: ${dinhDangTien(tq.muaVao)}`} den="/hoa-don" />
             <OSoLieu
               nhan={`Thu – chi ${tenThang(thang).toLowerCase()}`}
               bieuTuong="tien"
               giaTri={dinhDangTien(tq.thuThang - tq.chiThang)}
               phu={`Thu ${dinhDangTien(tq.thuThang)} · Chi ${dinhDangTien(tq.chiThang)}`}
               loai={tq.thuThang - tq.chiThang < 0 ? 'xau' : undefined}
-              den={coQuyen('thuChi') ? '/thu-chi' : undefined}
+              den="/thu-chi"
             />
             <OSoLieu nhan="Tồn quỹ hiện tại" bieuTuong="tien" giaTri={dinhDangTien(tq.tonQuy)} loai={tq.tonQuy < 0 ? 'xau' : undefined} phu="Tiền mặt + tài khoản" />
-            <OSoLieu nhan="Khách còn nợ" bieuTuong="nguoi" giaTri={dinhDangTien(tq.phaiThu)} phu={`Mình còn nợ NCC: ${dinhDangTien(tq.phaiTra)}`} den={coQuyen('thuChi') ? '/cong-no' : undefined} />
+            <OSoLieu nhan="Khách còn nợ" bieuTuong="nguoi" giaTri={dinhDangTien(tq.phaiThu)} phu={`Mình còn nợ NCC: ${dinhDangTien(tq.phaiTra)}`} den="/cong-no" />
             <OSoLieu
               nhan="Báo giá chờ chốt"
               bieuTuong="vanBan"
               giaTri={tq.baoGiaCho.so}
               phu={`${dinhDangTien(tq.baoGiaCho.tong)} · đã chốt trong tháng: ${tq.baoGiaChotThang.so}`}
-              den={coQuyen('baoGia') ? '/bao-gia' : undefined}
+              den="/bao-gia"
             />
             <OSoLieu
               nhan="Chấm công hôm nay"
               bieuTuong="lich"
               giaTri={`${tq.chamCongHomNay.daCham}/${tq.chamCongHomNay.tongNhanVien}`}
               phu={tq.chamCongHomNay.daCham < tq.chamCongHomNay.tongNhanVien ? 'Còn người chưa chấm' : 'Đã chấm đủ'}
-              den={coQuyen('chamCong') ? '/cham-cong' : undefined}
+              den="/cham-cong"
             />
           </div>
 
@@ -215,11 +213,9 @@ export function TongQuanTrang() {
                 <div className="the-ten">
                   <h2>Vật tư sắp hết</h2>
                 </div>
-                {coQuyen('kho') && (
-                  <Link to="/kho" className="nut-nho">
-                    Xem kho
-                  </Link>
-                )}
+                <Link to="/kho" className="nut-nho">
+                  Xem kho
+                </Link>
               </div>
               {tq.vatTuSapHet.length === 0 ? (
                 <p className="goi-y-nho">Không có vật tư nào dưới mức tồn tối thiểu.</p>

@@ -17,7 +17,6 @@ import {
 } from '../anhXa';
 import { prisma } from '../prisma';
 import { boc, khoangNgay, LoiApi, thamSo, traVe } from '../tienIch';
-import { canQuyen } from '../xacThuc';
 
 /* ---------- Nhà cung cấp ---------- */
 
@@ -157,14 +156,12 @@ export const tuyenHoaDon = express.Router();
 // Nhà cung cấp: hoá đơn, thu chi, kho đều chọn được và thêm mới tại chỗ
 tuyenHoaDon.get(
   '/nha-cung-cap',
-  canQuyen('hoaDon', 'thuChi', 'kho'),
   boc(async (_req, res) => {
     res.json((await prisma.nhaCungCap.findMany({ orderBy: { tenCongTy: 'asc' } })).map(nccRaApp));
   }),
 );
 tuyenHoaDon.put(
   '/nha-cung-cap/:id',
-  canQuyen('hoaDon', 'thuChi', 'kho'),
   boc(async (req, res) => {
     const id = thamSo(req);
     const duLieu = nccVaoDB(req.body ?? {});
@@ -174,7 +171,6 @@ tuyenHoaDon.put(
 );
 tuyenHoaDon.delete(
   '/nha-cung-cap/:id',
-  canQuyen('hoaDon', 'thuChi', 'kho'),
   boc(async (req, res) => {
     // Hoá đơn / phiếu của nhà cung cấp được giữ lại (khoá ngoại SET NULL); hoá đơn vẫn còn tên đối tác đã ghi
     await prisma.nhaCungCap.deleteMany({ where: { id: thamSo(req) } });
@@ -185,7 +181,6 @@ tuyenHoaDon.delete(
 /** ?loai=banRa|muaVao, ?thang= hoặc ?tu=&den=; ?tatCa=1 bỏ lọc ngày */
 tuyenHoaDon.get(
   '/hoa-don',
-  canQuyen('hoaDon'),
   boc(async (req, res) => {
     const loai = req.query.loai === 'muaVao' || req.query.loai === 'banRa' ? req.query.loai : undefined;
     const { tu, den } = khoangNgay(req.query);
@@ -200,7 +195,6 @@ tuyenHoaDon.get(
 
 tuyenHoaDon.get(
   '/hoa-don/:id',
-  canQuyen('hoaDon', 'thuChi'),
   boc(async (req, res) => {
     const h = await prisma.hoaDon.findUnique({ where: { id: thamSo(req) }, include: KEM_HOA_DON });
     traVe(res, h && hoaDonRaApp(h), 'Không tìm thấy hoá đơn');
@@ -209,7 +203,6 @@ tuyenHoaDon.get(
 
 tuyenHoaDon.put(
   '/hoa-don/:id',
-  canQuyen('hoaDon'),
   boc(async (req, res) => {
     const id = thamSo(req);
     const h = req.body as Partial<HoaDon>;
@@ -240,7 +233,6 @@ tuyenHoaDon.put(
 
 tuyenHoaDon.delete(
   '/hoa-don/:id',
-  canQuyen('hoaDon'),
   boc(async (req, res) => {
     // Phiếu thu / chi đã gắn được giữ lại (SET NULL); file đính kèm xoá theo
     await prisma.hoaDon.deleteMany({ where: { id: thamSo(req) } });
@@ -250,7 +242,6 @@ tuyenHoaDon.delete(
 
 tuyenHoaDon.get(
   '/hoa-don/:id/tep',
-  canQuyen('hoaDon'),
   boc(async (req, res) => {
     const ds = await prisma.tepHoaDon.findMany({ where: { hoaDonId: thamSo(req) }, select: CHON_TEP, orderBy: { ngayTao: 'asc' } });
     res.json(ds.map(tepRaApp));
@@ -260,7 +251,6 @@ tuyenHoaDon.get(
 /** Tải file lên: thân là dữ liệu nhị phân, tên file ở ?ten= */
 tuyenHoaDon.post(
   '/hoa-don/:id/tep',
-  canQuyen('hoaDon'),
   express.raw({ type: () => true, limit: TEP_TOI_DA }),
   boc(async (req, res) => {
     const hoaDonId = thamSo(req);
@@ -281,7 +271,6 @@ tuyenHoaDon.post(
 
 tuyenHoaDon.get(
   '/tep-hoa-don/:id',
-  canQuyen('hoaDon'),
   boc(async (req, res) => {
     const t = await prisma.tepHoaDon.findUnique({ where: { id: thamSo(req) } });
     if (!t) throw new LoiApi(404, 'Không tìm thấy file');
@@ -293,7 +282,6 @@ tuyenHoaDon.get(
 
 tuyenHoaDon.delete(
   '/tep-hoa-don/:id',
-  canQuyen('hoaDon'),
   boc(async (req, res) => {
     await prisma.tepHoaDon.deleteMany({ where: { id: thamSo(req) } });
     res.status(204).end();
@@ -303,7 +291,6 @@ tuyenHoaDon.delete(
 /** Lập hoá đơn bán ra từ báo giá: trả về bản nháp (chưa lưu) để người dùng kiểm tra rồi mới lưu */
 tuyenHoaDon.get(
   '/hoa-don-tu-bao-gia/:baoGiaId',
-  canQuyen('hoaDon'),
   boc(async (req, res) => {
     const bg = await prisma.baoGia.findUnique({
       where: { id: thamSo(req, 'baoGiaId') },
@@ -338,7 +325,6 @@ tuyenHoaDon.get(
 /** Thuế GTGT trong kỳ: đầu ra, đầu vào, phải nộp (tham khảo) */
 tuyenHoaDon.get(
   '/thue-gtgt',
-  canQuyen('hoaDon'),
   boc(async (req, res) => {
     const { tu, den } = khoangNgay(req.query);
     const ds = await dsTomTatHoaDon({ ngayHoaDon: { gte: tu, lt: den }, trangThai: 'hieuLuc' });

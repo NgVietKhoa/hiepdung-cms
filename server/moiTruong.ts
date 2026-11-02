@@ -10,10 +10,6 @@ if (existsSync(duongDan)) expand(dotenv.config({ path: duongDan }));
 export const MOI_TRUONG = {
   // PORT: bản desktop đặt sẵn; API_PORT: chạy trực tiếp trên máy (npm run dev:api)
   cong: Number(process.env.PORT || process.env.API_PORT || 3000),
-  biMat: process.env.APP_SECRET ?? '',
-  /** Tài khoản quản trị đầu tiên do seed tạo khi DB chưa có tài khoản nào (APP_PASSWORD: tên cũ, vẫn nhận) */
-  tenQuanTri: (process.env.ADMIN_USERNAME || 'admin').trim().toLowerCase(),
-  matKhauQuanTri: process.env.ADMIN_PASSWORD || process.env.APP_PASSWORD || '',
   napDuLieuMau: (process.env.SEED_DU_LIEU_MAU ?? 'true').toLowerCase() === 'true',
   /** Nơi lưu file PDF / Word / Excel khi bấm "Lưu" (đường dẫn tương đối tính từ thư mục dự án) */
   thuMucLuuFile: resolve(process.cwd(), process.env.THU_MUC_LUU_FILE || 'file'),

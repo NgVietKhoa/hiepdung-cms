@@ -7,7 +7,6 @@ import { chuoiRaNgay, so } from '../anhXa';
 import { dsTomTatBaoGia } from '../dichVu';
 import { prisma } from '../prisma';
 import { boc, thangTuQuery } from '../tienIch';
-import { canQuyen } from '../xacThuc';
 import { dsTomTatHoaDon } from './hoaDon';
 import { dsVatTuTon } from './kho';
 import { congNo, soQuy } from './thuChi';
@@ -18,7 +17,6 @@ export const tuyenTongQuan = express.Router();
 
 tuyenTongQuan.get(
   '/tong-quan',
-  canQuyen('tongQuan'),
   boc(async (req, res) => {
     const thang = thangTuQuery(req.query);
     const dau = congThang(thang, -(SO_THANG_BIEU_DO - 1));
