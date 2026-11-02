@@ -9,3 +9,7 @@ file
 # Liên kết công cụ AI trỏ sang thư mục khác trên máy này
 .claude/skills/
 .windsurf/
+
+# Bản desktop
+desktop/build
+release
