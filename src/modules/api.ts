@@ -26,7 +26,6 @@ export const apiCms = {
     luuNhanVien: (n: NhanVien) => goi<NhanVien>('PUT', `/nhan-vien/${ma(n.id)}`, n),
     xoaNhanVien: (id: string) => goi<void>('DELETE', `/nhan-vien/${ma(id)}`),
     thuTuNhanVien: (ids: string[]) => goi<void>('POST', '/nhan-vien/thu-tu', ids),
-    dsLoaiCong: () => goi<LoaiCong[]>('GET', '/loai-cong'),
     luuLoaiCong: (ds: LoaiCong[]) => goi<LoaiCong[]>('PUT', '/loai-cong', ds),
     bangCong: (thang: string) => goi<BangCong>('GET', `/cham-cong${truyVan({ thang })}`),
     /** Ghi nhiều ô; không báo các danh sách tải lại (bảng công tự cập nhật tại chỗ) */

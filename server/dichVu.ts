@@ -359,21 +359,10 @@ export async function donNhapRong(): Promise<number> {
   return bg.length + nt.length;
 }
 
-/* ---------- Ghi hàng loạt (dữ liệu mẫu, khôi phục) ---------- */
+/* ---------- Dữ liệu mẫu ---------- */
 
-interface DuLieuDayDu extends DuLieuMau {
-  anhNghiemThu: AnhDinhKem[];
-}
-
-/**
- * Ghi một bộ dữ liệu vào CSDL trong giao dịch `tx`.
- * `capSoMoi`: bỏ số chứng từ có sẵn, cấp số mới (dùng khi nạp dữ liệu mẫu vào DB đã có dữ liệu).
- */
-async function ghiBoDuLieu(tx: Tx, d: DuLieuDayDu, capSoMoi: boolean): Promise<void> {
-  const khIds = new Set(d.khachHang.map((k) => k.id));
-  const bgIds = new Set(d.baoGia.map((b) => b.id));
-  const ntIds = new Set(d.nghiemThu.map((n) => n.id));
-
+/** Ghi bộ dữ liệu mẫu trong giao dịch `tx`; số chứng từ luôn cấp mới (DB có thể đã có dữ liệu). */
+async function ghiBoDuLieu(tx: Tx, d: DuLieuMau): Promise<void> {
   if (d.khachHang.length) {
     await tx.khachHang.createMany({
       data: d.khachHang.map((k) => ({ id: k.id, ...khachHangVaoDB(k), ngayTao: new Date(k.ngayTao || Date.now()) })),
@@ -389,8 +378,8 @@ async function ghiBoDuLieu(tx: Tx, d: DuLieuDayDu, capSoMoi: boolean): Promise<v
       data: {
         id: b.id,
         ...cot,
-        soBaoGia: capSoMoi || !b.soBaoGia ? await capSo(tx, 'baoGia', cot.ngayLap) : b.soBaoGia,
-        khachHangId: b.khachHangId && khIds.has(b.khachHangId) ? b.khachHangId : null,
+        soBaoGia: await capSo(tx, 'baoGia', cot.ngayLap),
+        khachHangId: b.khachHangId,
         ngayTao: new Date(b.ngayTao || Date.now()),
         danhSachDong: { create: dongBaoGiaVaoDB(b.danhSachDong) },
       },
@@ -402,24 +391,12 @@ async function ghiBoDuLieu(tx: Tx, d: DuLieuDayDu, capSoMoi: boolean): Promise<v
       data: {
         id: n.id,
         ...cot,
-        soBienBan: capSoMoi || !n.soBienBan ? await capSo(tx, 'nghiemThu', cot.ngayNghiemThu) : n.soBienBan,
-        khachHangId: n.khachHangId && khIds.has(n.khachHangId) ? n.khachHangId : null,
-        baoGiaId: n.baoGiaId && bgIds.has(n.baoGiaId) ? n.baoGiaId : null,
+        soBienBan: await capSo(tx, 'nghiemThu', cot.ngayNghiemThu),
+        khachHangId: n.khachHangId,
+        baoGiaId: n.baoGiaId,
         ngayTao: new Date(n.ngayTao || Date.now()),
         danhSachDong: { create: dongNghiemThuVaoDB(n.danhSachDong) },
       },
-    });
-  }
-  const anh = d.anhNghiemThu.filter((a) => ntIds.has(a.nghiemThuId));
-  for (let i = 0; i < anh.length; i += 20) {
-    await tx.anhNghiemThu.createMany({
-      data: anh.slice(i, i + 20).map((a) => ({
-        id: a.id,
-        nghiemThuId: a.nghiemThuId,
-        duLieu: chuoi(a.duLieu),
-        ghiChu: chuoi(a.ghiChu),
-        thuTu: Number(a.thuTu) || 0,
-      })),
     });
   }
 }
@@ -439,7 +416,7 @@ async function xoaHetTrong(tx: Tx): Promise<void> {
 
 export async function napDuLieuMau(): Promise<void> {
   const mau = taoDuLieuMau(await layCaiDat());
-  await prisma.$transaction((tx) => ghiBoDuLieu(tx, { ...mau, anhNghiemThu: [] }, true), GIAO_DICH_DAI);
+  await prisma.$transaction((tx) => ghiBoDuLieu(tx, mau), GIAO_DICH_DAI);
 }
 
 export async function xoaToanBo(): Promise<void> {

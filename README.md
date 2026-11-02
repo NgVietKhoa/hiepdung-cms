@@ -102,7 +102,7 @@ src/                     Giao diện (React + Vite)
 │   ├── hooks.ts         useTruyVan: tải và tự làm mới dữ liệu
 │   ├── thaoTac.ts       Tạo / nhân bản / chuyển báo giá → nghiệm thu / xoá
 │   ├── nhapTam.ts       Bản nháp tạm (localStorage) chống mất dữ liệu
-│   ├── macDinh.ts, duLieuMau.ts, saoLuu.ts
+│   ├── macDinh.ts, duLieuMau.ts
 ├── lib/                 Logic thuần, dùng chung với máy chủ
 │   ├── docSo.ts (+test)      Đọc số tiền thành chữ
 │   ├── tinhTien.ts (+test)   Thành tiền, chiết khấu, VAT — tongBaoGia / tongNghiemThu dùng cho mọi màn hình và bản xuất

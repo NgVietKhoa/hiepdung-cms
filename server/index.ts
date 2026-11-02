@@ -31,8 +31,6 @@ app.post('/api/luu-file', express.raw({ type: () => true, limit: '100mb' }), boc
     throw e;
   }
 }));
-// File khôi phục có thể chứa nhiều ảnh nên cho phép lớn hơn
-app.use('/api/khoi-phuc', express.json({ limit: '500mb' }));
 app.use('/api', express.json({ limit: '20mb' }));
 
 // Cài đặt

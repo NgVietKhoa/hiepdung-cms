@@ -160,8 +160,6 @@ tuyenChamCong.post(
 );
 
 // Ký hiệu công
-tuyenChamCong.get('/loai-cong', boc(async (_req, res) => res.json(await dsLoaiCong())));
-
 /** Ghi cả danh sách ký hiệu công theo thứ tự; ký hiệu bị bỏ mà đã dùng trên bảng công thì báo lỗi */
 tuyenChamCong.put(
   '/loai-cong',
