@@ -12,6 +12,7 @@ import { khoaNhapTam } from '../db/nhapTam';
 import { nenLogo } from '../lib/anh';
 import { MUC_TUY_CHON, dangHien } from '../lib/hienThiXuong';
 import { useTuLuu } from '../lib/useTuLuu';
+import { docGiaoDien, luuGiaoDien } from '../lib/giaoDien';
 import { dinhDangSoLuong, docChuoiSoLuong } from '../lib/dinhDang';
 import { taoLuaChonVAT } from '../components/BangTong';
 import { TEN_THU } from '../lib/thang';
@@ -26,7 +27,8 @@ type MucCaiDat =
   | 'danh-so'
   | 'sao-luu'
   | 'du-lieu-mau'
-  | 'thu-chi-cham-cong';
+  | 'thu-chi-cham-cong'
+  | 'giao-dien';
 
 /** Các mục Cài đặt, mỗi lần chỉ hiện một mục (chọn ở thanh bên / lưới nút) cho đỡ rối */
 const DS_MUC: { id: MucCaiDat; ten: string; bieuTuong: TenBieuTuong }[] = [
@@ -38,6 +40,7 @@ const DS_MUC: { id: MucCaiDat; ten: string; bieuTuong: TenBieuTuong }[] = [
   { id: 'bang-hang-muc', ten: 'Bảng hạng mục', bieuTuong: 'danhSach' },
   { id: 'danh-so', ten: 'Đánh số chứng từ', bieuTuong: 'in' },
   { id: 'thu-chi-cham-cong', ten: 'Thu chi, chấm công', bieuTuong: 'tien' },
+  { id: 'giao-dien', ten: 'Giao diện', bieuTuong: 'mat' },
   { id: 'sao-luu', ten: 'Sao lưu dữ liệu', bieuTuong: 'luu' },
   { id: 'du-lieu-mau', ten: 'Dữ liệu mẫu', bieuTuong: 'tai' },
 ];
@@ -48,6 +51,7 @@ export function CaiDatTrang() {
   const dieuHuong = useNavigate();
   const [cd, setCd] = useState<CaiDat | undefined>(() => layCaiDatHienTai());
   const oLogo = useRef<HTMLInputElement>(null);
+  const [giaoDien, setGiaoDien] = useState(docGiaoDien);
 
   const napLai = () =>
     api.caiDat.lay().then((data) => {
@@ -286,6 +290,25 @@ export function CaiDatTrang() {
                   { giaTri: 'tu', nhan: 'hai mươi tư' },
                 ]}
               />
+            </The>
+          )}
+
+          {muc === 'giao-dien' && (
+            <The tieuDe="Giao diện">
+              <ChonMot
+                nhan="Màu giao diện"
+                value={giaoDien}
+                onChange={(g) => {
+                  setGiaoDien(g);
+                  luuGiaoDien(g);
+                }}
+                luaChon={[
+                  { giaTri: 'sang', nhan: 'Sáng' },
+                  { giaTri: 'toi', nhan: 'Tối' },
+                  { giaTri: 'heThong', nhan: 'Theo Windows' },
+                ]}
+              />
+              <p className="goi-y-nho">Áp dụng ngay, lưu riêng trên máy này.</p>
             </The>
           )}
 

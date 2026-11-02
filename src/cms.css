@@ -222,8 +222,8 @@ a.o-so-lieu:hover, button.o-so-lieu:hover { border-color: var(--mau-chinh-vien);
 .bang-cong .cot-ten span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bang-cong .cot-ten small { display: block; font-size: var(--co-xs); font-weight: var(--dam-thuong); color: var(--chu-phu); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bang-cong .cot-tong { min-width: 62px; padding: 0 8px; font-weight: var(--dam-ro); background: var(--nen-phu); }
-.bang-cong .ngay-nghi { background: #fcf3f2; }
-.bang-cong thead .ngay-nghi { background: #f9e6e4; }
+.bang-cong .ngay-nghi { background: var(--nen-ngay-nghi); }
+.bang-cong thead .ngay-nghi { background: var(--nen-ngay-nghi-dam); }
 .bang-cong .hom-nay { box-shadow: inset 2px 0 0 var(--mau-chinh), inset -2px 0 0 var(--mau-chinh); }
 .bang-cong tr.da-nghi .cot-ten span { color: var(--chu-nhat); text-decoration: line-through; }
 .o-cong {
@@ -238,6 +238,8 @@ a.o-so-lieu:hover, button.o-so-lieu:hover { border-color: var(--mau-chinh-vien);
   font-weight: var(--dam-ro);
   color: var(--chu);
 }
+/* Ô / ký hiệu có màu tự chọn (nền nhạt): chữ luôn tối, kể cả giao diện tối */
+.ky-hieu[style], .o-cong[style] { color: #111827; }
 .o-cong:hover { outline: 2px solid var(--mau-chinh); outline-offset: -2px; }
 .o-cong sup { position: absolute; top: 1px; right: 2px; font-size: 0.62rem; font-weight: var(--dam-ro); color: var(--mau-chinh-dam); }
 .cham-ghi-chu { position: absolute; left: 3px; bottom: 3px; width: 6px; height: 6px; border-radius: 50%; background: var(--mau-do); }
