@@ -26,7 +26,6 @@ const phieuRaApp = (p: Prisma.PhieuThuChiGetPayload<object>): PhieuThuChi => ({
   truVaoLuong: p.truVaoLuong,
   nguoiNopNhan: p.nguoiNopNhan,
   noiDung: p.noiDung,
-  nguoiLap: p.nguoiLap,
   ngayTao: p.ngayTao.getTime(),
 });
 
@@ -213,7 +212,7 @@ tuyenThuChi.get(
   boc(async (req, res) => {
     const { tu, den } = khoangNgay(req.query);
     const ds = await prisma.phieuThuChi.findMany({
-      where: { loai: 'chi', truVaoLuong: true, ngay: { gte: tu, lt: den }, ...(req.query.nhanVienId ? { nhanVienId: String(req.query.nhanVienId) } : {}) },
+      where: { loai: 'chi', truVaoLuong: true, ngay: { gte: tu, lt: den } },
       orderBy: { ngay: 'asc' },
     });
     res.json(ds.map(phieuRaApp));

@@ -117,7 +117,7 @@ export function TrangChu() {
       {canNhacSaoLuu && (
         <Link to="/cai-dat#sao-luu" className="canh-bao-sao-luu">
           <BieuTuong ten="canhBao" />
-          <span>Đã lâu chưa sao lưu dữ liệu. Bấm vào đây để sao lưu.</span>
+          <span>Đã lâu chưa sao lưu dữ liệu. Vào menu Dữ liệu → Sao lưu toàn bộ.</span>
           <BieuTuong ten="muiTenPhai" />
         </Link>
       )}
@@ -212,7 +212,7 @@ export function TrangChu() {
                     <NhanTrangThai loai={m.trangThai} nhan={m.nhanTrangThai} />
                   </span>
                 </Link>
-                <Link to={m.duongDanIn} className="nut-in-nhanh" aria-label={`Xem và in ${m.so}`} title="Xem & in / gửi Zalo">
+                <Link to={m.duongDanIn} className="nut-in-nhanh" aria-label={`Xem và in ${m.so}`} title="Xem & in">
                   <BieuTuong ten="in" co={22} />
                 </Link>
               </li>

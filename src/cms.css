@@ -135,11 +135,6 @@ a.o-so-lieu:hover, button.o-so-lieu:hover { border-color: var(--mau-chinh-vien);
 .hang-nut-nho { display: flex; flex-wrap: wrap; gap: 8px; }
 .cot-phai { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
 .tt-quaHan { color: #fff; background: var(--mau-do); }
-/* Tab nhiều mục: điện thoại vuốt ngang, máy tính có thanh cuộn mảnh để kéo bằng chuột */
-.tab-loai.cuon { overflow-x: auto; }
-.tab-loai.cuon::-webkit-scrollbar { height: 6px; }
-.tab-loai.cuon::-webkit-scrollbar-thumb { border-width: 1px; }
-.tab-loai.cuon button { flex: 1 0 auto; padding: 0 14px; white-space: nowrap; }
 .luoi-2-cot { display: grid; gap: 0 16px; }
 @media (min-width: 900px) { .luoi-2-cot { grid-template-columns: 1fr 1fr; } }
 .ds-gon { list-style: none; margin: 0; padding: 0; }
@@ -159,9 +154,6 @@ a.o-so-lieu:hover, button.o-so-lieu:hover { border-color: var(--mau-chinh-vien);
   .hang-chon-doi-tac { grid-template-columns: 1fr auto; align-items: end; }
   .hang-chon-doi-tac > .nut { margin-bottom: 16px; }
 }
-code { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 0.88em; background: var(--nen-xam); padding: 1px 6px; border-radius: var(--bo-goc-xs); overflow-wrap: anywhere; }
-.ds-api dt { margin-top: 12px; font-weight: var(--dam-ro); }
-.ds-api dd { margin: 4px 0 0; color: var(--chu-phu); }
 
 /* ---------- Biểu đồ thu – chi ---------- */
 .khung-bieu-do { position: relative; }

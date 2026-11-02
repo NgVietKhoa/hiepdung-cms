@@ -343,7 +343,6 @@ function AnhNghiemThu({ nghiemThuId, onDoiSoAnh }: { nghiemThuId: string; onDoiS
   const { xacNhan, thongBao } = useGiaoTiep();
   const [dangXuLy, setDangXuLy] = useState(false);
   const dsAnh = useTruyVan(() => api.anh.ds(nghiemThuId), [nghiemThuId]);
-  const oChup = useRef<HTMLInputElement>(null);
   const oChon = useRef<HTMLInputElement>(null);
 
   const themAnh = async (files: FileList | null) => {
@@ -360,7 +359,6 @@ function AnhNghiemThu({ nghiemThuId, onDoiSoAnh }: { nghiemThuId: string; onDoiS
       thongBao((e as Error).message || 'Không thêm được ảnh', 'loi');
     } finally {
       setDangXuLy(false);
-      if (oChup.current) oChup.current.value = '';
       if (oChon.current) oChon.current.value = '';
     }
   };
@@ -394,14 +392,10 @@ function AnhNghiemThu({ nghiemThuId, onDoiSoAnh }: { nghiemThuId: string; onDoiS
           ))}
         </div>
       )}
-      <input ref={oChup} type="file" accept="image/*" capture="environment" hidden onChange={(e) => themAnh(e.target.files)} />
       <input ref={oChon} type="file" accept="image/*" multiple hidden onChange={(e) => themAnh(e.target.files)} />
       <div className="hang-nut">
-        <button type="button" className="nut nut-chinh" disabled={dangXuLy} onClick={() => oChup.current?.click()}>
-          <BieuTuong ten="mayAnh" /> {dangXuLy ? 'Đang xử lý…' : 'Chụp ảnh'}
-        </button>
-        <button type="button" className="nut nut-vien" disabled={dangXuLy} onClick={() => oChon.current?.click()}>
-          <BieuTuong ten="anh" /> Chọn ảnh có sẵn
+        <button type="button" className="nut nut-chinh" disabled={dangXuLy} onClick={() => oChon.current?.click()}>
+          <BieuTuong ten="anh" /> {dangXuLy ? 'Đang xử lý…' : 'Thêm ảnh'}
         </button>
       </div>
     </The>

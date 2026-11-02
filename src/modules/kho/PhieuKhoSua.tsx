@@ -30,7 +30,6 @@ const phieuTrong = (id: string, loai: LoaiPhieuKho): PhieuKho => ({
   baoGiaId: null,
   nguoiGiaoNhan: '',
   ghiChu: '',
-  nguoiLap: '',
   danhSachDong: [],
   ngayTao: Date.now(),
   ngaySua: Date.now(),
@@ -123,7 +122,7 @@ export function PhieuKhoSua() {
   return (
     <TrangSoan
       tieuDe={laMoi ? `${NHAN_LOAI_PHIEU_KHO[p.loai]} — phiếu mới` : `${NHAN_LOAI_PHIEU_KHO[p.loai]} ${p.soPhieu}`}
-      phuDe={thayDoi ? 'Có thay đổi chưa lưu' : p.nguoiLap ? `Người lập: ${p.nguoiLap}` : undefined}
+      phuDe={thayDoi ? 'Có thay đổi chưa lưu' : undefined}
       quayVe={`/phieu-kho?thang=${p.ngay.slice(0, 7)}`}
       thanhDuoi={
         <div className="hang-nut">

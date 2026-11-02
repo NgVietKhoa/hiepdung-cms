@@ -43,7 +43,6 @@ export interface PhieuKho {
   baoGiaId: string | null;
   nguoiGiaoNhan: string;
   ghiChu: string;
-  nguoiLap: string;
   danhSachDong: DongPhieuKho[];
   ngayTao: number;
   ngaySua: number;

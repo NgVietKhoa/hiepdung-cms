@@ -1,4 +1,4 @@
-/** Tạo PDF, đặt tên file, tải về, in, chia sẻ (Zalo...). */
+/** Tạo PDF, đặt tên file, tải về, in. */
 import type { TDocumentDefinitions } from 'pdfmake/interfaces';
 import { boDau } from '../lib/timKiem';
 
@@ -57,36 +57,9 @@ export function taiFile(blob: Blob, tenFile: string): void {
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
-export function coTheChiaSeFile(): boolean {
-  try {
-    const thu = new File([new Blob(['x'], { type: 'application/pdf' })], 'thu.pdf', { type: 'application/pdf' });
-    return !!navigator.canShare?.({ files: [thu] });
-  } catch {
-    return false;
-  }
-}
-
-/** Mở bảng chia sẻ của điện thoại (Zalo, Messenger, Gmail...). Trả về false nếu không hỗ trợ. */
-export async function chiaSeFile(blob: Blob, tenFile: string, tieuDe: string): Promise<boolean> {
-  const file = new File([blob], tenFile, { type: 'application/pdf' });
-  if (!navigator.canShare?.({ files: [file] })) return false;
-  try {
-    await navigator.share({ files: [file], title: tieuDe });
-  } catch (e) {
-    // Người dùng bấm huỷ — không phải lỗi
-    if ((e as Error).name !== 'AbortError') throw e;
-  }
-  return true;
-}
-
-/** In: máy tính in qua khung ẩn; nếu không được thì mở PDF ở thẻ mới để in từ trình xem PDF. */
+/** In qua khung ẩn; nếu không được thì mở PDF ở cửa sổ mới để in từ trình xem PDF. */
 export function inPdf(blob: Blob): void {
   const url = URL.createObjectURL(blob);
-  const laDienThoai = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (laDienThoai) {
-    window.open(url, '_blank');
-    return;
-  }
   const khung = document.createElement('iframe');
   khung.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
   khung.src = url;

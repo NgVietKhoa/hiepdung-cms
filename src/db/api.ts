@@ -185,12 +185,6 @@ export const api = {
 
   baoTri: {
     donNhapRong: () => goi<{ daXoa: number }>('POST', '/don-nhap-rong'),
-    /** File sao lưu (JSON) nguyên dạng Blob — không đọc ra đối tượng rồi ghi lại */
-    saoLuu: () => goi<Blob>('GET', '/sao-luu', undefined, { thoiGianCho: CHO_LAU, nhanFile: true }),
-    /** Báo máy chủ đã tải xong file sao lưu (ghi thời điểm sao lưu gần nhất) */
-    daTaiSaoLuu: () => goi<void>('POST', '/sao-luu/da-tai', undefined, { baoThayDoi: false }),
-    khoiPhuc: (duLieu: unknown) =>
-      goi<{ soBaoGia: number; soNghiemThu: number }>('POST', '/khoi-phuc', duLieu, { thoiGianCho: CHO_LAU }),
     napDuLieuMau: () => goi<void>('POST', '/du-lieu-mau'),
     xoaToanBo: () => goi<void>('DELETE', '/du-lieu'),
   },

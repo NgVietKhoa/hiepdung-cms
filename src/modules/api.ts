@@ -13,8 +13,8 @@ const truyVan = (q: Record<string, string | undefined>) => {
 };
 
 /** Tải file lên: gửi nguyên dữ liệu, kiểu file ở header */
-const taiLen = <T>(duongDan: string, file: File | Blob, ten: string, them: Record<string, string> = {}) =>
-  goi<T>('POST', `${duongDan}${truyVan({ ten, ...them })}`, file, {
+const taiLen = <T>(duongDan: string, file: File | Blob, ten: string) =>
+  goi<T>('POST', `${duongDan}${truyVan({ ten })}`, file, {
     header: { 'X-Kieu-File': file.type || 'application/octet-stream' },
     thoiGianCho: 120_000,
   } satisfies TuyChonGoi);
@@ -33,7 +33,7 @@ export const apiCms = {
     /** Ghi nhiều ô; không báo các danh sách tải lại (bảng công tự cập nhật tại chỗ) */
     ghiO: (ds: OCong[]) => goi<void>('PUT', '/cham-cong', ds, { baoThayDoi: false }),
     bangLuong: (thang: string) => goi<DongLuong[]>('GET', `/bang-luong${truyVan({ thang })}`),
-    tamUng: (thang: string, nhanVienId?: string) => goi<PhieuThuChi[]>('GET', `/tam-ung${truyVan({ thang, nhanVienId })}`),
+    tamUng: (thang: string) => goi<PhieuThuChi[]>('GET', `/tam-ung${truyVan({ thang })}`),
   },
 
   hoaDon: {

@@ -457,86 +457,9 @@ export async function kiemTraDuLieuBanDau(): Promise<void> {
   }
 }
 
-/* ---------- Sao lưu / khôi phục (định dạng tương thích bản lưu trên trình duyệt cũ) ---------- */
+/* ---------- Sao lưu ---------- */
 
-const MA_UNG_DUNG = 'hiep-dung-cms';
-/** File sao lưu từ bản Báo giá nhanh cũ vẫn khôi phục được */
-const MA_UNG_DUNG_CU = ['bao-gia-nhanh'];
-
-/** Số ảnh đọc từ DB mỗi lượt khi ghi file sao lưu (mỗi ảnh ~100–300 KB) */
-const ANH_MOI_LUOT = 20;
-
-/**
- * Ghi file sao lưu (JSON) từng phần qua `ghi`: dữ liệu chữ ghi một lần, ảnh đọc và ghi theo từng lượt
- * nên máy chủ không phải giữ toàn bộ ảnh trong bộ nhớ.
- */
-export async function ghiSaoLuu(ghi: (phan: string) => Promise<void>): Promise<void> {
-  const [caiDat, cotHangMuc, khachHang, hangMuc, baoGia, nghiemThu] = await Promise.all([
-    layCaiDat(),
-    dsCotHangMuc(),
-    prisma.khachHang.findMany(),
-    prisma.hangMuc.findMany(),
-    prisma.baoGia.findMany({ include: KEM_BAO_GIA }),
-    prisma.nghiemThu.findMany({ include: KEM_NGHIEM_THU }),
-  ]);
-  const phanChu = JSON.stringify({
-    ungDung: MA_UNG_DUNG,
-    phienBan: 2,
-    thoiDiem: new Date().toISOString(),
-    caiDat: [caiDat],
-    cotHangMuc,
-    khachHang: khachHang.map(khachHangRaApp),
-    hangMuc: hangMuc.map(hangMucRaApp),
-    baoGia: baoGia.map(baoGiaRaApp),
-    nghiemThu: nghiemThu.map(nghiemThuRaApp),
-  });
-  // Bỏ "}" cuối để nối tiếp mảng ảnh
-  await ghi(`${phanChu.slice(0, -1)},"anhNghiemThu":[`);
-  let sauId: string | undefined;
-  let dau = true;
-  for (;;) {
-    const luot = await prisma.anhNghiemThu.findMany({
-      take: ANH_MOI_LUOT,
-      orderBy: { id: 'asc' },
-      ...(sauId ? { cursor: { id: sauId }, skip: 1 } : {}),
-    });
-    if (!luot.length) break;
-    for (const a of luot) {
-      await ghi((dau ? '' : ',') + JSON.stringify(anhRaApp(a)));
-      dau = false;
-    }
-    sauId = luot[luot.length - 1].id;
-  }
-  await ghi(']}');
-}
-
-/** Trình duyệt đã nhận đủ file sao lưu → ghi nhận thời điểm (để nhắc sao lưu định kỳ) */
+/** Đã sao lưu toàn bộ (menu Dữ liệu của bản desktop) → ghi nhận thời điểm để nhắc sao lưu định kỳ */
 export async function ghiNhanDaSaoLuu(): Promise<void> {
   await prisma.caiDat.updateMany({ where: { id: 'caiDat' }, data: { lanSaoLuuCuoi: new Date() } });
-}
-
-export async function khoiPhuc(duLieu: any): Promise<{ soBaoGia: number; soNghiemThu: number }> {
-  if (duLieu?.ungDung !== MA_UNG_DUNG && !MA_UNG_DUNG_CU.includes(duLieu?.ungDung)) {
-    throw new LoiApi(400, 'Đây không phải file sao lưu của ứng dụng (Báo giá nhanh / CMS xưởng).');
-  }
-  const mang = <T>(x: unknown) => (Array.isArray(x) ? (x as T[]) : []);
-  const bo: DuLieuDayDu = {
-    khachHang: mang<KhachHang>(duLieu.khachHang),
-    hangMuc: mang<HangMuc>(duLieu.hangMuc),
-    baoGia: mang<BaoGia>(duLieu.baoGia),
-    nghiemThu: mang<BienBanNghiemThu>(duLieu.nghiemThu),
-    anhNghiemThu: mang<AnhDinhKem>(duLieu.anhNghiemThu),
-  };
-  const caiDat = mang<CaiDat>(duLieu.caiDat)[0];
-  await prisma.$transaction(async (tx) => {
-    await xoaHetTrong(tx);
-    if (caiDat) {
-      const cot = caiDatVaoDB(caiDat);
-      await tx.caiDat.upsert({ where: { id: 'caiDat' }, create: { id: 'caiDat', ...cot }, update: cot });
-    }
-    // File sao lưu cũ chưa có cột bảng hạng mục thì giữ nguyên cột đang có
-    if (Array.isArray(duLieu.cotHangMuc)) await luuDsCotHangMuc(duLieu.cotHangMuc, tx);
-    await ghiBoDuLieu(tx, bo, false);
-  }, GIAO_DICH_DAI);
-  return { soBaoGia: bo.baoGia.length, soNghiemThu: bo.nghiemThu.length };
 }

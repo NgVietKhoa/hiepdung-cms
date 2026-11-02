@@ -212,6 +212,9 @@ async function saoLuu() {
     await cp(thuMucDb, join(dich, 'pgdata'), { recursive: true });
     await cp(duongDanCauHinh, join(dich, 'cauHinh.json'));
   });
+  // Ghi thời điểm sao lưu để trang chủ thôi nhắc
+  await fetch(`${DIA_CHI}/api/sao-luu/da-tai`, { method: 'POST' });
+  await cuaSo.webContents.reload();
   await dialog.showMessageBox(cuaSo, { type: 'info', title: 'Sao lưu', message: 'Đã sao lưu toàn bộ dữ liệu', detail: dich });
 }
 

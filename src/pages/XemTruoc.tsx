@@ -7,7 +7,7 @@ import { XemTruocPdf } from '../components/XemTruocPdf';
 import { api } from '../db/api';
 import { mauBaoGia } from '../pdf/mauBaoGia';
 import { mauNghiemThu } from '../pdf/mauNghiemThu';
-import { chiaSeFile, coTheChiaSeFile, inPdf, taiFile, taoPdf, tenKhachChoFile } from '../pdf/xuat';
+import { inPdf, taiFile, taoPdf, tenKhachChoFile } from '../pdf/xuat';
 import { excelBaoGia, excelNghiemThu } from '../pdf/xuatExcel';
 import { wordBaoGia, wordNghiemThu } from '../pdf/xuatWord';
 
@@ -65,7 +65,6 @@ export function XemTruoc() {
   const [loi, setLoi] = useState('');
   const [dangTao, setDangTao] = useState<DinhDang | null>(null);
   const [moTaiVe, setMoTaiVe] = useState(false);
-  const chiaSeDuoc = coTheChiaSeFile();
 
   useEffect(() => {
     let huy = false;
@@ -111,27 +110,12 @@ export function XemTruoc() {
   return (
     <TrangSoan
       tieuDe={vb?.tieuDe ?? 'Xem trước bản in'}
-      phuDe={vb && 'Kiểm tra lại rồi gửi Zalo, in, hoặc lưu PDF / Word / Excel'}
+      phuDe={vb && 'Kiểm tra lại rồi in hoặc lưu PDF / Word / Excel'}
       quayVe={-1}
       thanhDuoi={
         vb && (
           <div className="thanh-xuat">
-            {chiaSeDuoc && (
-              <button
-                type="button"
-                className="nut nut-chinh"
-                onClick={async () => {
-                  try {
-                    await chiaSeFile(vb.blob, `${vb.tenGoc}.pdf`, vb.tieuDe);
-                  } catch {
-                    thongBao('Không chia sẻ được, hãy dùng "Lưu file"', 'loi');
-                  }
-                }}
-              >
-                <BieuTuong ten="chiaSe" /> Gửi Zalo
-              </button>
-            )}
-            <button type="button" className={`nut ${chiaSeDuoc ? 'nut-vien' : 'nut-chinh'}`} onClick={() => inPdf(vb.blob)}>
+            <button type="button" className="nut nut-chinh" onClick={() => inPdf(vb.blob)}>
               <BieuTuong ten="in" /> In
             </button>
             {/* Máy tính: đủ nút từng định dạng; điện thoại: gom vào nút "Lưu file" cho đỡ chật */}

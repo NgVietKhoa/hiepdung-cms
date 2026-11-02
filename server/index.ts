@@ -114,26 +114,11 @@ app.delete('/api/anh/:id', boc(async (req, res) => {
 
 // Bảo trì dữ liệu báo giá
 app.post('/api/don-nhap-rong', boc(async (_req, res) => res.json({ daXoa: await dv.donNhapRong() })));
-// Sao lưu: ghi JSON từng phần (ảnh theo từng lượt) thay vì dựng cả file trong bộ nhớ
-app.get('/api/sao-luu', async (req, res, next) => {
-  res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  const ghi = (phan: string) => new Promise<void>((xong, loi) => res.write(phan, (e) => (e ? loi(e) : xong())));
-  try {
-    await dv.ghiSaoLuu(ghi);
-    res.end();
-  } catch (e) {
-    // Đã gửi một phần thì không trả JSON lỗi được nữa — cắt kết nối để trình duyệt biết file hỏng
-    if (res.headersSent) {
-      console.error('Sao lưu bị gián đoạn', e);
-      req.socket.destroy();
-    } else next(e);
-  }
-});
+// Bản desktop gọi sau khi sao lưu toàn bộ xong (để nhắc sao lưu định kỳ)
 app.post('/api/sao-luu/da-tai', boc(async (_req, res) => {
   await dv.ghiNhanDaSaoLuu();
   res.status(204).end();
 }));
-app.post('/api/khoi-phuc', boc(async (req, res) => res.json(await dv.khoiPhuc(req.body))));
 app.post('/api/du-lieu-mau', boc(async (_req, res) => {
   await dv.napDuLieuMau();
   res.status(204).end();

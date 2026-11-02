@@ -84,10 +84,10 @@ async function bangCong(thang: string): Promise<BangCong> {
 }
 
 /** Tạm ứng (phiếu chi trừ vào lương) của từng nhân viên trong tháng */
-async function tamUngTheoNhanVien(thang: string, nhanVienId?: string): Promise<Map<string, number>> {
+async function tamUngTheoNhanVien(thang: string): Promise<Map<string, number>> {
   const nhom = await prisma.phieuThuChi.groupBy({
     by: ['nhanVienId'],
-    where: { loai: 'chi', truVaoLuong: true, ngay: khoangDate(thang), ...(nhanVienId ? { nhanVienId } : { nhanVienId: { not: null } }) },
+    where: { loai: 'chi', truVaoLuong: true, ngay: khoangDate(thang), nhanVienId: { not: null } },
     _sum: { soTien: true },
   });
   return new Map(nhom.map((g) => [g.nhanVienId!, so(g._sum.soTien)]));

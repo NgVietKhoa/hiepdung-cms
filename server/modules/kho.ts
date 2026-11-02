@@ -76,7 +76,6 @@ const phieuKhoRaApp = (p: Prisma.PhieuKhoGetPayload<{ include: typeof KEM_PHIEU 
   baoGiaId: p.baoGiaId,
   nguoiGiaoNhan: p.nguoiGiaoNhan,
   ghiChu: p.ghiChu,
-  nguoiLap: p.nguoiLap,
   danhSachDong: p.danhSachDong.map((d) => ({
     id: d.id,
     vatTuId: d.vatTuId,

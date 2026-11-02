@@ -27,7 +27,6 @@ export function phieuMoi(loai: LoaiPhieuThuChi, them: Partial<PhieuThuChi> = {})
     truVaoLuong: false,
     nguoiNopNhan: '',
     noiDung: '',
-    nguoiLap: '',
     ngayTao: Date.now(),
     ...them,
   };
@@ -183,7 +182,6 @@ export function HopThoaiPhieu({
       <OChu nhan={laThu ? 'Người nộp tiền' : 'Người nhận tiền'} value={p.nguoiNopNhan} onChange={(nguoiNopNhan) => doi({ nguoiNopNhan })} />
       <OChu nhan="Nội dung" value={p.noiDung} onChange={(noiDung) => doi({ noiDung })} nhieuDong />
       <OChu nhan="Số phiếu" value={p.soPhieu} onChange={(soPhieu) => doi({ soPhieu })} placeholder="Để trống — tự cấp khi lưu" />
-      {p.nguoiLap && <p className="goi-y-nho">Người lập: {p.nguoiLap}</p>}
     </HopThoai>
   );
 }

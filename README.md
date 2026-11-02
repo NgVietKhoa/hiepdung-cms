@@ -25,13 +25,13 @@ Tạo bộ cài trên máy dev (mục 3) rồi chạy `release/Hiep Dung CMS Set
 - **File PDF / Word / Excel** khi bấm "Lưu": thư mục `Hiep Dung CMS` trong Documents (menu **Dữ liệu → Mở thư mục file đã lưu**).
 - **Cập nhật phiên bản:** chạy bộ cài mới đè lên; dữ liệu trong AppData giữ nguyên, lần mở đầu tự áp migration mới.
 - Máy chủ chạy ở cổng `41730` và chỉ nhận kết nối từ chính máy đó (`127.0.0.1`): vì không có đăng nhập nên máy khác / điện thoại cùng mạng không vào được.
-- Chỉ mở được một cửa sổ ứng dụng mỗi lúc. Nút "Gửi Zalo" không có trên máy tính (trình duyệt máy tính không có bảng chia sẻ); lưu PDF rồi kéo file vào Zalo.
+- Chỉ mở được một cửa sổ ứng dụng mỗi lúc. Gửi khách qua Zalo: lưu PDF rồi kéo file vào Zalo.
 
 ## 2. Sao lưu
 
 - **Toàn bộ dữ liệu:** menu **Dữ liệu → Sao lưu toàn bộ…** → chọn thư mục (nên là USB / ổ khác) → tạo `SaoLuu_<ngày>_<giờ>\` gồm `pgdata\` + `cauHinh.json`. Ứng dụng tạm dừng vài giây trong lúc chép (bản chép thư mục khi Postgres đang chạy không dùng được; bản Postgres nhúng không có `pg_dump`).
 - **Khôi phục:** **Dữ liệu → Khôi phục từ bản sao lưu…** → chọn thư mục `SaoLuu_…`. Dữ liệu đang có được giữ lại ở `%APPDATA%\hiep-dung-cms\TruocKhoiPhuc_<ngày>_<giờ>\` (cùng dạng bản sao lưu, chọn nhầm thì khôi phục lại từ đó).
-- **Cài đặt → Tải file sao lưu** (JSON) chỉ gồm phần **báo giá** (cài đặt, khách hàng, hạng mục, báo giá, biên bản, ảnh). File sao lưu từ **bản cũ chạy trên trình duyệt (IndexedDB)** cũng khôi phục được — dùng để chuyển dữ liệu cũ sang.
+- Trang Báo giá nhắc khi đã hơn 30 ngày chưa **Sao lưu toàn bộ**.
 
 ## 3. Phát triển trên máy
 
@@ -140,7 +140,7 @@ Tiền: `Decimal(15,0)` (đồng); số lượng: `Decimal(14,3)`. **Thành ti�
 | `GET /api/bao-gia`, `GET/PUT/DELETE /api/bao-gia/:id` | Danh sách chỉ trả bản tóm tắt kèm tổng tiền (không kèm dòng); `GET /:id` trả đầy đủ. PUT ghi cả chứng từ kèm dòng; số trống → máy chủ cấp số |
 | `GET /api/nghiem-thu[?baoGiaId=]`, `GET/PUT/DELETE /api/nghiem-thu/:id` | Như trên |
 | `GET/POST /api/nghiem-thu/:id/anh`, `PATCH/DELETE /api/anh/:id` | Ảnh nghiệm thu |
-| `GET /api/sao-luu` (JSON ghi từng phần), `POST /api/sao-luu/da-tai`, `POST /api/khoi-phuc`, `POST /api/du-lieu-mau`, `DELETE /api/du-lieu`, `POST /api/don-nhap-rong` | Bảo trì |
+| `POST /api/sao-luu/da-tai` (bản desktop gọi sau khi sao lưu toàn bộ), `POST /api/du-lieu-mau`, `DELETE /api/du-lieu`, `POST /api/don-nhap-rong` | Bảo trì |
 | `/api/nhan-vien`, `/api/loai-cong`, `GET/PUT /api/cham-cong?thang=`, `GET /api/bang-luong?thang=` | Chấm công (PUT ghi nhiều ô; ô trống = xoá) |
 | `/api/nha-cung-cap`, `/api/hoa-don[/:id]`, `/api/hoa-don/:id/tep`, `/api/tep-hoa-don/:id`, `GET /api/hoa-don-tu-bao-gia/:id`, `GET /api/thue-gtgt` | Hoá đơn |
 | `/api/phieu-thu-chi[/:id]`, `GET /api/so-quy`, `GET /api/cong-no?loai=phaiThu\|phaiTra`, `GET /api/tam-ung` | Thu chi |

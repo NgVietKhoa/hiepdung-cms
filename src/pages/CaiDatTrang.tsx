@@ -9,7 +9,6 @@ import { api } from '../db/api';
 import { layCaiDatHienTai, napCaiDatCache } from '../db/hooks';
 import type { CaiDat, TruongXuong } from '../db/kieu';
 import { khoaNhapTam } from '../db/nhapTam';
-import { khoiPhucTuFile, xuatSaoLuu } from '../db/saoLuu';
 import { nenLogo } from '../lib/anh';
 import { MUC_TUY_CHON, dangHien } from '../lib/hienThiXuong';
 import { useTuLuu } from '../lib/useTuLuu';
@@ -49,7 +48,6 @@ export function CaiDatTrang() {
   const dieuHuong = useNavigate();
   const [cd, setCd] = useState<CaiDat | undefined>(() => layCaiDatHienTai());
   const oLogo = useRef<HTMLInputElement>(null);
-  const oKhoiPhuc = useRef<HTMLInputElement>(null);
 
   const napLai = () =>
     api.caiDat.lay().then((data) => {
@@ -294,46 +292,10 @@ export function CaiDatTrang() {
           {muc === 'sao-luu' && (
             <The tieuDe="Sao lưu dữ liệu">
               <p className="goi-y-nho">
-                Dữ liệu được lưu trên máy chủ (cơ sở dữ liệu). Nên tải file sao lưu định kỳ và cất ở nơi khác (Zalo, email,
-                USB) phòng khi máy chủ hỏng. File sao lưu cũng dùng để chuyển dữ liệu sang máy chủ khác.
+                Dùng menu <strong>Dữ liệu → Sao lưu toàn bộ…</strong> trên thanh menu của cửa sổ, lưu ra USB hoặc ổ khác phòng khi
+                máy hỏng. Khôi phục: <strong>Dữ liệu → Khôi phục từ bản sao lưu…</strong>
                 {cd.lanSaoLuuCuoi && <> Lần sao lưu gần nhất: {new Date(cd.lanSaoLuuCuoi).toLocaleString('vi-VN')}.</>}
               </p>
-              <div className="hang-nut doc">
-                <button
-                  type="button"
-                  className="nut nut-chinh nut-rong"
-                  onClick={async () => {
-                    await xuatSaoLuu();
-                    await napLai();
-                    thongBao('Đã tải file sao lưu');
-                  }}
-                >
-                  <BieuTuong ten="tai" /> Tải file sao lưu
-                </button>
-                <button type="button" className="nut nut-vien nut-rong" onClick={() => oKhoiPhuc.current?.click()}>
-                  <BieuTuong ten="luu" /> Khôi phục từ file sao lưu
-                </button>
-              </div>
-              <input
-                ref={oKhoiPhuc}
-                type="file"
-                accept=".json,application/json"
-                hidden
-                onChange={async (e) => {
-                  const f = e.target.files?.[0];
-                  e.target.value = '';
-                  if (!f) return;
-                  if (!(await xacNhan('Khôi phục sẽ THAY THẾ toàn bộ dữ liệu hiện tại bằng dữ liệu trong file. Tiếp tục?', { nutDongY: 'Khôi phục' })))
-                    return;
-                  try {
-                    const kq = await khoiPhucTuFile(f);
-                    await napLai();
-                    thongBao(`Đã khôi phục: ${kq.soBaoGia} báo giá, ${kq.soNghiemThu} biên bản`);
-                  } catch (loi) {
-                    thongBao((loi as Error).message, 'loi');
-                  }
-                }}
-              />
             </The>
           )}
 

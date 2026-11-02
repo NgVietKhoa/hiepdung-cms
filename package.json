@@ -5,7 +5,7 @@
   "type": "module",
   "main": "desktop/build/main.js",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "vite",
     "dev:api": "prisma generate && tsx watch server/index.ts",
     "start": "tsx server/index.ts",
     "build": "prisma generate && tsc -b && tsc -p server && vite build",

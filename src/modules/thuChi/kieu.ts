@@ -21,7 +21,6 @@ export interface PhieuThuChi {
   truVaoLuong: boolean;
   nguoiNopNhan: string;
   noiDung: string;
-  nguoiLap: string;
   ngayTao: number;
 }
 

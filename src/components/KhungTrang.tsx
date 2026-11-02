@@ -221,7 +221,7 @@ function MenuDuoi() {
               </span>
               <span>
                 <strong>Báo giá mới</strong>
-                <small>Lập báo giá, in hoặc gửi Zalo cho khách</small>
+                <small>Lập báo giá, in hoặc lưu file gửi khách</small>
               </span>
             </button>
             <button type="button" className="lua-chon-tao" onClick={chon(tao.nghiemThu)}>
