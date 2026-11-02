@@ -92,7 +92,6 @@ model BaoGia {
   danhSachDong DongBaoGia[]
   nghiemThu    NghiemThu[]
   hoaDon       HoaDon[]
-  phieuKho     PhieuKho[]
 
   @@index([ngaySua])
   @@index([trangThai])
@@ -228,16 +227,12 @@ model CaiDat {
   /// Các mức VAT (%) để chọn nhanh; 0 = không tính VAT
   luaChonVAT                Decimal[] @default([]) @map("lua_chon_vat") @db.Decimal(5, 2)
   lanSaoLuuCuoi             DateTime? @map("lan_sao_luu_cuoi")
-  /// Ký hiệu phiếu thu / chi / nhập kho / xuất kho (PT-2026-001…)
+  /// Ký hiệu phiếu thu / chi (PT-2026-001…)
   tienToPhieuThu            String    @default("PT") @map("tien_to_phieu_thu")
   tienToPhieuChi            String    @default("PC") @map("tien_to_phieu_chi")
-  tienToPhieuNhap           String    @default("PN") @map("tien_to_phieu_nhap")
-  tienToPhieuXuat           String    @default("PX") @map("tien_to_phieu_xuat")
   /// Danh mục phiếu thu / phiếu chi. Ban đầu: prisma/duLieuBanDau.ts
   danhMucThu                String[]  @default([]) @map("danh_muc_thu")
   danhMucChi                String[]  @default([]) @map("danh_muc_chi")
-  /// Nhóm vật tư trong kho
-  nhomVatTu                 String[]  @default([]) @map("nhom_vat_tu")
   /// Ngày nghỉ hằng tuần trên bảng chấm công (0 = Chủ nhật … 6 = Thứ bảy) — chỉ để tô màu
   ngayNghiTuan              Int[]     @default([]) @map("ngay_nghi_tuan")
 
@@ -342,7 +337,6 @@ model NhaCungCap {
 
   hoaDon      HoaDon[]
   phieuThuChi PhieuThuChi[]
-  phieuKho    PhieuKho[]
 
   @@index([tenCongTy])
   @@map("nha_cung_cap")
@@ -380,7 +374,6 @@ model HoaDon {
   danhSachDong DongHoaDon[]
   tepDinhKem   TepHoaDon[]
   phieuThuChi  PhieuThuChi[]
-  phieuKho     PhieuKho[]
 
   @@index([loai, ngayHoaDon])
   @@index([khachHangId])
@@ -464,76 +457,6 @@ model PhieuThuChi {
   @@index([hoaDonId])
   @@index([nhanVienId, ngay])
   @@map("phieu_thu_chi")
-}
-
-/**
- * ================= Kho vật tư =================
- */
-
-enum LoaiPhieuKho {
-  nhap
-  xuat
-}
-
-model VatTu {
-  id          String   @id @default(uuid())
-  maVatTu     String   @default("") @map("ma_vat_tu")
-  ten         String
-  donViTinh   String   @default("") @map("don_vi_tinh")
-  nhom        String   @default("")
-  quyCach     String   @default("") @map("quy_cach")
-  /// Tồn dưới mức này thì cảnh báo (0 = không cảnh báo)
-  tonToiThieu Decimal  @default(0) @map("ton_toi_thieu") @db.Decimal(14, 3)
-  ghiChu      String   @default("") @map("ghi_chu")
-  ngungDung   Boolean  @default(false) @map("ngung_dung")
-  ngayTao     DateTime @default(now()) @map("ngay_tao")
-
-  dongPhieuKho DongPhieuKho[]
-
-  @@index([ten])
-  @@map("vat_tu")
-}
-
-model PhieuKho {
-  id            String       @id @default(uuid())
-  loai          LoaiPhieuKho
-  soPhieu       String       @unique @map("so_phieu")
-  ngay          DateTime     @db.Date
-  /// Nhập: mua của nhà cung cấp / theo hoá đơn mua vào
-  nhaCungCapId  String?      @map("nha_cung_cap_id")
-  hoaDonId      String?      @map("hoa_don_id")
-  /// Xuất: dùng cho đơn hàng (báo giá) nào
-  baoGiaId      String?      @map("bao_gia_id")
-  nguoiGiaoNhan String       @default("") @map("nguoi_giao_nhan")
-  ghiChu        String       @default("") @map("ghi_chu")
-  ngayTao       DateTime     @default(now()) @map("ngay_tao")
-  ngaySua       DateTime     @updatedAt @map("ngay_sua")
-
-  nhaCungCap   NhaCungCap?    @relation(fields: [nhaCungCapId], references: [id], onDelete: SetNull)
-  hoaDon       HoaDon?        @relation(fields: [hoaDonId], references: [id], onDelete: SetNull)
-  baoGia       BaoGia?        @relation(fields: [baoGiaId], references: [id], onDelete: SetNull)
-  danhSachDong DongPhieuKho[]
-
-  @@index([ngay])
-  @@map("phieu_kho")
-}
-
-model DongPhieuKho {
-  id         String  @id @default(uuid())
-  phieuKhoId String  @map("phieu_kho_id")
-  stt        Int
-  vatTuId    String  @map("vat_tu_id")
-  soLuong    Decimal @default(0) @map("so_luong") @db.Decimal(14, 3)
-  donGia     Decimal @default(0) @map("don_gia") @db.Decimal(15, 0)
-  ghiChu     String  @default("") @map("ghi_chu")
-
-  phieuKho PhieuKho @relation(fields: [phieuKhoId], references: [id], onDelete: Cascade)
-  /// Vật tư đã có phiếu thì không xoá được (chỉ ngừng dùng)
-  vatTu    VatTu    @relation(fields: [vatTuId], references: [id], onDelete: Restrict)
-
-  @@index([phieuKhoId, stt])
-  @@index([vatTuId])
-  @@map("dong_phieu_kho")
 }
 
 /// Trường có sẵn của dòng hạng mục mà một cột có thể gắn vào

@@ -192,16 +192,12 @@ export interface CaiDat {
   /** Các mức thuế VAT (%) để chọn nhanh trên báo giá / biên bản; 0 = không tính VAT */
   luaChonVAT: number[];
   lanSaoLuuCuoi: number | null;
-  /** Ký hiệu phiếu thu / chi / nhập kho / xuất kho */
+  /** Ký hiệu phiếu thu / chi */
   tienToPhieuThu: string;
   tienToPhieuChi: string;
-  tienToPhieuNhap: string;
-  tienToPhieuXuat: string;
   /** Danh mục phiếu thu / phiếu chi */
   danhMucThu: string[];
   danhMucChi: string[];
-  /** Nhóm vật tư trong kho */
-  nhomVatTu: string[];
   /** Ngày nghỉ hằng tuần (0 = Chủ nhật … 6 = Thứ bảy) — tô màu trên bảng chấm công */
   ngayNghiTuan: number[];
 }

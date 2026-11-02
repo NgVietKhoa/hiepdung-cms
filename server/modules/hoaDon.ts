@@ -153,7 +153,7 @@ const tenFileTai = (ten: string) => `attachment; filename*=UTF-8''${encodeURICom
 
 export const tuyenHoaDon = express.Router();
 
-// Nhà cung cấp: hoá đơn, thu chi, kho đều chọn được và thêm mới tại chỗ
+// Nhà cung cấp: hoá đơn, thu chi đều chọn được và thêm mới tại chỗ
 tuyenHoaDon.get(
   '/nha-cung-cap',
   boc(async (_req, res) => {

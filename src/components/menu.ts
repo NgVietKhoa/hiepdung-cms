@@ -37,13 +37,6 @@ export const NHOM_MENU: { ten: string; muc: MucMenu[] }[] = [
     ],
   },
   {
-    ten: 'Kho',
-    muc: [
-      { den: '/kho', nhan: 'Vật tư & tồn kho', nhanNgan: 'Kho', bieuTuong: 'kho' },
-      { den: '/phieu-kho', nhan: 'Phiếu nhập / xuất', bieuTuong: 'nhap' },
-    ],
-  },
-  {
     ten: 'Hệ thống',
     muc: [
       { den: '/cai-dat', nhan: 'Cài đặt', bieuTuong: 'caiDat' },
@@ -52,7 +45,7 @@ export const NHOM_MENU: { ten: string; muc: MucMenu[] }[] = [
 ];
 
 /** Các mục hay dùng trên menu đáy (điện thoại), theo thứ tự ưu tiên */
-const UU_TIEN_MENU_DUOI = ['/', '/bao-gia', '/cham-cong', '/hoa-don', '/thu-chi', '/kho'];
+const UU_TIEN_MENU_DUOI = ['/', '/bao-gia', '/cham-cong', '/hoa-don', '/thu-chi'];
 
 export function menuDuoiCua(soMuc: number): MucMenu[] {
   const tatCa = NHOM_MENU.flatMap((n) => n.muc);

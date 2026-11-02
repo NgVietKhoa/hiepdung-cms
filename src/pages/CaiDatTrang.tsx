@@ -26,7 +26,7 @@ type MucCaiDat =
   | 'danh-so'
   | 'sao-luu'
   | 'du-lieu-mau'
-  | 'thu-chi-kho';
+  | 'thu-chi-cham-cong';
 
 /** Các mục Cài đặt, mỗi lần chỉ hiện một mục (chọn ở thanh bên / lưới nút) cho đỡ rối */
 const DS_MUC: { id: MucCaiDat; ten: string; bieuTuong: TenBieuTuong }[] = [
@@ -37,7 +37,7 @@ const DS_MUC: { id: MucCaiDat; ten: string; bieuTuong: TenBieuTuong }[] = [
   { id: 'danh-muc', ten: 'Đơn vị, nhóm, VAT', bieuTuong: 'danhSach' },
   { id: 'bang-hang-muc', ten: 'Bảng hạng mục', bieuTuong: 'danhSach' },
   { id: 'danh-so', ten: 'Đánh số chứng từ', bieuTuong: 'in' },
-  { id: 'thu-chi-kho', ten: 'Thu chi, kho, chấm công', bieuTuong: 'tien' },
+  { id: 'thu-chi-cham-cong', ten: 'Thu chi, chấm công', bieuTuong: 'tien' },
   { id: 'sao-luu', ten: 'Sao lưu dữ liệu', bieuTuong: 'luu' },
   { id: 'du-lieu-mau', ten: 'Dữ liệu mẫu', bieuTuong: 'tai' },
 ];
@@ -328,8 +328,8 @@ export function CaiDatTrang() {
               </div>
             </The>
           )}
-          {muc === 'thu-chi-kho' && (
-            <The tieuDe="Thu chi, kho, chấm công">
+          {muc === 'thu-chi-cham-cong' && (
+            <The tieuDe="Thu chi, chấm công">
               <ODanhSach
                 nhan="Danh mục phiếu thu"
                 value={cd.danhMucThu}
@@ -343,13 +343,6 @@ export function CaiDatTrang() {
                 onChange={doi('danhMucChi')}
                 goiY="Mỗi dòng một danh mục — gợi ý khi lập phiếu chi."
                 placeholder={'Mua vật tư lẻ\nLương nhân viên'}
-              />
-              <ODanhSach
-                nhan="Nhóm vật tư"
-                value={cd.nhomVatTu}
-                onChange={doi('nhomVatTu')}
-                goiY="Mỗi dòng một nhóm — dùng để lọc trong Kho vật tư."
-                placeholder={'Thép tấm\nBu lông, ốc vít'}
               />
               <fieldset className="chon-thong-tin">
                 <legend className="nhan">Ngày nghỉ hằng tuần (tô màu trên bảng chấm công)</legend>
@@ -372,8 +365,6 @@ export function CaiDatTrang() {
               <div className="luoi-2">
                 <OChu nhan="Phiếu thu" value={cd.tienToPhieuThu} onChange={doi('tienToPhieuThu')} />
                 <OChu nhan="Phiếu chi" value={cd.tienToPhieuChi} onChange={doi('tienToPhieuChi')} />
-                <OChu nhan="Phiếu nhập kho" value={cd.tienToPhieuNhap} onChange={doi('tienToPhieuNhap')} />
-                <OChu nhan="Phiếu xuất kho" value={cd.tienToPhieuXuat} onChange={doi('tienToPhieuXuat')} />
               </div>
               <p className="goi-y-nho">
                 Ví dụ: {cd.tienToPhieuThu}-{new Date().getFullYear()}-{'1'.padStart(cd.soChuSo, '0')}. Số chữ số dùng chung với báo giá (mục Đánh số chứng từ).

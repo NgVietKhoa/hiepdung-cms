@@ -40,7 +40,7 @@ export const thangTuQuery = (q: Request['query']) => (laThang(q.thang) ? q.thang
 /* ---------- Cấp số phiếu ---------- */
 
 /** Khoá advisory theo loại phiếu (khác khoá báo giá 73_001 / nghiệm thu 73_002 trong dichVu.ts) */
-export const KHOA_CAP_SO = { phieuThu: 73_011, phieuChi: 73_012, phieuNhap: 73_021, phieuXuat: 73_022 } as const;
+export const KHOA_CAP_SO = { phieuThu: 73_011, phieuChi: 73_012 } as const;
 
 /**
  * Số kế tiếp dạng "PT-2026-001" trong giao dịch có khoá — hai máy tạo cùng lúc không trùng số.

@@ -4,12 +4,11 @@ Hệ thống quản lý cho xưởng cơ khí (phát triển từ ứng dụng *
 
 | Module | Chức năng |
 |---|---|
-| **Tổng quan** | Doanh thu, thu – chi, tồn quỹ, công nợ, báo giá chờ chốt, chấm công hôm nay, vật tư sắp hết, biểu đồ thu – chi 6 tháng |
+| **Tổng quan** | Doanh thu, thu – chi, tồn quỹ, công nợ, báo giá chờ chốt, chấm công hôm nay, biểu đồ thu – chi 6 tháng |
 | **Báo giá & nghiệm thu** | Như bản cũ: báo giá, biên bản nghiệm thu, khách hàng, danh mục hạng mục; xuất PDF / Word / Excel, in |
 | **Chấm công & lương** | Nhân viên; bảng chấm công tháng (chọn ký hiệu rồi bấm ô, tăng ca, ghi chú); bảng lương công nhật (công × lương/công + tăng ca + phụ cấp − tạm ứng); xuất Excel |
 | **Hoá đơn** | Sổ theo dõi hoá đơn **mua vào / bán ra** (không phát hành HĐĐT): dòng hàng, chiết khấu, VAT, hạn thanh toán, file PDF/XML đính kèm, lập từ báo giá, ghi tiền thu / trả; thuế GTGT phải nộp tạm tính; nhà cung cấp |
 | **Thu chi & công nợ** | Phiếu thu / chi (tự đánh số PT-, PC-), tiền mặt / chuyển khoản, sổ quỹ theo tháng; công nợ phải thu / phải trả theo đối tác, quá hạn |
-| **Kho vật tư** | Vật tư, phiếu nhập / xuất (PN-, PX-), tồn kho tính từ phiếu, chặn xuất quá tồn, thẻ kho, cảnh báo dưới mức tồn tối thiểu |
 
 - Một người dùng, **không đăng nhập**: mở ứng dụng là vào thẳng, dùng được mọi chức năng.
 - Ứng dụng Electron tự chạy **PostgreSQL nhúng** và **máy chủ API** (Node.js + Express + Prisma) ngay trên máy, rồi mở giao diện React trong cửa sổ. Máy dùng không cần cài Node, Docker hay PostgreSQL.
@@ -92,7 +91,7 @@ server/                  Máy chủ API
 ├── dichVu.ts            Nghiệp vụ báo giá: lưu chứng từ, cấp số, ảnh, sao lưu, dữ liệu mẫu
 ├── anhXa.ts             Chuyển đổi bản ghi Prisma ⇄ kiểu dữ liệu ứng dụng, làm sạch dữ liệu vào (dùng chung)
 ├── tienIch.ts           boc(), khoảng ngày theo tháng, cấp số phiếu có khoá
-├── modules/             Mỗi module một Router: chamCong, hoaDon, thuChi, kho, tongQuan
+├── modules/             Mỗi module một Router: chamCong, hoaDon, thuChi, tongQuan
 ├── prisma.ts            PrismaClient + adapter PostgreSQL
 ├── moiTruong.ts         Đọc .env
 └── generated/           Prisma Client (tự sinh)
@@ -115,7 +114,7 @@ src/                     Giao diện (React + Vite)
 └── modules/             Các module CMS — mỗi thư mục: kieu.ts (kiểu dùng chung với máy chủ) + các trang
     ├── api.ts           Gọi API của các module
     ├── tongQuan/  chamCong/ (tinhLuong.ts +test, xuatExcel.ts)
-    └── hoaDon/  thuChi/  kho/
+    └── hoaDon/  thuChi/
 ```
 
 **Thêm module mới:** model trong `schema.prisma` → `npm run db:migrate`; kiểu ở `src/modules/<tên>/kieu.ts`; Router ở `server/modules/<tên>.ts` (gắn trong `server/index.ts`); trang + mục menu (`src/components/menu.ts`) + route (`src/App.tsx`).
@@ -126,7 +125,6 @@ src/                     Giao diện (React + Vite)
 - Chấm công: `nhan_vien`, `loai_cong` (ký hiệu X, N, P… + hệ số công), `cham_cong` (một ô = nhân viên × ngày, `UNIQUE`).
 - Hoá đơn: `nha_cung_cap`, `hoa_don` → `dong_hoa_don` + `tep_hoa_don` (file lưu trong DB, tối đa 15 MB).
 - Thu chi: `phieu_thu_chi` (gắn khách / NCC / nhân viên / hoá đơn; `tru_vao_luong` = tạm ứng).
-- Kho: `vat_tu`, `phieu_kho` → `dong_phieu_kho`. **Tồn kho không lưu** mà tính từ phiếu.
 Tiền: `Decimal(15,0)` (đồng); số lượng: `Decimal(14,3)`. **Thành tiền và tổng không lưu** mà luôn tính lại từ số lượng × đơn giá nên không bao giờ lệch. Xoá báo giá → biên bản đã lập vẫn giữ (khoá ngoại `SET NULL`); xoá biên bản → dòng và ảnh xoá theo (`CASCADE`).
 
 ### API chính
@@ -144,7 +142,6 @@ Tiền: `Decimal(15,0)` (đồng); số lượng: `Decimal(14,3)`. **Thành ti�
 | `/api/nhan-vien`, `/api/loai-cong`, `GET/PUT /api/cham-cong?thang=`, `GET /api/bang-luong?thang=` | Chấm công (PUT ghi nhiều ô; ô trống = xoá) |
 | `/api/nha-cung-cap`, `/api/hoa-don[/:id]`, `/api/hoa-don/:id/tep`, `/api/tep-hoa-don/:id`, `GET /api/hoa-don-tu-bao-gia/:id`, `GET /api/thue-gtgt` | Hoá đơn |
 | `/api/phieu-thu-chi[/:id]`, `GET /api/so-quy`, `GET /api/cong-no?loai=phaiThu\|phaiTra`, `GET /api/tam-ung` | Thu chi |
-| `/api/vat-tu[/:id]`, `GET /api/vat-tu/:id/the-kho`, `/api/phieu-kho[/:id]` | Kho |
 | `GET /api/tong-quan?thang=` | Tổng quan |
 
 Lọc theo tháng: `?thang=YYYY-MM` (hoặc `?tu=YYYY-MM-DD&den=YYYY-MM-DD`).

@@ -11,7 +11,6 @@ import { LoiLuuFile, luuFile } from './luuFile';
 import { boc, thamSo } from './tienIch';
 import { tuyenChamCong } from './modules/chamCong';
 import { tuyenHoaDon } from './modules/hoaDon';
-import { tuyenKho } from './modules/kho';
 import { tuyenThuChi } from './modules/thuChi';
 import { tuyenTongQuan } from './modules/tongQuan';
 
@@ -65,7 +64,7 @@ app.delete('/api/hang-muc/:id', boc(async (req, res) => {
 
 // Báo giá — danh sách chỉ trả bản tóm tắt (kèm tổng tiền); GET /:id trả đầy đủ.
 // PUT ghi cả chứng từ (tạo mới nếu chưa có, số trống thì máy chủ tự cấp).
-// Hoá đơn (lập từ báo giá) và kho (xuất cho đơn hàng) cũng cần xem danh sách
+// Hoá đơn (lập từ báo giá) cũng cần xem danh sách
 app.get('/api/bao-gia', boc(async (_req, res) => res.json(await dv.dsTomTatBaoGia())));
 app.get('/api/bao-gia/:id', boc(async (req, res) => {
   const b = await dv.layBaoGia(thamSo(req));
@@ -134,7 +133,6 @@ app.use('/api', tuyenTongQuan);
 app.use('/api', tuyenChamCong);
 app.use('/api', tuyenHoaDon);
 app.use('/api', tuyenThuChi);
-app.use('/api', tuyenKho);
 
 app.use('/api', (_req, res) => res.status(404).json({ loi: 'Không có đường dẫn này' }));
 

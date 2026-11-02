@@ -57,7 +57,6 @@ async function seedCaiDat(): Promise<boolean> {
   if (!cu.luaChonVAT.length) thieu.luaChonVAT = banDau.luaChonVAT;
   if (!cu.danhMucThu.length) thieu.danhMucThu = banDau.danhMucThu;
   if (!cu.danhMucChi.length) thieu.danhMucChi = banDau.danhMucChi;
-  if (!cu.nhomVatTu.length) thieu.nhomVatTu = banDau.nhomVatTu;
   if (!cu.ngayNghiTuan.length) thieu.ngayNghiTuan = banDau.ngayNghiTuan;
   if (Object.keys(thieu).length) {
     await prisma.caiDat.update({ where: { id: 'caiDat' }, data: thieu });

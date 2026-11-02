@@ -1402,7 +1402,7 @@ body.dang-keo-tha .tay-nam { cursor: grabbing; }
   .thanh-ben-tao { display: grid; gap: 8px; }
 }
 
-/* ================= Màn soạn thảo (báo giá, nghiệm thu, hoá đơn, phiếu kho, xem trước) =================
+/* ================= Màn soạn thảo (báo giá, nghiệm thu, hoá đơn, xem trước) =================
  * Không có thanh bên nên không để nội dung giãn kịch hai mép: rộng tối đa --rong-soan, căn giữa.
  * Đầu trang và thanh tổng tiền dưới đáy dùng cùng lề để thẳng hàng với nội dung.
  */

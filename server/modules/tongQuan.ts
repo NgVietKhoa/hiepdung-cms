@@ -8,7 +8,6 @@ import { dsTomTatBaoGia } from '../dichVu';
 import { prisma } from '../prisma';
 import { boc, thangTuQuery } from '../tienIch';
 import { dsTomTatHoaDon } from './hoaDon';
-import { dsVatTuTon } from './kho';
 import { congNo, soQuy } from './thuChi';
 
 const SO_THANG_BIEU_DO = 6;
@@ -24,7 +23,7 @@ tuyenTongQuan.get(
     const denThang = chuoiRaNgay(khoangThang(thang).den)!;
     const homNay = chuoiRaNgay(homNayISO())!;
 
-    const [hoaDon, phieu, quy, phaiThu, phaiTra, baoGia, soNhanVien, daCham, vatTu] = await Promise.all([
+    const [hoaDon, phieu, quy, phaiThu, phaiTra, baoGia, soNhanVien, daCham] = await Promise.all([
       dsTomTatHoaDon({ ngayHoaDon: { gte: tuBieuDo, lt: denThang }, trangThai: 'hieuLuc' }),
       prisma.phieuThuChi.findMany({ where: { ngay: { gte: tuBieuDo, lt: denThang } }, select: { loai: true, ngay: true, soTien: true } }),
       soQuy(homNay, new Date(homNay.getTime() + 24 * 3600 * 1000)),
@@ -33,7 +32,6 @@ tuyenTongQuan.get(
       dsTomTatBaoGia(),
       prisma.nhanVien.count({ where: { dangLam: true } }),
       prisma.chamCong.count({ where: { ngay: homNay, loaiCongId: { not: null }, nhanVien: { dangLam: true } } }),
-      dsVatTuTon(),
     ]);
 
     const bieuDo = Array.from({ length: SO_THANG_BIEU_DO }, (_, i) => ({ thang: congThang(dau, i), doanhThu: 0, thu: 0, chi: 0 }));
@@ -65,9 +63,6 @@ tuyenTongQuan.get(
       baoGiaCho: { so: choChot.length, tong: choChot.reduce((s, b) => s + b.tong, 0) },
       baoGiaChotThang: { so: chotThang.length, tong: chotThang.reduce((s, b) => s + b.tong, 0) },
       chamCongHomNay: { daCham, tongNhanVien: soNhanVien },
-      vatTuSapHet: vatTu
-        .filter((v) => !v.ngungDung && v.tonToiThieu > 0 && v.tonKho < v.tonToiThieu)
-        .map((v) => ({ id: v.id, ten: v.ten, tonKho: v.tonKho, tonToiThieu: v.tonToiThieu, donViTinh: v.donViTinh })),
       bieuDo,
     };
     res.json(kq);

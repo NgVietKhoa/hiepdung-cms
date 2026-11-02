@@ -376,11 +376,8 @@ export function caiDatVaoDB(c: Partial<CaiDat>) {
     lanSaoLuuCuoi: d.lanSaoLuuCuoi ? new Date(d.lanSaoLuuCuoi) : null,
     tienToPhieuThu: chuoi(d.tienToPhieuThu).trim() || CAI_DAT_TRONG.tienToPhieuThu,
     tienToPhieuChi: chuoi(d.tienToPhieuChi).trim() || CAI_DAT_TRONG.tienToPhieuChi,
-    tienToPhieuNhap: chuoi(d.tienToPhieuNhap).trim() || CAI_DAT_TRONG.tienToPhieuNhap,
-    tienToPhieuXuat: chuoi(d.tienToPhieuXuat).trim() || CAI_DAT_TRONG.tienToPhieuXuat,
     danhMucThu: dsChu(d.danhMucThu),
     danhMucChi: dsChu(d.danhMucChi),
-    nhomVatTu: dsChu(d.nhomVatTu),
     ngayNghiTuan: (Array.isArray(d.ngayNghiTuan) ? [...new Set(d.ngayNghiTuan.map(Number))] : []).filter(
       (n) => Number.isInteger(n) && n >= 0 && n <= 6,
     ),

@@ -35,8 +35,6 @@ export const CAI_DAT_BAN_DAU: Omit<CaiDat, 'id' | 'lanSaoLuuCuoi'> = {
   luaChonVAT: [0, 5, 8, 10],
   tienToPhieuThu: 'PT',
   tienToPhieuChi: 'PC',
-  tienToPhieuNhap: 'PN',
-  tienToPhieuXuat: 'PX',
   danhMucThu: ['Thu tiền khách hàng', 'Khách tạm ứng', 'Bán phế liệu', 'Thu khác'],
   danhMucChi: [
     'Trả nhà cung cấp',
@@ -49,7 +47,6 @@ export const CAI_DAT_BAN_DAU: Omit<CaiDat, 'id' | 'lanSaoLuuCuoi'> = {
     'Sửa chữa máy móc',
     'Chi khác',
   ],
-  nhomVatTu: ['Thép tấm', 'Thép hình', 'Thép ống', 'Inox', 'Nhôm', 'Bu lông, ốc vít', 'Que hàn, khí', 'Dao cụ', 'Sơn', 'Khác'],
   ngayNghiTuan: [0],
 };
 

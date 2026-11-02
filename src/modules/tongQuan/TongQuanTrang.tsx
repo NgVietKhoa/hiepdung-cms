@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { BieuTuong } from '../../components/BieuTuong';
 import { BangCuon, ChonThang, OSoLieu } from '../../components/ChungCms';
 import { TrangChinh } from '../../components/KhungTrang';
 import { useCaiDat, useTruyVan } from '../../db/hooks';
@@ -203,36 +201,6 @@ export function TongQuanTrang() {
           </div>
 
           <BieuDoThuChi du={tq.bieuDo} />
-
-          <div className="luoi-2-cot">
-            <section className="the">
-              <div className="the-dau">
-                <span className="the-bieu-tuong">
-                  <BieuTuong ten="kho" co={20} />
-                </span>
-                <div className="the-ten">
-                  <h2>Vật tư sắp hết</h2>
-                </div>
-                <Link to="/kho" className="nut-nho">
-                  Xem kho
-                </Link>
-              </div>
-              {tq.vatTuSapHet.length === 0 ? (
-                <p className="goi-y-nho">Không có vật tư nào dưới mức tồn tối thiểu.</p>
-              ) : (
-                <ul className="ds-gon">
-                  {tq.vatTuSapHet.map((v) => (
-                    <li key={v.id}>
-                      <span>{v.ten}</span>
-                      <span className="chu-loi">
-                        còn {dinhDangSoLuong(v.tonKho)} / {dinhDangSoLuong(v.tonToiThieu)} {v.donViTinh}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          </div>
         </>
       )}
     </TrangChinh>

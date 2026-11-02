@@ -2,7 +2,6 @@
 import { goi, layHoacNull, ma, type TuyChonGoi } from '../db/api';
 import type { BangCong, DongLuong, LoaiCong, NhanVien, OCong } from './chamCong/kieu';
 import type { HoaDon, LoaiHoaDon, NhaCungCap, TepHoaDon, TomTatHoaDon } from './hoaDon/kieu';
-import type { DongTheKho, PhieuKho, TomTatPhieuKho, VatTu, VatTuTon } from './kho/kieu';
 import type { CongNo, LoaiCongNo, PhieuThuChi, SoQuy } from './thuChi/kieu';
 import type { TongQuan } from './tongQuan/kieu';
 
@@ -63,16 +62,5 @@ export const apiCms = {
     xoa: (id: string) => goi<void>('DELETE', `/phieu-thu-chi/${ma(id)}`),
     soQuy: (thang: string) => goi<SoQuy>('GET', `/so-quy${truyVan({ thang })}`),
     congNo: (loai: LoaiCongNo) => goi<CongNo[]>('GET', `/cong-no${truyVan({ loai })}`),
-  },
-
-  kho: {
-    dsVatTu: () => goi<VatTuTon[]>('GET', '/vat-tu'),
-    luuVatTu: (v: VatTu) => goi<VatTu>('PUT', `/vat-tu/${ma(v.id)}`, v),
-    xoaVatTu: (id: string) => goi<void>('DELETE', `/vat-tu/${ma(id)}`),
-    theKho: (id: string) => goi<DongTheKho[]>('GET', `/vat-tu/${ma(id)}/the-kho`),
-    dsPhieu: (q: { thang?: string; loai?: 'nhap' | 'xuat' }) => goi<TomTatPhieuKho[]>('GET', `/phieu-kho${truyVan(q)}`),
-    layPhieu: (id: string) => layHoacNull<PhieuKho>(`/phieu-kho/${ma(id)}`),
-    luuPhieu: (p: PhieuKho) => goi<PhieuKho>('PUT', `/phieu-kho/${ma(p.id)}`, p),
-    xoaPhieu: (id: string) => goi<void>('DELETE', `/phieu-kho/${ma(id)}`),
   },
 };

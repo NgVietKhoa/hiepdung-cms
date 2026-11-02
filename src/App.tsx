@@ -25,9 +25,6 @@ const NhanVienTrang = trangLuoi(() => import('./modules/chamCong/NhanVienTrang')
 const HoaDonSua = trangLuoi(() => import('./modules/hoaDon/HoaDonSua'), 'HoaDonSua');
 const HoaDonTrang = trangLuoi(() => import('./modules/hoaDon/HoaDonTrang'), 'HoaDonTrang');
 const NhaCungCapTrang = trangLuoi(() => import('./modules/hoaDon/NhaCungCapTrang'), 'NhaCungCapTrang');
-const KhoTrang = trangLuoi(() => import('./modules/kho/KhoTrang'), 'KhoTrang');
-const PhieuKhoSua = trangLuoi(() => import('./modules/kho/PhieuKhoSua'), 'PhieuKhoSua');
-const PhieuKhoTrang = trangLuoi(() => import('./modules/kho/PhieuKhoTrang'), 'PhieuKhoTrang');
 const CongNoTrang = trangLuoi(() => import('./modules/thuChi/CongNoTrang'), 'CongNoTrang');
 const ThuChiTrang = trangLuoi(() => import('./modules/thuChi/ThuChiTrang'), 'ThuChiTrang');
 const TongQuanTrang = trangLuoi(() => import('./modules/tongQuan/TongQuanTrang'), 'TongQuanTrang');
@@ -138,10 +135,6 @@ export function App() {
                 <Route path="/thu-chi" element={<ThuChiTrang />} />
                 <Route path="/cong-no" element={<CongNoTrang />} />
   
-                {/* Kho */}
-                <Route path="/kho" element={<KhoTrang />} />
-                <Route path="/phieu-kho" element={<PhieuKhoTrang />} />
-  
                 {/* Hệ thống */}
                 <Route path="/cai-dat" element={<CaiDatTrang />} />
               </Route>
@@ -152,7 +145,6 @@ export function App() {
               <Route path="/nghiem-thu/:id" element={<TheoId>{(id) => <NghiemThuSua key={id} />}</TheoId>} />
               <Route path="/in/:loai/:id" element={<XemTruoc />} />
               <Route path="/hoa-don/:id" element={<TheoId>{(id) => <HoaDonSua key={id} />}</TheoId>} />
-              <Route path="/phieu-kho/:id" element={<TheoId>{(id) => <PhieuKhoSua key={id} />}</TheoId>} />
   
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

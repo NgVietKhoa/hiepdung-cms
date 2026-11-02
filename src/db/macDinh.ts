@@ -36,10 +36,7 @@ export const CAI_DAT_TRONG: CaiDat = {
   lanSaoLuuCuoi: null,
   tienToPhieuThu: 'PT',
   tienToPhieuChi: 'PC',
-  tienToPhieuNhap: 'PN',
-  tienToPhieuXuat: 'PX',
   danhMucThu: [],
   danhMucChi: [],
-  nhomVatTu: [],
   ngayNghiTuan: [],
 };
