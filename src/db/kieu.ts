@@ -41,10 +41,6 @@ export interface DongHangMuc {
   cotThem?: Record<string, string>;
 }
 
-export interface DongNghiemThu extends DongHangMuc {
-  soLuongThucTe: number;
-}
-
 export interface ChietKhau {
   kieu: 'phanTram' | 'soTien';
   giaTri: number;
@@ -135,7 +131,7 @@ export interface BienBanNghiemThu {
   tieuDe: string;
   thanhPhanBenA: NguoiDaiDien[];
   thanhPhanBenB: NguoiDaiDien[];
-  danhSachDong: DongNghiemThu[];
+  danhSachDong: DongHangMuc[];
   tyLeVAT: number;
   chietKhau: ChietKhau;
   ketLuan: string;

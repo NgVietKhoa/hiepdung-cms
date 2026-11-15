@@ -129,8 +129,8 @@ function xepThe(cot: CotHienThi[], soCot: number, hep: (c: CotHienThi) => boolea
  */
 export function boCucBang(ds: CotHangMuc[]): { bien: Record<string, string>; rongToiThieu: number } {
   const hien = cotDangHien(ds);
-  /** Các vùng trải hết bề ngang dưới các cột: chi tiết (gạch đầu dòng), phần thêm của nghiệm thu, ghi chú, nút lưu danh mục */
-  const VUNG_CUOI = ['chitiet', 'them', 'ghichu', 'luu'];
+  /** Các vùng trải hết bề ngang dưới các cột: chi tiết (gạch đầu dòng), ghi chú, nút lưu danh mục */
+  const VUNG_CUOI = ['chitiet', 'ghichu', 'luu'];
   const cuoi = (n: number) => VUNG_CUOI.map((v) => hang(...Array<string>(n).fill(v)));
 
   const dienThoai = [

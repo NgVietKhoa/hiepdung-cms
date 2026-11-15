@@ -154,22 +154,20 @@ model NghiemThu {
 }
 
 model DongNghiemThu {
-  id            String   @id @default(uuid())
-  nghiemThuId   String   @map("nghiem_thu_id")
-  stt           Int
-  loai          LoaiDong @default(hang)
-  tenHangMuc    String   @default("") @map("ten_hang_muc")
+  id          String   @id @default(uuid())
+  nghiemThuId String   @map("nghiem_thu_id")
+  stt         Int
+  loai        LoaiDong @default(hang)
+  tenHangMuc  String   @default("") @map("ten_hang_muc")
   /// Các dòng chi tiết in dạng gạch đầu dòng dưới tên hạng mục
-  chiTiet       String[] @default([]) @map("chi_tiet")
-  quyCach       String   @default("") @map("quy_cach")
-  donViTinh     String   @default("") @map("don_vi_tinh")
-  /// Số lượng theo báo giá
-  soLuong       Decimal  @default(0) @map("so_luong") @db.Decimal(14, 3)
-  soLuongThucTe Decimal  @default(0) @map("so_luong_thuc_te") @db.Decimal(14, 3)
-  donGia        Decimal  @default(0) @map("don_gia") @db.Decimal(15, 0)
-  ghiChu        String   @default("") @map("ghi_chu")
+  chiTiet     String[] @default([]) @map("chi_tiet")
+  quyCach     String   @default("") @map("quy_cach")
+  donViTinh   String   @default("") @map("don_vi_tinh")
+  soLuong     Decimal  @default(0) @map("so_luong") @db.Decimal(14, 3)
+  donGia      Decimal  @default(0) @map("don_gia") @db.Decimal(15, 0)
+  ghiChu      String   @default("") @map("ghi_chu")
   /// Giá trị các cột tự thêm (cot_hang_muc không gắn trường): { <id cột>: "giá trị" }
-  cotThem       Json     @default("{}") @map("cot_them")
+  cotThem     Json     @default("{}") @map("cot_them")
 
   nghiemThu NghiemThu @relation(fields: [nghiemThuId], references: [id], onDelete: Cascade)
 

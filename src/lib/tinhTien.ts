@@ -1,4 +1,4 @@
-import type { BaoGia, ChietKhau, DongHangMuc, DongNghiemThu } from '../db/kieu';
+import type { BaoGia, ChietKhau, DongHangMuc } from '../db/kieu';
 import { cacThanhTien } from './phanMuc';
 
 export interface KetQuaTinhTien {
@@ -47,16 +47,10 @@ export function tinhTong(
 type DongTinhTien = Pick<DongHangMuc, 'loai' | 'soLuong' | 'donGia'>;
 type ChungTuTinhTien<D> = Pick<BaoGia, 'chietKhau' | 'tyLeVAT'> & { danhSachDong: D[] };
 
-/** Thành tiền một dòng báo giá: theo số lượng báo giá */
+/** Thành tiền một dòng báo giá / nghiệm thu */
 export const thanhTienBaoGia = (d: DongTinhTien) => thanhTien(d.soLuong, d.donGia);
-/** Thành tiền một dòng nghiệm thu: theo số lượng thực tế */
-export const thanhTienNghiemThu = (d: DongTinhTien & Pick<DongNghiemThu, 'soLuongThucTe'>) =>
-  thanhTien(d.soLuongThucTe, d.donGia);
 
 /** Tổng tiền báo giá — mọi màn hình và bản xuất đều tính qua đây */
 export const tongBaoGia = (bg: ChungTuTinhTien<DongTinhTien>) =>
   tinhTong(cacThanhTien(bg.danhSachDong, thanhTienBaoGia), bg.chietKhau, bg.tyLeVAT);
 
-/** Tổng giá trị biên bản nghiệm thu (theo số lượng thực tế) */
-export const tongNghiemThu = (nt: ChungTuTinhTien<DongTinhTien & Pick<DongNghiemThu, 'soLuongThucTe'>>) =>
-  tinhTong(cacThanhTien(nt.danhSachDong, thanhTienNghiemThu), nt.chietKhau, nt.tyLeVAT);

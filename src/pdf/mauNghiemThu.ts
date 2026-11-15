@@ -4,7 +4,7 @@ import { dinhDangSoLuong, ngayThangNam } from '../lib/dinhDang';
 import { docTienBangChu } from '../lib/docSo';
 import { caiDatHienThi } from '../lib/hienThiXuong';
 import { danhSo } from '../lib/phanMuc';
-import { thanhTienNghiemThu, tongNghiemThu } from '../lib/tinhTien';
+import { thanhTienBaoGia, tongBaoGia } from '../lib/tinhTien';
 import { BE_RONG_TRANG, KHUNG_TRANG, KIEU_BANG, dongPhanPdf, dongThongTin, khoiKy, loc, tienO } from './mauChung';
 import { CAU_KET_NGHIEM_THU, CHAM, cacDongTongNghiemThu, canCuNghiemThu, dongCoNoiDung, tenKemGhiChu } from './noiDung';
 
@@ -83,31 +83,30 @@ export function mauNghiemThu(
 ): TDocumentDefinitions {
   const cd = caiDatHienThi(caiDat);
   const dong = dongCoNoiDung(nt.danhSachDong);
-  const tien = thanhTienNghiemThu;
-  const tong = tongNghiemThu(nt);
+  const tien = thanhTienBaoGia;
+  const tong = tongBaoGia(nt);
 
-  const dauBang: TableCell[] = [
-    'STT', 'Hạng mục', 'Quy cách', 'ĐVT', 'SL theo báo giá', 'SL thực tế', 'Đơn giá (đ)', 'Thành tiền (đ)',
-  ].map((t) => ({ text: t, style: 'dauBang', fontSize: 9 }));
+  const dauBang: TableCell[] = ['STT', 'Tên hàng hoá / dịch vụ', 'Quy cách', 'ĐVT', 'Số lượng', 'Đơn giá (đ)', 'Thành tiền (đ)'].map(
+    (t) => ({ text: t, style: 'dauBang' }),
+  );
 
   const cacDong: TableCell[][] = danhSo(dong, tien).map(({ dong: d, laPhan, stt, tien: t }) =>
     laPhan
-      ? dongPhanPdf(stt, d.tenHangMuc, 8)
+      ? dongPhanPdf(stt, d.tenHangMuc, 7)
       : [
           { text: stt, alignment: 'center' },
           tenKemGhiChu(d),
           d.quyCach,
           { text: d.donViTinh, alignment: 'center' },
           { text: dinhDangSoLuong(d.soLuong), alignment: 'right' },
-          { text: dinhDangSoLuong(d.soLuongThucTe), alignment: 'right', bold: d.soLuongThucTe !== d.soLuong },
           { text: tienO(d.donGia), alignment: 'right' },
           { text: tienO(t), alignment: 'right' },
         ],
   );
 
   const cacDongTong: TableCell[][] = cacDongTongNghiemThu(nt, tong).map(({ nhan, giaTri, dam }): TableCell[] => [
-    { text: nhan, colSpan: 7, alignment: 'right', bold: dam },
-    {}, {}, {}, {}, {}, {},
+    { text: nhan, colSpan: 6, alignment: 'right', bold: dam },
+    {}, {}, {}, {}, {},
     { text: tienO(giaTri), alignment: 'right', bold: dam },
   ]);
   const canCu = canCuNghiemThu(nt, bg);
@@ -138,11 +137,11 @@ export function mauNghiemThu(
       table: {
         headerRows: 1,
         dontBreakRows: true,
-        widths: [18, '*', 84, 26, 32, 32, 50, 58],
+        widths: [24, '*', 92, 34, 46, 64, 74],
         body: [dauBang, ...cacDong, ...cacDongTong],
       },
       layout: KIEU_BANG,
-      fontSize: 9,
+      style: 'oBang',
     },
     { text: [{ text: 'Bằng chữ: ', bold: true }, docTienBangChu(tong.tongThanhToan, { dungTu: cd.docSoTu }) + '.'], italics: true, margin: [0, 6, 0, 0] },
     { text: 'KẾT LUẬN:', style: 'muc' },

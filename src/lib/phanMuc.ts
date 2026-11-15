@@ -43,7 +43,7 @@ export interface DongDanhSo<D> {
   tien: number;
 }
 
-/** Đánh số từng dòng và cộng tiền từng phần. `tien`: thành tiền một hạng mục (báo giá theo SL, nghiệm thu theo SL thực tế). */
+/** Đánh số từng dòng và cộng tiền từng phần. `tien`: thành tiền một hạng mục. */
 export function danhSo<D extends DongHangMuc>(ds: D[], tien: (d: D) => number): DongDanhSo<D>[] {
   let soPhan = 0;
   let soHang = 0;

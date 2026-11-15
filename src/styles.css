@@ -1005,7 +1005,6 @@ select.o-nhap { cursor: pointer; }
 .the-dong > .thao-tac-dong { grid-area: dau; justify-self: end; align-self: start; }
 /* Vị trí từng ô cột (grid-area) đặt trực tiếp từ dữ liệu cột, xem boCucBang trong lib/cotHangMuc.ts */
 .the-dong > .thanh-tien-dong { justify-self: end; margin: -4px 0 12px; text-align: right; }
-.cot-them { grid-area: them; }
 .cot-tu-them.kieu-so .o-nhap { text-align: right; font-variant-numeric: tabular-nums; }
 .cot-ghi-chu { grid-area: ghichu; display: flex; align-items: flex-end; gap: 6px; }
 .cot-ghi-chu .truong { flex: 1; }
@@ -1169,7 +1168,6 @@ body.dang-keo-tha .tay-nam { cursor: grabbing; }
 }
 .dang-bang .cot-ten .danh-sach-goi-y { right: auto; min-width: max(100%, 460px); }
 
-.dang-bang .cot-them,
 .dang-bang .cot-chi-tiet,
 .dang-bang .cot-ghi-chu { margin-top: 8px; }
 .dang-bang .cot-chi-tiet .truong { margin-bottom: 0; }
@@ -1181,7 +1179,6 @@ body.dang-keo-tha .tay-nam { cursor: grabbing; }
 }
 .dang-bang .the-phan > .tong-phan { padding: 0 4px 0 16px; }
 .dang-bang .the-phan > .tong-phan strong { font-size: var(--co-md); }
-.dang-bang .cot-them .phan-nghiem-thu { grid-template-columns: 220px; justify-content: start; margin-bottom: 0; }
 
 .dang-bang .bo-ghi-chu { margin-bottom: 0; width: 38px; height: 38px; }
 .dang-bang .the-dong > .luu-danh-muc { margin-top: 8px; }
@@ -1190,9 +1187,6 @@ body.dang-keo-tha .tay-nam { cursor: grabbing; }
 .dang-bang .hang-nut-them-dong { gap: 0; }
 .dang-bang .nut-them-dong { border: 0; border-radius: 0 0 0 var(--bo-goc); }
 .dang-bang .nut-them-phan { border-left: 1px solid var(--vien-nhat); border-radius: 0 0 var(--bo-goc) 0; }
-
-.phan-nghiem-thu { display: grid; grid-template-columns: 1fr; gap: 0 12px; padding: 10px 12px 0; margin-bottom: 12px; border-radius: var(--bo-goc-nho); background: var(--nen-phu); border: 1px solid var(--vien-nhat); }
-.chenh-lech .o-nhap { border-color: var(--mau-chinh); background: var(--mau-chinh-nhat); font-weight: var(--dam-ro); }
 
 /* ================= Tổng tiền ================= */
 .hang-chiet-khau { display: grid; grid-template-columns: 1fr; gap: 8px; }

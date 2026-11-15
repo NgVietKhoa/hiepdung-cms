@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { BaoGia, DongHangMuc } from '../db/kieu';
 import { CAI_DAT_THU } from '../test/caiDatThu';
 import { baoGiaMoi, chuyenBaoGiaThanhNghiemThu, laBaoGiaRong } from './nghiepVu';
-import { tongBaoGia, tongNghiemThu } from './tinhTien';
+import { tongBaoGia } from './tinhTien';
 
 const dong = (khac: Partial<DongHangMuc>): DongHangMuc => ({
   id: Math.random().toString(36),
@@ -34,7 +34,7 @@ describe('chuyển báo giá → nghiệm thu', () => {
   it('giữ đúng các dòng bản in báo giá giữ, tổng nghiệm thu bằng tổng báo giá', () => {
     const nt = chuyenBaoGiaThanhNghiemThu(bg, undefined, CAI_DAT_THU, '', '2026-10-05');
     expect(nt.danhSachDong.map((d) => d.tenHangMuc)).toEqual(['Phần khung', 'Tiện trục', '']);
-    expect(tongNghiemThu(nt)).toEqual(tongBaoGia(bg));
+    expect(tongBaoGia(nt)).toEqual(tongBaoGia(bg));
   });
 
   it('dòng mới lấy đơn vị đầu tiên trong cài đặt', () => {

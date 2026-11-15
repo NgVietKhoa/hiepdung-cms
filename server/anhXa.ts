@@ -12,7 +12,6 @@ import type {
   CaiDat,
   ChietKhau,
   DongHangMuc,
-  DongNghiemThu,
   HangMuc,
   KhachHang,
   NguoiDaiDien,
@@ -23,7 +22,7 @@ import { CAI_DAT_TRONG } from '../src/db/macDinh';
 import { laTruongXuong } from '../src/lib/hienThiXuong';
 import { chuanHoaGiaTriCotThem } from '../src/lib/cotHangMuc';
 import { demHangMuc } from '../src/lib/phanMuc';
-import { tongBaoGia, tongNghiemThu } from '../src/lib/tinhTien';
+import { tongBaoGia } from '../src/lib/tinhTien';
 
 /* ---------- Tiện ích ---------- */
 
@@ -251,10 +250,7 @@ export function nghiemThuRaApp(n: NghiemThuDB): BienBanNghiemThu {
     tieuDe: n.tieuDe,
     thanhPhanBenA: nguoiDaiDien(n.thanhPhanBenA),
     thanhPhanBenB: nguoiDaiDien(n.thanhPhanBenB),
-    danhSachDong: n.danhSachDong.map<DongNghiemThu>((d) => ({
-      ...dongRaApp(d),
-      soLuongThucTe: so(d.soLuongThucTe),
-    })),
+    danhSachDong: n.danhSachDong.map(dongRaApp),
     tyLeVAT: so(n.tyLeVAT),
     chietKhau: chietKhauRaApp(n.kieuChietKhau, n.giaTriChietKhau),
     ketLuan: n.ketLuan,
@@ -280,11 +276,6 @@ export function nghiemThuVaoDB(n: Partial<BienBanNghiemThu>) {
     trangThai: trongDanhSach(n.trangThai, ['nhap', 'daKy', 'huy'] as const, 'nhap'),
   };
 }
-export const dongNghiemThuVaoDB = (ds: unknown) =>
-  (Array.isArray(ds) ? ds : []).map((d: Partial<DongNghiemThu>, i) => ({
-    ...dongVaoDB(d, i + 1),
-    soLuongThucTe: d.loai === 'phan' ? 0 : soLuong(d.soLuongThucTe),
-  }));
 
 /** Các cột cần cho danh sách biên bản */
 export const CHON_TOM_TAT_NGHIEM_THU = {
@@ -298,18 +289,13 @@ export const CHON_TOM_TAT_NGHIEM_THU = {
   tyLeVAT: true,
   kieuChietKhau: true,
   giaTriChietKhau: true,
-  danhSachDong: { select: { loai: true, soLuongThucTe: true, donGia: true } },
+  danhSachDong: { select: { loai: true, soLuong: true, donGia: true } },
 } satisfies Prisma.NghiemThuSelect;
 
 export function tomTatNghiemThuRaApp(
   n: Prisma.NghiemThuGetPayload<{ select: typeof CHON_TOM_TAT_NGHIEM_THU }>,
 ): TomTatNghiemThu {
-  const danhSachDong = n.danhSachDong.map((d) => ({
-    loai: d.loai,
-    soLuong: 0,
-    soLuongThucTe: so(d.soLuongThucTe),
-    donGia: so(d.donGia),
-  }));
+  const danhSachDong = n.danhSachDong.map((d) => ({ loai: d.loai, soLuong: so(d.soLuong), donGia: so(d.donGia) }));
   const chietKhau = chietKhauRaApp(n.kieuChietKhau, n.giaTriChietKhau);
   return {
     id: n.id,
@@ -320,7 +306,7 @@ export function tomTatNghiemThuRaApp(
     tieuDe: n.tieuDe,
     trangThai: n.trangThai,
     soHangMuc: demHangMuc(danhSachDong),
-    tong: tongNghiemThu({ danhSachDong, chietKhau, tyLeVAT: so(n.tyLeVAT) }).tongThanhToan,
+    tong: tongBaoGia({ danhSachDong, chietKhau, tyLeVAT: so(n.tyLeVAT) }).tongThanhToan,
   };
 }
 

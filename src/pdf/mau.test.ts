@@ -35,7 +35,7 @@ describe('mẫu PDF', () => {
   it('tạo được báo giá và biên bản nghiệm thu', async () => {
     const pdf1 = await taoBuffer(mauBaoGia(bg, kh, CAI_DAT_THU));
     const nt = chuyenBaoGiaThanhNghiemThu(bg, kh, CAI_DAT_THU, 'NT-2026-001', '2026-09-30');
-    nt.danhSachDong[1].soLuongThucTe = 2;
+    nt.danhSachDong[1].soLuong = 2;
     const pdf2 = await taoBuffer(mauNghiemThu(nt, kh, bg, [], CAI_DAT_THU));
     expect(pdf1.length).toBeGreaterThan(5000);
     expect(pdf2.length).toBeGreaterThan(5000);

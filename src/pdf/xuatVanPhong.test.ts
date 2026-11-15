@@ -116,14 +116,14 @@ describe('xuất Excel', () => {
     expect(xml).toContain('- Thép C45');
   });
 
-  it('nghiệm thu: tính theo SL thực tế', async () => {
+  it('nghiệm thu: tính theo số lượng', async () => {
     const nt = chuyenBaoGiaThanhNghiemThu(bg, kh, CAI_DAT_THU, 'NT-2026-001', '2026-09-30');
-    nt.danhSachDong[1].soLuongThucTe = 2;
+    nt.danhSachDong[1].soLuong = 2;
     const blob = await excelNghiemThu(nt, kh, bg, CAI_DAT_THU);
     const ws = await docExcel(blob);
     const dong = nt.danhSachDong.filter((d) => d.tenHangMuc.trim() || d.donGia);
-    const tong = tinhTong(dong.map((d) => thanhTien(d.soLuongThucTe, d.donGia)), nt.chietKhau, nt.tyLeVAT);
-    expect(oCungHang(ws, 'TỔNG GIÁ TRỊ NGHIỆM THU', 8).result).toBe(tong.tongThanhToan);
+    const tong = tinhTong(dong.map((d) => thanhTien(d.soLuong, d.donGia)), nt.chietKhau, nt.tyLeVAT);
+    expect(oCungHang(ws, 'TỔNG GIÁ TRỊ NGHIỆM THU', 7).result).toBe(tong.tongThanhToan);
     if (process.env.GHI_PDF) writeFileSync(`${process.env.GHI_PDF}/nghiemthu.xlsx`, Buffer.from(await blob.arrayBuffer()));
   });
 });

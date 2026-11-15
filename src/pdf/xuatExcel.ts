@@ -9,7 +9,7 @@ import { dinhDangNgay, ngayThangNam } from '../lib/dinhDang';
 import { docTienBangChu } from '../lib/docSo';
 import { caiDatHienThi } from '../lib/hienThiXuong';
 import { danhSo } from '../lib/phanMuc';
-import { thanhTienBaoGia, thanhTienNghiemThu, tongBaoGia, tongNghiemThu } from '../lib/tinhTien';
+import { thanhTienBaoGia, tongBaoGia } from '../lib/tinhTien';
 import { NEN_PHAN } from './mauChung';
 import {
   CAU_CHAO_BAO_GIA,
@@ -277,11 +277,11 @@ export async function excelNghiemThu(
   const ExcelJS = await layExcel();
   const cd = caiDatHienThi(caiDat);
   const dong = dongCoNoiDung(nt.danhSachDong);
-  const tien = thanhTienNghiemThu;
-  const tong = tongNghiemThu(nt);
+  const tien = thanhTienBaoGia;
+  const tong = tongBaoGia(nt);
 
   const wb = taoSo(ExcelJS, cd.tenDonVi);
-  const rongCot = [6, 40, 18, 8, 10, 10, 13, 15];
+  const rongCot = [6, 36, 20, 8, 10, 14, 16];
   const ws = trangTinh(wb, 'Nghiệm thu', rongCot);
   const but = taoBut(ws, rongCot.length, rongCot);
 
@@ -320,23 +320,22 @@ export async function excelNghiemThu(
   but.trong();
 
   const rDau = but.tang();
-  ['STT', 'Hạng mục', 'Quy cách', 'ĐVT', 'SL theo báo giá', 'SL thực tế', 'Đơn giá (đ)', 'Thành tiền (đ)'].forEach((t, i) =>
+  ['STT', 'Tên hàng hoá / dịch vụ', 'Quy cách', 'ĐVT', 'Số lượng', 'Đơn giá (đ)', 'Thành tiền (đ)'].forEach((t, i) =>
     oBang(ws, rDau, i + 1, t, { dam: true, canh: 'center', nen: 'FFE8E8E8' }),
   );
   ws.getRow(rDau).height = 30;
   const rDong1 = rDau + 1;
-  const vung = ghiCacDong(ws, rDong1, dong, tien, 8, 8, (r, x, stt, t) => {
+  const vung = ghiCacDong(ws, rDong1, dong, tien, 7, 7, (r, x, stt, t) => {
     oBang(ws, r, 1, Number(stt), { canh: 'center' });
     oBang(ws, r, 2, tenKemGhiChu(x));
     oBang(ws, r, 3, x.quyCach);
     oBang(ws, r, 4, x.donViTinh, { canh: 'center' });
     oBang(ws, r, 5, x.soLuong, { canh: 'right', dinhDang: dangSoLuong(x.soLuong) });
-    oBang(ws, r, 6, x.soLuongThucTe, { canh: 'right', dinhDang: dangSoLuong(x.soLuongThucTe), dam: x.soLuongThucTe !== x.soLuong });
-    oBang(ws, r, 7, x.donGia, { canh: 'right', dinhDang: SO_TIEN });
-    oBang(ws, r, 8, { formula: `ROUND(F${r}*G${r},0)`, result: t }, { canh: 'right', dinhDang: SO_TIEN });
-    caoVuaChu(ws, r, tenKemGhiChu(x), 36);
+    oBang(ws, r, 6, x.donGia, { canh: 'right', dinhDang: SO_TIEN });
+    oBang(ws, r, 7, { formula: `ROUND(E${r}*F${r},0)`, result: t }, { canh: 'right', dinhDang: SO_TIEN });
+    caoVuaChu(ws, r, tenKemGhiChu(x), 40);
   });
-  const rSauBang = ghiDongTong(ws, rDong1 + dong.length, cacDongTongNghiemThu(nt, tong), 8, 8, vung, nt.chietKhau, nt.tyLeVAT);
+  const rSauBang = ghiDongTong(ws, rDong1 + dong.length, cacDongTongNghiemThu(nt, tong), 7, 7, vung, nt.chietKhau, nt.tyLeVAT);
   while (but.hienTai() < rSauBang) but.tang();
 
   but.dong(`Bằng chữ: ${docTienBangChu(tong.tongThanhToan, { dungTu: cd.docSoTu })}.`, { nghieng: true });
@@ -345,10 +344,10 @@ export async function excelNghiemThu(
   but.dong(CAU_KET_NGHIEM_THU, { cach: 1 });
   but.trong();
 
-  // Chữ ký hai bên: Bên A ở nửa trái (cột A–C), Bên B ở nửa phải (cột F–H)
+  // Chữ ký hai bên: Bên A ở nửa trái (cột A–C), Bên B ở nửa phải (cột E–G)
   const kyHaiBen = (trai: string, phai: string, k: { dam?: boolean; nghieng?: boolean; co?: number } = {}) => {
     const r = but.tang();
-    for (const [c1, c2, text] of [[1, 3, trai], [6, 8, phai]] as const) {
+    for (const [c1, c2, text] of [[1, 3, trai], [5, 7, phai]] as const) {
       ws.mergeCells(r, c1, r, c2);
       const o = ws.getCell(r, c1);
       o.value = text;

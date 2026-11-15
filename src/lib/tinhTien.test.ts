@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lamTronSoLuong, thanhTien, tinhTong, tongBaoGia, tongNghiemThu } from './tinhTien';
+import { lamTronSoLuong, thanhTien, tinhTong, tongBaoGia } from './tinhTien';
 import { dinhDangTien, docChuoiSoLuong, docChuoiTien, dinhDangNgay, dinhDangSoLuong } from './dinhDang';
 
 describe('tinhTong', () => {
@@ -39,16 +39,15 @@ describe('tinhTong', () => {
   });
 });
 
-describe('tongBaoGia / tongNghiemThu', () => {
+describe('tongBaoGia', () => {
   const ck = { kieu: 'phanTram' as const, giaTri: 10 };
-  it('bỏ dòng phần, báo giá theo SL, nghiệm thu theo SL thực tế', () => {
+  it('bỏ dòng phần, tính theo số lượng', () => {
     const danhSachDong = [
-      { loai: 'phan' as const, soLuong: 0, soLuongThucTe: 0, donGia: 0 },
-      { soLuong: 2, soLuongThucTe: 3, donGia: 100_000 },
-      { soLuong: 0.145, soLuongThucTe: 0.145, donGia: 100 },
+      { loai: 'phan' as const, soLuong: 0, donGia: 0 },
+      { soLuong: 2, donGia: 100_000 },
+      { soLuong: 0.145, donGia: 100 },
     ];
     expect(tongBaoGia({ danhSachDong, chietKhau: ck, tyLeVAT: 8 })).toEqual(tinhTong([200_000, 15], ck, 8));
-    expect(tongNghiemThu({ danhSachDong, chietKhau: ck, tyLeVAT: 8 })).toEqual(tinhTong([300_000, 15], ck, 8));
   });
 });
 

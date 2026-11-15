@@ -135,7 +135,7 @@ export function taoDuLieuMau(cd: CaiDat): DuLieuMau {
   nt.ngayCanCu = congNgay(ngayBG1, 2);
   nt.diaDiem = 'Xưởng của Bên B';
   // Bạc đồng: giao 9/10 cái, 1 cái chưa đạt sẽ làm lại
-  nt.danhSachDong[2].soLuongThucTe = 9;
+  nt.danhSachDong[2].soLuong = 9;
   nt.danhSachDong[2].ghiChu = '01 cái sai kích thước, làm lại';
 
   return { khachHang, hangMuc, baoGia: [bg1, bg2], nghiemThu: [nt] };

@@ -8,7 +8,6 @@ import type {
   BienBanNghiemThu,
   CaiDat,
   DongHangMuc,
-  DongNghiemThu,
   HangMuc,
   KhachHang,
 } from '../db/kieu';
@@ -20,10 +19,6 @@ export const donViTinhMacDinh = (cd: Pick<CaiDat, 'danhSachDonViTinh'>) => cd.da
 
 export function taoDongTrong(donViTinh = ''): DongHangMuc {
   return { id: taoId(), tenHangMuc: '', quyCach: '', donViTinh, soLuong: 1, donGia: 0, ghiChu: '' };
-}
-
-export function dongNghiemThuTrong(donViTinh = ''): DongNghiemThu {
-  return { ...taoDongTrong(donViTinh), soLuongThucTe: 1 };
 }
 
 export function dongTuHangMuc(hm: HangMuc): Partial<DongHangMuc> {
@@ -109,11 +104,7 @@ export function chuyenBaoGiaThanhNghiemThu(
     // Bỏ đúng những dòng mà bản in báo giá cũng bỏ — dòng chưa có tên nhưng có đơn giá vẫn được chuyển, để tổng không lệch
     danhSachDong: bg.danhSachDong
       .filter((d) => !laDongTrong(d))
-      .map<DongNghiemThu>((d) => ({
-        ...d,
-        id: taoId(),
-        soLuongThucTe: d.soLuong,
-      })),
+      .map((d) => ({ ...d, id: taoId() })),
     tyLeVAT: bg.tyLeVAT,
     chietKhau: { ...bg.chietKhau },
     ketLuan: cd.ketLuanMacDinh,
@@ -137,7 +128,7 @@ export function nghiemThuMoi(cd: CaiDat, ngay: string): BienBanNghiemThu {
     tieuDe: '',
     thanhPhanBenA: [{ hoTen: '', chucVu: '' }],
     thanhPhanBenB: [{ hoTen: cd.nguoiDaiDien, chucVu: cd.chucVu }],
-    danhSachDong: [dongNghiemThuTrong(donViTinhMacDinh(cd))],
+    danhSachDong: [taoDongTrong(donViTinhMacDinh(cd))],
     tyLeVAT: cd.vatMacDinh,
     chietKhau: { kieu: 'phanTram', giaTri: 0 },
     ketLuan: cd.ketLuanMacDinh,

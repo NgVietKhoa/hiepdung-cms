@@ -6,7 +6,7 @@ import { DanhSachDong } from '../components/DanhSachDong';
 import { useGiaoTiep } from '../components/HopThoai';
 import { ChonKhachHang } from '../components/KhachHangForm';
 import { The, TrangSoan } from '../components/KhungTrang';
-import { ChonMot, OChu, ONgay, OSo } from '../components/ONhap';
+import { ChonMot, OChu, ONgay } from '../components/ONhap';
 import { api } from '../db/api';
 import { khoaNhapTam } from '../db/nhapTam';
 import { useCaiDat, useTruyVan } from '../db/hooks';
@@ -14,16 +14,15 @@ import {
   NHAN_TRANG_THAI_NGHIEM_THU,
   type AnhDinhKem,
   type BienBanNghiemThu,
-  type DongNghiemThu,
   type NguoiDaiDien,
   type TrangThaiNghiemThu,
 } from '../db/kieu';
 import { xoaNghiemThu } from '../db/thaoTac';
-import { donViTinhMacDinh, dongNghiemThuTrong, laNghiemThuRong } from '../lib/nghiepVu';
+import { donViTinhMacDinh, laNghiemThuRong, taoDongTrong } from '../lib/nghiepVu';
 import { nenAnhChup } from '../lib/anh';
-import { dinhDangNgay, dinhDangSoLuong, dinhDangTien } from '../lib/dinhDang';
-import { demHangMuc, laDongPhan } from '../lib/phanMuc';
-import { thanhTienNghiemThu, tongNghiemThu } from '../lib/tinhTien';
+import { dinhDangNgay, dinhDangTien } from '../lib/dinhDang';
+import { demHangMuc } from '../lib/phanMuc';
+import { thanhTienBaoGia, tongBaoGia } from '../lib/tinhTien';
 import { useTuLuu } from '../lib/useTuLuu';
 
 export function NghiemThuSua() {
@@ -86,9 +85,8 @@ export function NghiemThuSua() {
   }
 
   const doi = (thayDoi: Partial<BienBanNghiemThu>) => setNt((n) => (n ? { ...n, ...thayDoi } : n));
-  const tong = tongNghiemThu(nt);
+  const tong = tongBaoGia(nt);
   const tenKhach = dsKhach?.find((k) => k.id === nt.khachHangId)?.tenCongTy;
-  const soChenhLech = nt.danhSachDong.filter((d) => !laDongPhan(d) && d.soLuongThucTe !== d.soLuong).length;
 
   const xoa = async () => {
     if (!(await xacNhan(`Xoá biên bản ${nt.soBienBan} và toàn bộ ảnh đính kèm? Không thể khôi phục.`, { nutDongY: 'Xoá biên bản' })))
@@ -181,34 +179,14 @@ export function NghiemThuSua() {
           bieuTuong="danhSach"
           thuGon
           khoa="nt-hang-muc"
-          tomTat={[
-            `${demHangMuc(nt.danhSachDong)} hạng mục`,
-            soChenhLech > 0 && `${soChenhLech} dòng chênh lệch`,
-          ]
-            .filter(Boolean)
-            .join(' · ')}
+          tomTat={`${demHangMuc(nt.danhSachDong)} hạng mục`}
         >
-          <p className="goi-y-nho">Chỉ cần sửa “SL thực tế” ở dòng có chênh lệch. Giá trị tính theo số lượng thực tế.</p>
-          <DanhSachDong<DongNghiemThu>
+          <DanhSachDong
             dong={nt.danhSachDong}
             onDoi={(danhSachDong) => doi({ danhSachDong })}
-            taoDongMoi={() => dongNghiemThuTrong(donViTinhMacDinh(cd))}
-            tinhThanhTien={thanhTienNghiemThu}
+            taoDongMoi={() => taoDongTrong(donViTinhMacDinh(cd))}
+            tinhThanhTien={thanhTienBaoGia}
             dsDonViTinh={cd.danhSachDonViTinh}
-            nhanSoLuong="SL theo báo giá"
-            phanThem={(d, sua) => (
-              <div className="phan-nghiem-thu">
-                <div className={d.soLuongThucTe !== d.soLuong ? 'chenh-lech' : ''}>
-                  <OSo nhan="SL thực tế" value={d.soLuongThucTe} onChange={(soLuongThucTe) => sua({ soLuongThucTe })} />
-                  {d.soLuongThucTe !== d.soLuong && (
-                    <div className="goi-y-nho">
-                      Chênh lệch: {d.soLuongThucTe > d.soLuong ? '+' : ''}
-                      {dinhDangSoLuong(d.soLuongThucTe - d.soLuong)}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           />
         </The>
 

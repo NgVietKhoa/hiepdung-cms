@@ -25,7 +25,6 @@ const locHangMuc = (h: HangMuc, cauTim: string) => khop(`${h.ten} ${h.nhom} ${h.
  * Chỉ xếp thành bảng khi đủ chỗ cho mọi cột đang hiện, không thì giữ dạng thẻ.
  * Bảng chia được thành các phần I, II…: dòng phần chỉ có tên và cộng tiền phần, các hạng mục bên dưới thuộc phần đó
  * và được đánh số lại từ 1. Mỗi hạng mục có thể thêm các dòng chi tiết (in thành gạch đầu dòng dưới tên).
- * `phanThem` cho phép màn hình nghiệm thu chèn thêm ô "SL thực tế".
  */
 export function DanhSachDong<D extends DongHangMuc>({
   dong,
@@ -33,8 +32,6 @@ export function DanhSachDong<D extends DongHangMuc>({
   taoDongMoi,
   tinhThanhTien,
   dsDonViTinh,
-  nhanSoLuong,
-  phanThem,
 }: {
   dong: D[];
   onDoi: (dongMoi: D[]) => void;
@@ -42,9 +39,6 @@ export function DanhSachDong<D extends DongHangMuc>({
   tinhThanhTien: (d: D) => number;
   /** Gợi ý ô "Đơn vị" (danh sách trong Cài đặt) */
   dsDonViTinh: string[];
-  /** Ghi đè tiêu đề cột số lượng (vd. nghiệm thu: "SL theo báo giá") */
-  nhanSoLuong?: string;
-  phanThem?: (d: D, sua: (thayDoi: Partial<D>) => void) => ReactNode;
 }) {
   const { xacNhan, thongBao } = useGiaoTiep();
   const danhMuc = useTruyVan(() => api.hangMuc.ds(), []) ?? [];
@@ -63,7 +57,6 @@ export function DanhSachDong<D extends DongHangMuc>({
     theoDoi.observe(el);
     return () => theoDoi.disconnect();
   }, [rongToiThieu]);
-  const tieuDeCot = (c: CotHienThi) => (c.truong === 'soLuong' && nhanSoLuong) || c.tieuDe;
   const [moGhiChu, setMoGhiChu] = useState<Record<string, boolean>>({});
   /** Dòng vừa bấm "Thêm dòng": đặt sẵn con trỏ vào ô tên để gõ luôn */
   const [vuaThem, setVuaThem] = useState<string | null>(null);
@@ -222,7 +215,7 @@ export function DanhSachDong<D extends DongHangMuc>({
       case 'soLuong':
         return vo(
           'cot-so-luong',
-          <OSo nhan={tieuDeCot(c)} value={d.soLuong} onChange={(v) => sua(i, { soLuong: v } as Partial<D>)} placeholder={c.goiY} />,
+          <OSo nhan={c.tieuDe} value={d.soLuong} onChange={(v) => sua(i, { soLuong: v } as Partial<D>)} placeholder={c.goiY} />,
         );
       case 'donGia':
         return vo(
@@ -263,7 +256,7 @@ export function DanhSachDong<D extends DongHangMuc>({
         <span>#</span>
         {cotHien.map((c) => (
           <span key={c.id} className={c.kieu === 'so' ? 'so' : undefined}>
-            {tieuDeCot(c)}
+            {c.tieuDe}
           </span>
         ))}
         <span />
@@ -350,8 +343,6 @@ export function DanhSachDong<D extends DongHangMuc>({
               </button>
             </div>
           )}
-
-          {phanThem && <div className="cot-them">{phanThem(d, (thayDoi) => sua(i, thayDoi))}</div>}
 
           {coGhiChu(d) ? (
             <div className="cot-ghi-chu">

@@ -7,7 +7,7 @@ import { dinhDangNgay, dinhDangSoLuong, ngayThangNam } from '../lib/dinhDang';
 import { docTienBangChu } from '../lib/docSo';
 import { caiDatHienThi } from '../lib/hienThiXuong';
 import { danhSo } from '../lib/phanMuc';
-import { thanhTienBaoGia, thanhTienNghiemThu, tongBaoGia, tongNghiemThu } from '../lib/tinhTien';
+import { thanhTienBaoGia, tongBaoGia } from '../lib/tinhTien';
 import { NEN_PHAN, tienO } from './mauChung';
 import {
   CAU_CHAO_BAO_GIA,
@@ -320,8 +320,8 @@ export async function wordNghiemThu(
   const { doan, o, bang, khoiKy, bangHangMuc } = boDung(d);
   const cd = caiDatHienThi(caiDat);
   const dong = dongCoNoiDung(nt.danhSachDong);
-  const tien = thanhTienNghiemThu;
-  const tong = tongNghiemThu(nt);
+  const tien = thanhTienBaoGia;
+  const tong = tongBaoGia(nt);
   const nua = RONG_ND / 2;
 
   const dauTrang = bang([4000, RONG_ND - 4000], [
@@ -400,20 +400,19 @@ export async function wordNghiemThu(
 
     doan('Hai bên cùng tiến hành nghiệm thu khối lượng công việc như sau:', { truoc: 160, sau: 120 }),
     bangHangMuc(
-      chiaCot([18, null, 84, 26, 32, 32, 50, 58]),
-      ['STT', 'Hạng mục', 'Quy cách', 'ĐVT', 'SL theo báo giá', 'SL thực tế', 'Đơn giá (đ)', 'Thành tiền (đ)'],
-      dongBangWord(dong, tien, 8, (x, stt, t) => [
+      chiaCot([24, null, 92, 34, 46, 64, 74]),
+      ['STT', 'Tên hàng hoá / dịch vụ', 'Quy cách', 'ĐVT', 'Số lượng', 'Đơn giá (đ)', 'Thành tiền (đ)'],
+      dongBangWord(dong, tien, 7, (x, stt, t) => [
         { chu: stt, canh: 'giua' },
         { chu: tenKemGhiChu(x) },
         { chu: x.quyCach },
         { chu: x.donViTinh, canh: 'giua' },
         { chu: dinhDangSoLuong(x.soLuong), canh: 'phai' },
-        { chu: dinhDangSoLuong(x.soLuongThucTe), canh: 'phai', dam: x.soLuongThucTe !== x.soLuong },
         { chu: tienO(x.donGia), canh: 'phai' },
         { chu: tienO(t), canh: 'phai' },
       ]),
       cacDongTongNghiemThu(nt, tong),
-      7,
+      6,
     ),
     doan([{ text: 'Bằng chữ: ', dam: true }, `${docTienBangChu(tong.tongThanhToan, { dungTu: cd.docSoTu })}.`], { nghieng: true, truoc: 120 }),
     doan('KẾT LUẬN:', { dam: true, truoc: 160, sau: 40 }),

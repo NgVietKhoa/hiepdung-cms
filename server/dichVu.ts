@@ -30,7 +30,6 @@ import {
   cotRaApp,
   cotVaoDB,
   dongBaoGiaVaoDB,
-  dongNghiemThuVaoDB,
   hangMucRaApp,
   hangMucVaoDB,
   khachHangRaApp,
@@ -290,7 +289,7 @@ export async function luuNghiemThu(n: BienBanNghiemThu, chiCapNhat = false): Pro
         khachHangId: await idHopLe(tx, 'khachHang', n.khachHangId),
         baoGiaId: await idHopLe(tx, 'baoGia', n.baoGiaId),
       };
-      const dong = { create: dongNghiemThuVaoDB(n.danhSachDong) };
+      const dong = { create: dongBaoGiaVaoDB(n.danhSachDong) };
       if (ton) await tx.dongNghiemThu.deleteMany({ where: { nghiemThuId: id } });
       const kq = ton
         ? await tx.nghiemThu.update({ where: { id }, data: { ...cot, ...lienKet, soBienBan, danhSachDong: dong }, include: KEM_NGHIEM_THU })
@@ -395,7 +394,7 @@ async function ghiBoDuLieu(tx: Tx, d: DuLieuMau): Promise<void> {
         khachHangId: n.khachHangId,
         baoGiaId: n.baoGiaId,
         ngayTao: new Date(n.ngayTao || Date.now()),
-        danhSachDong: { create: dongNghiemThuVaoDB(n.danhSachDong) },
+        danhSachDong: { create: dongBaoGiaVaoDB(n.danhSachDong) },
       },
     });
   }
