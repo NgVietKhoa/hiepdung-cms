@@ -9,7 +9,8 @@ import { taoId } from '../lib/id';
 import { boDau, khop } from '../lib/timKiem';
 import { boCucBang, cotDangHien, type CotHienThi } from '../lib/cotHangMuc';
 import { chuyenViTri, useKeoTha } from '../lib/useKeoTha';
-import { danhSo, laDongPhan, laDongTrong } from '../lib/phanMuc';
+import { danhSo, demHangMuc, laDongPhan, laDongTrong } from '../lib/phanMuc';
+import { docHangMucTuFile } from '../pdf/nhapFile';
 import { BieuTuong } from './BieuTuong';
 import { HopThoai, useGiaoTiep } from './HopThoai';
 import { OChu, OSo, OTien, TruongNhap } from './ONhap';
@@ -71,6 +72,21 @@ export function DanhSachDong<D extends DongHangMuc>({
     setVuaThem(phan.id);
     if (!dong.some(laDongPhan)) onDoi([phan, ...(dong.length ? dong : [taoDongMoi()])]);
     else onDoi([...dong, phan, taoDongMoi()]);
+  };
+  const oChonFile = useRef<HTMLInputElement>(null);
+  /** Đọc bảng hạng mục trong file Excel / Word / PDF, thêm vào cuối bảng (bảng chưa nhập gì thì thay luôn) */
+  const nhapFile = async (tep: File) => {
+    try {
+      const ds = await docHangMucTuFile(tep);
+      if (!ds.length) {
+        thongBao('Không tìm thấy bảng hạng mục trong file. Bảng cần có dòng tiêu đề như "Tên / ĐVT / Số lượng / Đơn giá".', 'loi');
+        return;
+      }
+      if (!(await xacNhan(`Thêm ${demHangMuc(ds)} hạng mục đọc từ "${tep.name}" vào cuối bảng?`, { nutDongY: 'Thêm' }))) return;
+      onDoi([...(dong.every(laDongTrong) ? [] : dong), ...ds.map((d) => ({ ...taoDongMoi(), ...d }))]);
+    } catch (e) {
+      thongBao(`Không đọc được file: ${(e as Error).message}`, 'loi');
+    }
   };
   /** Thêm hạng mục vào cuối phần ở vị trí i */
   const themVaoPhan = (i: number) => {
@@ -404,6 +420,25 @@ export function DanhSachDong<D extends DongHangMuc>({
         <button type="button" className="nut nut-them-dong nut-them-phan" onClick={themPhan} title="Chia bảng thành các phần I, II, III…">
           <BieuTuong ten="them" /> Thêm phần
         </button>
+        <button
+          type="button"
+          className="nut nut-them-dong nut-them-phan"
+          onClick={() => oChonFile.current?.click()}
+          title="Đọc bảng hạng mục từ file Excel (.xlsx), Word (.docx) hoặc PDF"
+        >
+          <BieuTuong ten="nhap" /> Nhập file
+        </button>
+        <input
+          ref={oChonFile}
+          type="file"
+          accept=".xlsx,.docx,.pdf"
+          hidden
+          onChange={(e) => {
+            const tep = e.target.files?.[0];
+            e.target.value = '';
+            if (tep) void nhapFile(tep);
+          }}
+        />
       </div>
 
       {dMenu && laDongPhan(dMenu) && (

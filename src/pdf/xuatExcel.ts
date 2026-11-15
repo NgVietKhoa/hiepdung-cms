@@ -28,7 +28,7 @@ import {
 
 type ExcelJS = typeof import('exceljs');
 let excelDangTai: Promise<ExcelJS> | null = null;
-const layExcel = () =>
+export const layExcel = () =>
   (excelDangTai ??= import('exceljs').then((m) => ((m as unknown as { default?: ExcelJS }).default ?? m) as ExcelJS));
 
 const LOAI_EXCEL = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';

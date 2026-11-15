@@ -1074,7 +1074,7 @@ select.o-nhap { cursor: pointer; }
   color: var(--mau-chinh);
 }
 .nut-them-dong:hover { background: var(--mau-chinh-nhat); border-color: var(--mau-chinh); }
-.hang-nut-them-dong { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.hang-nut-them-dong { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; }
 .nut-them-phan { width: auto; padding: 0 16px; }
 .dong-trong { text-align: center; color: var(--chu-phu); padding: 18px 8px 6px; }
 
@@ -1187,6 +1187,7 @@ body.dang-keo-tha .tay-nam { cursor: grabbing; }
 .dang-bang .hang-nut-them-dong { gap: 0; }
 .dang-bang .nut-them-dong { border: 0; border-radius: 0 0 0 var(--bo-goc); }
 .dang-bang .nut-them-phan { border-left: 1px solid var(--vien-nhat); border-radius: 0 0 var(--bo-goc) 0; }
+.dang-bang .nut-them-phan:not(:last-of-type) { border-radius: 0; }
 
 /* ================= Tổng tiền ================= */
 .hang-chiet-khau { display: grid; grid-template-columns: 1fr; gap: 8px; }
