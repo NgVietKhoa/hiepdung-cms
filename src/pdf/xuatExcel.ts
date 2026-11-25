@@ -20,6 +20,7 @@ import {
   cacDongTongBaoGia,
   cacDongTongNghiemThu,
   canCuNghiemThu,
+  conPhaiThanhToan,
   dieuKhoanBaoGia,
   dongCoNoiDung,
   nguoiLienHe,
@@ -146,7 +147,7 @@ function ghiDongTong(
   const cong = viTri.cong!;
   const ck = viTri.chietKhau;
   const sauCk = ck ? `(${cong}+${ck})` : cong;
-  const congThuc: Record<DongTong['loai'], string> = {
+  const congThuc: Record<Exclude<DongTong['loai'], 'tamUng'>, string> = {
     cong: vungThanhTien ? `SUM(${vungThanhTien})` : '0',
     chietKhau:
       chietKhau.kieu === 'phanTram'
@@ -155,13 +156,16 @@ function ghiDongTong(
     sauChietKhau: sauCk,
     vat: `ROUND(${sauCk}*${tyLeVAT}/100,0)`,
     tong: viTri.vat ? `${sauCk}+${viTri.vat}` : sauCk,
+    conLai: `${viTri.tong}-${viTri.tamUng}`,
   };
   cacDong.forEach((t, i) => {
     const r = batDau + i;
     ws.mergeCells(r, 1, r, cotTien - 1);
     oBang(ws, r, 1, t.nhan, { dam: t.dam, canh: 'right' });
     for (let c = 2; c < cotTien; c++) ws.getCell(r, c).border = KE_O;
-    oBang(ws, r, cotTien, { formula: congThuc[t.loai], result: t.giaTri }, { dam: t.dam, canh: 'right', dinhDang: SO_TIEN });
+    // Tạm ứng là số nhập tay: ghi số trơn để sửa trong Excel thì "còn lại" tự tính lại
+    const giaTri = t.loai === 'tamUng' ? t.giaTri : { formula: congThuc[t.loai], result: t.giaTri };
+    oBang(ws, r, cotTien, giaTri, { dam: t.dam, canh: 'right', dinhDang: SO_TIEN });
     for (let c = cotTien + 1; c <= soCot; c++) oBang(ws, r, c, '');
   });
   return batDau + cacDong.length;
@@ -338,7 +342,7 @@ export async function excelNghiemThu(
   const rSauBang = ghiDongTong(ws, rDong1 + dong.length, cacDongTongNghiemThu(nt, tong), 7, 7, vung, nt.chietKhau, nt.tyLeVAT);
   while (but.hienTai() < rSauBang) but.tang();
 
-  but.dong(`Bằng chữ: ${docTienBangChu(tong.tongThanhToan, { dungTu: cd.docSoTu })}.`, { nghieng: true });
+  but.dong(`Bằng chữ: ${docTienBangChu(conPhaiThanhToan(nt, tong), { dungTu: cd.docSoTu })}.`, { nghieng: true });
   but.dong('KẾT LUẬN:', { dam: true, cach: 1 });
   but.dong(nt.ketLuan || CHAM, { canh: 'justify' });
   but.dong(CAU_KET_NGHIEM_THU, { cach: 1 });

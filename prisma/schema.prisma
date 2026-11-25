@@ -138,6 +138,8 @@ model NghiemThu {
   tyLeVAT         Decimal            @default(0) @map("ty_le_vat") @db.Decimal(5, 2)
   kieuChietKhau   KieuChietKhau      @default(phanTram) @map("kieu_chiet_khau")
   giaTriChietKhau Decimal            @default(0) @map("gia_tri_chiet_khau") @db.Decimal(15, 2)
+  /// Số tiền bên A đã tạm ứng, trừ ra để còn lại phải thanh toán
+  daTamUng        Decimal            @default(0) @map("da_tam_ung") @db.Decimal(15, 0)
   ketLuan         String             @default("") @map("ket_luan")
   trangThai       TrangThaiNghiemThu @default(nhap) @map("trang_thai")
   ngayTao         DateTime           @default(now()) @map("ngay_tao")

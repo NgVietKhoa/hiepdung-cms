@@ -4,6 +4,7 @@ import ExcelJS from 'exceljs';
 import JSZip from 'jszip';
 import { CAI_DAT_THU } from '../test/caiDatThu';
 import type { BaoGia, KhachHang } from '../db/kieu';
+import { docTienBangChu } from '../lib/docSo';
 import { chuyenBaoGiaThanhNghiemThu } from '../lib/nghiepVu';
 import { thanhTien, tinhTong } from '../lib/tinhTien';
 import { excelBaoGia, excelNghiemThu } from './xuatExcel';
@@ -125,5 +126,23 @@ describe('xuất Excel', () => {
     const tong = tinhTong(dong.map((d) => thanhTien(d.soLuong, d.donGia)), nt.chietKhau, nt.tyLeVAT);
     expect(oCungHang(ws, 'TỔNG GIÁ TRỊ NGHIỆM THU', 7).result).toBe(tong.tongThanhToan);
     if (process.env.GHI_PDF) writeFileSync(`${process.env.GHI_PDF}/nghiemthu.xlsx`, Buffer.from(await blob.arrayBuffer()));
+  });
+
+  it('nghiệm thu có tạm ứng: còn lại = tổng − tạm ứng', async () => {
+    const nt = chuyenBaoGiaThanhNghiemThu(bg, kh, CAI_DAT_THU, 'NT-2026-001', '2026-09-30');
+    nt.daTamUng = 1_000_000;
+    const ws = await docExcel(await excelNghiemThu(nt, kh, bg, CAI_DAT_THU));
+    const dong = nt.danhSachDong.filter((d) => d.tenHangMuc.trim() || d.donGia);
+    const { tongThanhToan } = tinhTong(dong.map((d) => thanhTien(d.soLuong, d.donGia)), nt.chietKhau, nt.tyLeVAT);
+    const tong = oCungHang(ws, 'TỔNG GIÁ TRỊ NGHIỆM THU', 7);
+    const tamUng = oCungHang(ws, 'Đã tạm ứng', 7);
+    const conLai = oCungHang(ws, 'CÒN LẠI PHẢI THANH TOÁN', 7);
+    expect(tamUng.value).toBe(1_000_000);
+    expect(conLai.formula).toBe(`${tong.address}-${tamUng.address}`);
+    expect(conLai.result).toBe(tongThanhToan - 1_000_000);
+
+    const xml = await docWord(await wordNghiemThu(nt, kh, bg, [], CAI_DAT_THU));
+    expect(xml).toContain('CÒN LẠI PHẢI THANH TOÁN');
+    expect(xml).toContain(docTienBangChu(tongThanhToan - 1_000_000));
   });
 });

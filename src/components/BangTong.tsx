@@ -23,6 +23,7 @@ export function BangTong({
   onDoiVAT,
   nhanTong = 'TỔNG THANH TOÁN',
   docSoTu,
+  hienBangChu = true,
 }: {
   tong: KetQuaTinhTien;
   chietKhau: ChietKhau;
@@ -33,6 +34,8 @@ export function BangTong({
   onDoiVAT: (vat: number) => void;
   nhanTong?: string;
   docSoTu?: boolean;
+  /** Tắt khi bên dưới còn số cuối khác (nghiệm thu có tạm ứng) để "Bằng chữ" đọc số đó */
+  hienBangChu?: boolean;
 }) {
   return (
     <div className="bang-tong">
@@ -91,9 +94,11 @@ export function BangTong({
           <span>{nhanTong}</span>
           <strong>{dinhDangTien(tong.tongThanhToan)}</strong>
         </div>
-        <p className="bang-chu">
-          Bằng chữ: <em>{docTienBangChu(tong.tongThanhToan, { dungTu: docSoTu })}</em>
-        </p>
+        {hienBangChu && (
+          <p className="bang-chu">
+            Bằng chữ: <em>{docTienBangChu(tong.tongThanhToan, { dungTu: docSoTu })}</em>
+          </p>
+        )}
       </div>
     </div>
   );

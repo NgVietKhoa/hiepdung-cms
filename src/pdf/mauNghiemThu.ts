@@ -6,7 +6,7 @@ import { caiDatHienThi } from '../lib/hienThiXuong';
 import { danhSo } from '../lib/phanMuc';
 import { thanhTienBaoGia, tongBaoGia } from '../lib/tinhTien';
 import { BE_RONG_TRANG, KHUNG_TRANG, KIEU_BANG, dongPhanPdf, dongThongTin, khoiKy, loc, tienO } from './mauChung';
-import { CAU_KET_NGHIEM_THU, CHAM, cacDongTongNghiemThu, canCuNghiemThu, dongCoNoiDung, tenKemGhiChu } from './noiDung';
+import { CAU_KET_NGHIEM_THU, CHAM, cacDongTongNghiemThu, canCuNghiemThu, conPhaiThanhToan, dongCoNoiDung, tenKemGhiChu } from './noiDung';
 
 function dauTrang(cd: CaiDat): Content {
   return {
@@ -143,7 +143,7 @@ export function mauNghiemThu(
       layout: KIEU_BANG,
       style: 'oBang',
     },
-    { text: [{ text: 'Bằng chữ: ', bold: true }, docTienBangChu(tong.tongThanhToan, { dungTu: cd.docSoTu }) + '.'], italics: true, margin: [0, 6, 0, 0] },
+    { text: [{ text: 'Bằng chữ: ', bold: true }, docTienBangChu(conPhaiThanhToan(nt, tong), { dungTu: cd.docSoTu }) + '.'], italics: true, margin: [0, 6, 0, 0] },
     { text: 'KẾT LUẬN:', style: 'muc' },
     { text: nt.ketLuan || CHAM, alignment: 'justify' },
     {

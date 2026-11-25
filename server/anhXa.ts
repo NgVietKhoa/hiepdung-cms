@@ -253,6 +253,7 @@ export function nghiemThuRaApp(n: NghiemThuDB): BienBanNghiemThu {
     danhSachDong: n.danhSachDong.map(dongRaApp),
     tyLeVAT: so(n.tyLeVAT),
     chietKhau: chietKhauRaApp(n.kieuChietKhau, n.giaTriChietKhau),
+    daTamUng: so(n.daTamUng),
     ketLuan: n.ketLuan,
     soAnh: n._count.anhDinhKem,
     trangThai: n.trangThai,
@@ -272,6 +273,7 @@ export function nghiemThuVaoDB(n: Partial<BienBanNghiemThu>) {
     thanhPhanBenB: nguoiDaiDien(n.thanhPhanBenB) as unknown as Prisma.InputJsonValue,
     tyLeVAT: phanTram(n.tyLeVAT),
     ...chietKhauVaoDB(n.chietKhau),
+    daTamUng: tien(n.daTamUng),
     ketLuan: chuoi(n.ketLuan),
     trangThai: trongDanhSach(n.trangThai, ['nhap', 'daKy', 'huy'] as const, 'nhap'),
   };

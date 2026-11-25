@@ -6,7 +6,7 @@ import { DanhSachDong } from '../components/DanhSachDong';
 import { useGiaoTiep } from '../components/HopThoai';
 import { ChonKhachHang } from '../components/KhachHangForm';
 import { The, TrangSoan } from '../components/KhungTrang';
-import { ChonMot, OChu, ONgay } from '../components/ONhap';
+import { ChonMot, OChu, ONgay, OTien } from '../components/ONhap';
 import { api } from '../db/api';
 import { khoaNhapTam } from '../db/nhapTam';
 import { useCaiDat, useTruyVan } from '../db/hooks';
@@ -21,6 +21,8 @@ import { xoaNghiemThu } from '../db/thaoTac';
 import { donViTinhMacDinh, laNghiemThuRong, taoDongTrong } from '../lib/nghiepVu';
 import { nenAnhChup } from '../lib/anh';
 import { dinhDangNgay, dinhDangTien } from '../lib/dinhDang';
+import { docTienBangChu } from '../lib/docSo';
+import { conPhaiThanhToan } from '../pdf/noiDung';
 import { demHangMuc } from '../lib/phanMuc';
 import { thanhTienBaoGia, tongBaoGia } from '../lib/tinhTien';
 import { useTuLuu } from '../lib/useTuLuu';
@@ -206,7 +208,20 @@ export function NghiemThuSua() {
             onDoiVAT={(tyLeVAT) => doi({ tyLeVAT })}
             nhanTong="TỔNG GIÁ TRỊ"
             docSoTu={cd.docSoTu}
+            hienBangChu={!nt.daTamUng}
           />
+          <OTien nhan="Đã tạm ứng" value={nt.daTamUng} onChange={(daTamUng) => doi({ daTamUng })} />
+          {nt.daTamUng > 0 && (
+            <div className="khung-tong-cuoi">
+              <div className="tong-cuoi">
+                <span>CÒN LẠI PHẢI THANH TOÁN</span>
+                <strong>{dinhDangTien(conPhaiThanhToan(nt, tong))}</strong>
+              </div>
+              <p className="bang-chu">
+                Bằng chữ: <em>{docTienBangChu(conPhaiThanhToan(nt, tong), { dungTu: cd.docSoTu })}</em>
+              </p>
+            </div>
+          )}
         </The>
 
         <The

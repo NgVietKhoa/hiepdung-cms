@@ -12,7 +12,7 @@ export interface DongTong {
   giaTri: number;
   dam?: boolean;
   /** Loại dòng — Excel dựa vào đây để viết công thức */
-  loai: 'cong' | 'chietKhau' | 'sauChietKhau' | 'vat' | 'tong';
+  loai: 'cong' | 'chietKhau' | 'sauChietKhau' | 'vat' | 'tong' | 'tamUng' | 'conLai';
 }
 
 /** Bỏ dòng trống (chưa nhập tên, chi tiết lẫn đơn giá) */
@@ -35,12 +35,17 @@ export function cacDongTongBaoGia(bg: BaoGia, tong: KetQuaTinhTien): DongTong[] 
   ].filter(Boolean) as DongTong[];
 }
 
+/** Số cuối cùng của biên bản: tổng giá trị trừ tạm ứng — dòng "còn lại" và "Bằng chữ" cùng dùng */
+export const conPhaiThanhToan = (nt: BienBanNghiemThu, tong: KetQuaTinhTien) => tong.tongThanhToan - nt.daTamUng;
+
 export function cacDongTongNghiemThu(nt: BienBanNghiemThu, tong: KetQuaTinhTien): DongTong[] {
   return [
     { loai: 'cong', nhan: 'Cộng giá trị nghiệm thu', giaTri: tong.congTienHang },
     tong.tienChietKhau > 0 && { loai: 'chietKhau', nhan: nhanChietKhau(nt.chietKhau), giaTri: -tong.tienChietKhau },
     nt.tyLeVAT > 0 && { loai: 'vat', nhan: `Thuế VAT ${dinhDangSoLuong(nt.tyLeVAT)}%`, giaTri: tong.tienVAT },
     { loai: 'tong', nhan: 'TỔNG GIÁ TRỊ NGHIỆM THU', giaTri: tong.tongThanhToan, dam: true },
+    nt.daTamUng > 0 && { loai: 'tamUng', nhan: 'Đã tạm ứng', giaTri: nt.daTamUng },
+    nt.daTamUng > 0 && { loai: 'conLai', nhan: 'CÒN LẠI PHẢI THANH TOÁN', giaTri: conPhaiThanhToan(nt, tong), dam: true },
   ].filter(Boolean) as DongTong[];
 }
 

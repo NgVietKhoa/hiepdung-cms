@@ -134,6 +134,8 @@ export interface BienBanNghiemThu {
   danhSachDong: DongHangMuc[];
   tyLeVAT: number;
   chietKhau: ChietKhau;
+  /** Số tiền bên A đã tạm ứng, trừ ra để còn lại phải thanh toán */
+  daTamUng: number;
   ketLuan: string;
   /** Số ảnh đính kèm (ảnh nằm ở bảng anhNghiemThu) */
   soAnh: number;
